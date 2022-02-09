@@ -1,0 +1,883 @@
+<!doctype html>
+<html>
+	<head>
+		<title>OpenRouteService útvonaltervező</title>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="leaflet/leaflet.css" />
+		
+		<!-- FONTS -->
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..700&display=swap" rel="stylesheet">
+		
+		<script src="leaflet/leaflet.js"></script>
+		<script src="chartjs/chart.min.js"></script>
+		<style>
+			html, body {
+				height: 100%;
+				margin: 0;
+				font-family: 'Open Sans';
+				font-style: normal;
+			}
+			input[type="form"] {
+				font-family: inherit;
+			}
+			button {
+				font-family: inherit;
+			}
+			select {
+				font-family: inherit;
+			}
+            #uzenetablak {
+				position: fixed;
+				left: 50%;
+				transform: translate(-50%, 0);
+				bottom: 20px;
+				border-radius: 4px;
+				box-shadow: 5px 0px 5px #00000055;
+				backdrop-filter: blur(3px);
+				-webkit-backdrop-filter: blur(3px);
+				display: none;
+				z-index: 2000;
+				opacity: 0;
+				transition: opacity 0.6s;
+            }
+			#uzenetszoveg {
+				font-size: 12px;
+			}
+			#uzenet_szinessav {
+				width: 100%;
+				height: 4px;
+				bottom: 0px;
+			}
+			.uzenet_error {
+				background-color: #ffe3e0AA;
+			}
+			.uzenet_warning {
+				background-color: #FFE5C8AA;
+			}
+			.uzenet_success {
+				background-color: #b4eacdAA;
+			}
+			.uzenet_szinessav_error {
+				background-color: #ff4536;
+			}
+			.uzenet_szinessav_warning {
+				background-color: #ffa825;
+			}
+			.uzenet_szinessav_success {
+				background-color: #00a452;
+			}
+			#btnClose {
+				margin-left: 6px;
+			}
+            #sidebar {
+				position: absolute;
+				top: 0px;
+				left: 0px;
+				height: 100%;
+				width: 430px;
+				background: #F8F8F8;
+				box-shadow: 5px 0px 5px #00000055;
+				z-index: 1000;
+            }
+            .sidebar_openclosebox {
+				position: absolute;
+				top: 50%;
+				left: 4px;
+				width: 23px;
+				transform: translate(0, -50%); /* X: 0, Y: a div magassaganek felet vissza hogy kozepen legyen */
+				height: 50px;
+				border-width: 5px;
+				border-radius: 3px;
+				background-color: #FFFFFF;
+				box-shadow: 0px 0px 7px #000000CC;
+				z-index: 1000;
+            }
+			.sidebar_openclosebox:hover {
+				background-color: #EEEEEE;
+			}
+			#sidebar_nyitogomb {
+				height: 100%;
+				width: 100%;
+				z-index: 1000;
+			}
+			.sidebar_closed {
+				background: url(icons/chevron_right_black_24dp.svg) no-repeat center; 
+				background-color: transparent;
+				border: none;
+				cursor: pointer; 
+			}
+			.sidebar_opened {
+				background: url(icons/chevron_left_black_24dp.svg) no-repeat center; 
+				background-color: transparent;
+				border: none;
+				cursor: pointer; 
+			}
+			#sidebar_top {
+				margin: 10px;
+			}
+			#sidebar_directions, #sidebar_elevprofile {
+				margin: 5px 10px;
+				min-height: 25px; 			/* ideiglenes */
+				justify-content: center; 	/* ideiglenes */
+				align-items: center; 		/* ideiglenes */
+			}
+			#sidebar_bottom {
+				position: absolute;
+				width: 100%;
+				bottom: 0px;
+				justify-content: center;
+			}
+			#route_profile_selector {
+				height: 25px;
+			}
+			#mapdiv {
+				position: absolute;
+				left: 0px;
+				right: 0px;
+				top: 0px;
+				bottom: 0px;
+				z-index: 1;
+				transition: left 0.2s;
+			}
+			
+			#navi_params {
+				display: none;
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+				grid-template-areas:
+					'param1Area param2Area'
+					'param3Area param3Area';
+				margin: 0 0 10px 0;
+				align-content: start;
+				column-gap: 7px;
+				row-gap: 7px;
+				border: none;
+				width: 100%;
+				font-weight: 400;
+				font-size: 14px;
+				color: #202020;
+				background-color: #ffffff00;
+			}
+
+			#param1 { 
+				grid-area: param1Area;
+				margin-left: 10px;
+			}
+			#param2 { 
+				grid-area: param2Area;
+				margin-right: 10px; 
+			}
+			#param3 {
+				grid-area: param3Area; 
+			}
+			
+			.paramgridbox {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				height: 20px;
+			}
+			.paramwidegridbox {
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				align-items: center;
+				height: 20px;
+				margin-left: 10px; 
+				margin-right: 10px; 
+			}
+			
+			.ABfield {
+				transition: background-color 0.4s;
+				transition-timing-function: ease-out;
+				width: 100%;
+				height: 30px;
+				background-color: #ffffffff;
+				border: solid 1px;
+				border-radius: 3px;
+				margin: 0 5px 0 5px;
+				color: black;
+				font-size: 16px;
+				outline: none;
+				padding-left: 8px;
+				padding-bottom: 1px;			
+			}
+			
+			.ABfield_error {
+				background-color: #ffededff;
+				border: solid 2px;
+				border-color: #ff0000ff;
+				/* a vastagabb korvonal atmeretezi a divet es megmozdul, ezt kompenzalom a kovetkezokkel: */
+				height: 28px; 
+				padding-left: 7px;
+				padding-bottom: 1px;
+			}
+			
+			.ABfield:focus { 
+				border: solid 2px;
+				border-color: #3333FF;
+				/* a vastagabb korvonal atmeretezi a divet es megmozdul, ezt kompenzalom a kovetkezokkel: */
+				height: 28px; 
+				padding-left: 7px;
+				padding-bottom: 1px;
+			}
+			
+			/* regi
+			.route_profile_img {
+				height: 30px;
+			}
+			.route_profile_entry {
+				margin-top: 5px;
+			} 
+			*/
+			
+			#route_profile_wrapperdiv {
+				min-width: 132px;
+				max-width: 100%;
+			}
+			.selected_option_svg:hover, .selected_option_svg:focus {
+				filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);
+			}
+			
+			.route_profile_selector input{
+				margin: 0;
+				padding: 0;
+				-webkit-appearance: none;
+				   -moz-appearance: none;
+						appearance: none;
+			}			
+			.car {background-image:url(icons/directions_car_black_24dp.svg);}
+			.bike {background-image:url(icons/directions_bike_black_24dp.svg);}
+			.walk {background-image:url(icons/directions_walk_black_24dp.svg);}
+			.route_profile, .route_profile_selector input:active +.route_profile {
+				opacity: 1;
+			}
+			.route_profile, .route_profile_selector input:checked +.route_profile {
+				-webkit-filter: none;
+				   -moz-filter: none;
+						filter: none;
+			}
+			.route_profile {
+				cursor: pointer;
+				background-size: contain;
+				background-repeat: no-repeat;
+				width: 35px;
+				height: 35px;
+				margin: 5px;
+				-webkit-transition: all 100ms ease-in;
+				   -moz-transition: all 100ms ease-in;
+						transition: all 100ms ease-in;
+				-webkit-filter: brightness(2.5) grayscale(1) opacity(.4);
+				   -moz-filter: brightness(2.5) grayscale(1) opacity(.4);
+						filter: brightness(2.5) grayscale(1) opacity(.4);
+			}
+			.route_profile:hover {
+				-webkit-filter: brightness(1.2) grayscale(.5) opacity(.6);
+				   -moz-filter: brightness(1.2) grayscale(.5) opacity(.6);
+						filter: brightness(1.2) grayscale(.5) opacity(.6);
+			}
+			
+			
+			
+			
+			/* nyithato sidebar lista elemek, interaktivan - 1. */
+			/* forrás: https://www.digitalocean.com/community/tutorials/css-collapsible */
+			
+			.wrap-collapsible {
+				margin-bottom: 1.2rem 0;
+				width: 100%;
+			}			
+			.toggle_collapsible_checkbox {
+				/* ne jelenjen meg az alap checkbox */
+				display: none;
+			}
+			.label-toggle {
+				display: block;
+				font-size: 1rem;
+				text-align: center;
+				padding: 2px;
+				color: #000000;
+				background: #E5E5E5;
+				cursor: pointer;
+				border-radius: 3px;
+				transition: all 0.25s ease-out;
+			}
+			.label-toggle:hover {
+				color: #AAAAAA;
+				background: #dedede;
+			}
+			.label-toggle::before {
+				/* haromszog ikon borderekbol */
+				content: ' ';
+				display: inline-block;
+				border-top: 5px solid transparent;
+				border-bottom: 5px solid transparent;
+				border-left: 5px solid currentColor;
+				vertical-align: middle;
+				margin-right: .7rem;
+				transform: translateY(-2px);
+				transition: transform .2s ease-out;
+			}
+			.toggle_collapsible_checkbox:checked + .label-toggle::before {
+				/* haromszog ikont forgatjuk */
+				transform: rotate(90deg) translateX(-3px);
+			}
+			.collapsible-content {
+				max-height: 0px;
+				overflow: hidden;
+				transition: max-height .25s ease-in-out;
+			}
+			.toggle_collapsible_checkbox:checked + .label-toggle + .collapsible-content {
+				max-height: 100vh;
+			}
+			.toggle_collapsible_checkbox:checked + .label-toggle {
+				border-bottom-right-radius: 0;
+				border-bottom-left-radius: 0;
+			}
+			.collapsible-content .content-inner {
+				background: #F8F8F8;
+				padding: 5px 4px;
+			}
+			
+			/* nyithato sidebar lista elemek, interaktivan - 2. */
+			
+			.wrap-collapsible2 {
+				margin-bottom: 1.2rem 0;
+				width: 100%;
+			}			
+			.toggle_collapsible_checkbox2 {
+				/* ne jelenjen meg az alap checkbox */
+				display: none;
+			}
+			.label-toggle2 {
+				display: block;
+				font-size: 1rem;
+				text-align: center;
+				padding: 3px;
+				color: #000000;
+				background: #E5E5E5;
+				cursor: pointer;
+				border-radius: 3px;
+				transition: all 0.25s ease-out;
+			}
+			.label-toggle2:hover {
+				color: #AAAAAA;
+				background: #dedede;
+			}
+			.label-toggle2::before {
+				/* haromszog ikon borderekbol */
+				content: ' ';
+				display: inline-block;
+				border-top: 5px solid transparent;
+				border-bottom: 5px solid transparent;
+				border-left: 5px solid currentColor;
+				vertical-align: middle;
+				margin-right: .7rem;
+				transform: translateY(-2px);
+				transition: transform .2s ease-out;
+			}
+			.toggle_collapsible_checkbox2:checked + .label-toggle2::before {
+				/* haromszog ikont forgatjuk */
+				transform: rotate(90deg) translateX(-3px);
+			}
+			.collapsible-content2 {
+				max-height: 0px;
+				overflow: hidden;
+				transition: max-height .25s ease-in-out;
+			}
+			.toggle_collapsible_checkbox2:checked + .label-toggle2 + .collapsible-content2 {
+				max-height: 100vh;
+			}
+			.toggle_collapsible_checkbox2:checked + .label-toggle2 {
+				border-bottom-right-radius: 0;
+				border-bottom-left-radius: 0;
+			}
+			.collapsible-content2 .content-inner {
+				background: #F8F8F8;
+				padding: 5px 4px;
+			}
+			
+			/* nyithato sidebar lista elemek vege */
+			
+		</style>
+	</head>
+	<body>
+		<div id="sidebar" style="display: none; flex-direction: column">
+			<div id="sidebar_top" style="display: flex; flex-direction: row; justify-content: center;">
+				<div id="" style="display: flex; justify-content: center; align-items: center; width: 30px; margin: 0 2px 0 2px;">
+					<img id="waypoint_add" style="left: -1px;" class="" onClick="" src="icons/add_circle_outline_black_24dp.svg" title="Közbeeső útvonalpont hozzáadása">
+				</div>
+				<div id="routeAB" style="display: flex; justify-content: center; flex-direction: column; width: 100%; row-gap: 5px">
+					<div id="route_wptrow_0" style="display: flex; justify-content: center; flex-direction: row; align-items: center;">
+						<div style="width: 19px; font-size: 20px;"><b>A</b></div>
+						<input type="form" id="waypoint_0" class="ABfield" placeholder="Kiindulási pont"/>
+					</div>
+					<div id="route_wptrow_1" style="display: flex; flex-direction: row; align-items: center;">
+						<div style="width: 19px; font-size: 20px"><b>B</b></div>
+						<input type="form" id="waypoint_1" class="ABfield" placeholder="Célpont"/>
+					</div>
+				</div>
+				<div id="OK" style="display: flex; justify-content: center; flex-direction: column;">
+					<button id="navi_submit" style="height: 100%; max-height: 50px;">Go</button>
+				</div>
+			</div>
+			
+			<div id="navi_params" style="display: grid;">
+				<div id="param1" class="paramgridbox" >
+					<input id="avoid_highways" name="avoid_highways" type="checkbox" style="display: flex;">
+					<label for="avoid_highways">Avoid highways</label>
+				</div>
+				<div id="param2" class="paramgridbox" >
+					<input id="avoid_" name="avoid_" type="checkbox" style="display: flex;">
+					<label for="avoid_">barmi mas????</label>
+				</div>
+				<div id="param3" class="paramwidegridbox" >ketoszlopotkitoltovalamicsoda, egyeb parameterek</div>
+			</div>
+			
+			<div id="route_profile_wrapperdiv" style="display:flex; flex-direction: row; justify-content: end; align-items:center ">
+				Profile: 
+				<div class="route_profile_selector" style="display: flex; flex-direction: row;">
+					<div style="display: flex;">
+						<input checked="checked" id="car" type="radio" name="profile" value="driving-car" />
+						<label class="route_profile car" for="car" onClick="setProfile('car')"></label>
+					</div>
+					<div style="display: flex;">
+						<input id="bike" type="radio" name="profile" value="cycling-regular" />
+						<label class="route_profile bike" for="bike" onClick="setProfile('bike')"></label>
+					</div>
+					<div style="display: flex;">
+						<input id="walk" type="radio" name="profile" value="foot-walking" />
+						<label class="route_profile walk" for="walk" onClick="setProfile('walk')"></label>
+					</div>
+				</div>	
+			</div>		
+			
+			<!-- nem hasznalt mar 
+			<select id="route_profile_selector">
+				<option value="driving-car">Autóval</option>
+				<option value="cycling-regular">Bicoval</option>
+				<option value="foot-walking">Gyalog</option>
+			</select> -->
+			
+			<div id="sidebar_directions" style="display: flex">
+				<div class="wrap-collapsible">
+					<input id="collapsible" class="toggle_collapsible_checkbox" type="checkbox" checked>
+					<label for="collapsible" class="label-toggle" tabindex="0">Itiner</label>
+					<div class="collapsible-content">
+						<div class="content-inner">
+							itiner táblázat minden lépéssel, ikonokkal
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div id="sidebar_elevprofile" style="display: flex">
+				<div class="wrap-collapsible2">
+					<input id="collapsible2" class="toggle_collapsible_checkbox2" type="checkbox" checked>
+					<label for="collapsible2" class="label-toggle2" tabindex="0">Magassági metszet</label>
+					<div class="collapsible-content2">
+						<div class="content-inner2">
+							<canvas id="myChart" width="100%" height="400px"></canvas>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div id="sidebar_bottom" style="display: flex">
+				valami
+			</div>
+		</div>
+		<div id="sidebar_openclose" class="sidebar_openclosebox">
+			<input type="button" id="sidebar_nyitogomb" onClick="sidebarStateChange()" class="sidebar_closed" />
+		</div>
+		<div id="mapdiv"></div>
+		<div id="uzenetablak">
+			<div style="padding: 10px">
+				<div id="uzenetablak_tartalom" style="display: flex; flex-direction:row; align-items: center;">
+					<div id="uzenetszoveg"></div>
+					<input type="button" id="btnClose" value="X" onClick="uzenetablak.style.display='none';" />
+				</div>	
+			</div>
+			<div id="uzenet_szinessav"></div>
+		</div>
+		<script>		
+			// CHART.JS MINTA
+			var stars = [135, 170, 185, 140, 145];
+			var frameworks = ['500m', '1000m', '1500m', '2000m', '2500m'];
+			var ctx = document.getElementById('myChart');
+			var myChart = new Chart(ctx, {
+					type: 'line',
+					data: {
+						labels: frameworks,
+						datasets: [{
+							label: "Magasság (m) MINTA",
+							data: stars,
+							backgroundColor: "rgba(67, 135, 232, 0.2)",
+							borderColor: "rgba(67, 135, 232, 1)",
+							borderWidth: 1.6,
+							fill: true,
+							lineTension: 0
+						}]
+					},
+					options: {
+						maintainAspectRatio: false
+					}
+				}
+			)			
+		
+			var map=L.map('mapdiv', {zoomControl: false}).setView([47.475,19.062], 8);
+			L.control.zoom({position: 'bottomright'}).addTo(map); // zoom gombok a jobb also sarokba
+
+			L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+				minZoom: 2,
+				maxZoom: 19
+			 }).addTo(map);
+			
+			//layergroup
+			var lg=L.layerGroup().addTo(map);
+			
+			var navipontok=[];
+			var apikey='5b3ce3597851110001cf62484013f41f314445caac2390a84183388c';
+			var profile="driving-car";
+			console.log('Default profile (current): ', profile);
+			workdone = false;	
+			
+			//valtozik a profile, mentsuk globalis valtozokent
+			function setProfile(prof) {
+				switch (prof) {
+					case 'car':
+						profile="driving-car";
+						console.log('Profile changed to: ', profile);
+						break;
+					case 'bike':
+						profile="cycling-regular";
+						console.log('Profile changed to: ', profile);
+						break;
+					case 'walk':
+						profile="foot-walking";
+						console.log('Profile changed to: ', profile);
+						break;
+					default:
+						profile="driving-car";
+				}
+			}
+			
+			//egerkattintas kezelo
+			map.on('click', function(e) {
+				if (navipontok.length == 2) {
+					navipontok=[];
+					lg.clearLayers();
+				}
+				L.marker(e.latlng).addTo(lg);
+				navipontok.push(e.latlng);
+				if (navipontok.length == 2) { 
+					// tbc
+				}
+			} );
+			
+			object = document.getElementById('navi_submit');
+			object.onclick = function pontMegjelenit() {
+				var w0=document.getElementById('waypoint_0');
+				var w1=document.getElementById('waypoint_1');
+				var waypoint_0_text=document.getElementById('waypoint_0').value;
+				var waypoint_1_text=document.getElementById('waypoint_1').value;
+				var hiba=false; // hiba boolean ures mezokhoz
+				
+				// van ures mezo? ha igen, ne is folytassuk
+				if (waypoint_0_text == "") {
+					console.log('wpt0 ures!');
+					hiba=true;
+					w0.classList.add("ABfield_error");
+					setTimeout(function(){w0.classList.remove("ABfield_error");}, 1500);
+				} 
+				if (waypoint_1_text == "") {
+					console.log('wpt1 ures!');
+					hiba=true;
+					w1.classList.add("ABfield_error");
+					setTimeout(function(){w1.classList.remove("ABfield_error");}, 1500);
+				};
+				if (hiba) {
+					// valamelyik mezo ures, ne folytassuk, szoljunk rola
+						showMsgBox('Az egyik mező üresen maradt', 'warning');
+					return;
+				};
+			
+				// minden jo, folytatas
+				lg.clearLayers();
+				navipontok = [];
+				for (var i=0; i<2; i++){
+					var text=document.getElementById('waypoint_'+i).value;
+					console.log('PONTKERES');
+					pontKeres_geokod(text);
+				}
+				
+				
+				setTimeout(() => {  
+					for (var i=0; i<navipontok.length; i++){
+						console.log('PONTMEGJELENIT');
+						if (navipontok[i]) {
+							// valami ertelmes van benne, tegyuk ki a markert
+							new L.marker([navipontok[i].geometry.coordinates[1], navipontok[i].geometry.coordinates[0]]).addTo(lg);
+						} else {
+							// egyik pontot nem talalta, hiba, kilepes
+							hanyadik = i+1;
+							console.log('Nincs találat! ('+hanyadik+'. pont)');
+							showMsgBox('A(z) '+hanyadik+'. pont nem található', 'error');
+							return;
+						};
+					}
+					getDirections();
+				}, 600); // meg kene oldani ugy hogy Promise-ra varjon, FONTOS!!! mert igy tovabb tarthat a geokodolas net miatt stb. es tovabblep az utrajzolasra, ott pedig meghal mert nincs koordinata ami alapjan az utat lekeri
+					
+					
+				
+			/*
+					var waypoint_1_text=document.getElementById('waypoint_1').value;
+					var url='https://api.openrouteservice.org/geocode/search?api_key='+apikey+'&text='+waypoint_1_text;
+					fetch(url).then(r=>r.json()).then(d=>  {
+						
+						wpt1 = new L.marker([d.features[0].geometry.coordinates[1], d.features[0].geometry.coordinates[0]]).addTo(map); //lat, lon kell
+						navipontok.push(wpt1);
+						console.log('ponthozzaadas1: ', wpt1);
+						
+						});
+					
+					var waypoint_2_text=document.getElementById('waypoint_2').value;
+					var url='https://api.openrouteservice.org/geocode/search?api_key='+apikey+'&text='+waypoint_2_text;
+					fetch(url).then(r=>r.json()).then(d=>{
+						
+						wpt2 = new L.marker([d.features[0].geometry.coordinates[1], d.features[0].geometry.coordinates[0]]).addTo(map); //lat, lon kell
+						console.log('ponthozzaadas2: ', wpt2);
+						navipontok.push(wpt2);
+					console.log('navipontok_length: ', navipontok.length);
+					});	
+					
+			*/
+			};
+					
+			function getDirections() {
+				console.log('Pont 1:', '['+navipontok[0].geometry.coordinates[0]+','+navipontok[0].geometry.coordinates[1]+']');
+				console.log('Pont 2:', '['+navipontok[1].geometry.coordinates[0]+','+navipontok[1].geometry.coordinates[1]+']');
+				//var mivel=document.getElementById('route_profile_selector').value;
+				
+				// Directions Service GeoJSON (POST) (/v2/directions/{profile}/geojson)
+				let request = new XMLHttpRequest();
+				request.open('POST', "https://api.openrouteservice.org/v2/directions/"+profile+"/geojson");
+				request.setRequestHeader('Accept', 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8');
+				request.setRequestHeader('Content-Type', 'application/json');
+				request.setRequestHeader('Authorization', apikey);
+				request.responseType = 'json';
+				
+				request.onreadystatechange = function () {
+				  if (this.readyState === 4) {
+					console.log('Status code:', this.status);
+					console.log('Headers:', this.getAllResponseHeaders());
+					console.log('Response Body:', this.response);
+					var headers = this.getAllResponseHeaders();
+					var r = this.response;
+					
+					var hol = headers.search("x-ratelimit-remaining:");
+					var limit='';
+					for(var i=0; i<4; i++){
+						limit = limit+headers.charAt(hol+23+i);
+					}
+					if (rateLimitCheck(limit, 'útvonalkeresési') == false) {
+						return;
+					}			
+					
+					if (statusCodeHandler(this.status) === true) {
+						var tav=r.features[0].properties.summary.distance;
+						var ido=r.features[0].properties.summary.duration;
+						var lepesek=r.features[0].properties.segments[0].steps;
+						var koord=r.features[0].geometry.coordinates;
+						for(var i=0; i<lepesek.length; i++) {
+							var p1=lepesek[i].way_points[0];
+							var p2=lepesek[i].way_points[1];
+							var reszlet=koord.slice(p1,p2+1);
+							for(var j=0; j<reszlet.length; j++) {
+								reszlet[j]=[reszlet[j][1], reszlet[j][0]];
+							}
+							L.polyline(reszlet).addTo(lg)
+							.bindTooltip(lepesek[i].instruction);
+						}
+						
+						var bb1=L.latLng([r.bbox[1],r.bbox[0]]); //lat, lon!
+						console.log('bb1:', bb1);
+						var bb2=L.latLng([r.bbox[3],r.bbox[2]]);
+						console.log('bb2:', bb2);
+						map.fitBounds(L.latLngBounds(bb1, bb2));
+					}
+				  }
+				};
+
+				var avoid_highways = document.getElementById('avoid_highways').checked;
+				console.log('avoid highways? = ', avoid_highways)
+				if (avoid_highways) {
+					avoid_highways = "highways";
+					body = '{"coordinates":[['+navipontok[0].geometry.coordinates[0]+','+navipontok[0].geometry.coordinates[1]+'],['+navipontok[1].geometry.coordinates[0]+','+navipontok[1].geometry.coordinates[1]+']],"options":{"avoid_features":["'+avoid_highways+'"]},"radiuses":-1,"language":"hu"}';
+				} else {
+					avoid_highways = "";
+					body = '{"coordinates":[['+navipontok[0].geometry.coordinates[0]+','+navipontok[0].geometry.coordinates[1]+'],['+navipontok[1].geometry.coordinates[0]+','+navipontok[1].geometry.coordinates[1]+']],"options":{},"radiuses":-1,"language":"hu"}';
+				}
+				console.log('Request body:', body);
+				console.log('Using profile:', profile);
+				if (internetConnectionCheck()) {
+					request.send(body);
+				}
+				
+			
+				/* 
+				// REGI GET MODSZER Directions Service (GET) (/v2/directions/{profile})
+				var url='https://api.openrouteservice.org/v2/directions/'+mivel+'?api_key='+apikey+'&start='+pontok[0].lng+','+pontok[0].lat+'&end='+pontok[1].lng+','+pontok[1].lat;
+				
+				fetch(url).then(r=>r.json()).then(d=> {
+				console.log('response:', d);
+				var tav=d.features[0].properties.summary.distance;
+				var ido=d.features[0].properties.summary.duration;
+					/*L.geoJSON(d).addTo(lg)
+					.bindPopup(tav+' m, '+ido+' s')
+					.openPopup();*/
+				/*var lepesek=d.features[0].properties.segments[0].steps;
+				var koord=d.features[0].geometry.coordinates;
+				for(var i=0; i<lepesek.length; i++) {
+					var p1=lepesek[i].way_points[0];
+					var p2=lepesek[i].way_points[1];
+					var reszlet=koord.slice(p1,p2+1);
+					for(var j=0; j<reszlet.length; j++) {
+						reszlet[j]=[reszlet[j][1], reszlet[j][0]];
+					}
+					L.polyline(reszlet).addTo(lg)
+					.bindTooltip(lepesek[i].instruction);
+				} 
+				});*/				
+			}
+					
+					
+			// geokodolas, hozzaadja a pontot a navipontok[]-hoz	(NEM TUD MAGYARUL?! vagy igen?)
+			function pontKeres_geokod(text) {
+				var url='https://api.openrouteservice.org/geocode/search?api_key='+apikey+'&text='+text;
+				fetch(url).then(r=>r.json()).then(d=>{
+					result = [d.features[0]]; 
+					result = result[0]; 
+					navipontok.push(result);
+					console.log('geokod_pont_eredmeny: ', result);
+				});
+			}
+			
+			var sidebarstate = false; //alaphelyzet: csukva
+			
+			function sidebarStateChange() {
+				var sb = document.getElementById('sidebar');
+				var bttndiv = document.getElementById('sidebar_openclose');
+				var bttn = document.getElementById('sidebar_nyitogomb');
+				var map = document.getElementById('mapdiv');
+				if (sidebarstate == false) {
+					/* csukott a sidebar, nyissuk; terkep div bal oldala jobbrabb */
+					map.style.left="430px";
+					sb.style.display="flex";
+					bttndiv.style.left="435px";
+					bttn.className="sidebar_opened";
+					sidebarstate = true;
+				} else {
+					/* nyitott a sidebar, csukjuk; terkep div balra teljesen */
+					map.style.left="0px";
+					sb.style.display="none";
+					bttndiv.style.left="4px";
+					bttn.className="sidebar_closed";
+					sidebarstate = false;
+				}
+			}
+			
+			function statusCodeHandler(code) {
+				switch (code) {
+					case 200:
+						console.log('Status code:', code, '(Standard response for successfully processed requests)');
+						return true;
+					case 201:
+						console.log('Status code:', code, '(Created)');
+						return false;
+					case 400:
+						console.log('Status code:', code, '(The request is incorrect and therefore can not be processed)');
+						showMsgBox('A kérés hibás, ezért az ORS nem tudja teljesíteni', 'error');
+						return false;
+					case 401:
+						console.log('Status code:', code, '(Unauthorized)');
+						return false;
+					case 403:
+						console.log('Status code:', code, '(Forbidden)');
+						return false;
+					case 404:
+						console.log('Status code:', code, '(An element could not be found. If possible, a more detailed error code is provided)');
+						showMsgBox('Az útvonal nem hozható létre, próbálja más paraméterekkel', 'error');
+						return false;
+					case 405:
+						console.log('Status code:', code, '(The specified HTTP method is not supported. For more details, refer to the EndPoint documentation)');
+						return false;
+					case 413:
+						console.log('Status code:', code, '(The request is larger than the server is able to process, the data provided in the request exceeds the capacity limit)');
+						return false;
+					case 500:
+						console.log('Status code:', code, '(An unexpected error was encountered and a more detailed error code is provided)');
+						showMsgBox('A két pont között nem található útvonal', 'error');
+						return false;
+					case 501:
+						console.log('Status code:', code, '(Indicates that the server does not support the functionality needed to fulfill the request)');
+						return false;
+					case 503:
+						console.log('Status code:', code, '(The server is currently unavailable due to overload or maintenance)');
+						showMsgBox('Az OpenRouteService szolgáltatás nem érhető el, próbálja később', 'error');
+						return false;
+					default:
+						console.log('Status code:', code, '(Ismeretlen hiba, lehetséges, hogy nincs internetkapcsolat)');	
+						return false;					
+				}
+			}
+			
+			function internetConnectionCheck() {
+				if (window.navigator.onLine === false){
+					console.log('NO CONNECTION');
+					showMsgBox('Nincs internetkapcsolat', 'error');
+					return false;
+				} else {
+					return true;
+				}				
+			}
+			
+			function rateLimitCheck(n, milyen) {
+				if (n<=0){
+					showMsgBox('Az egy nap alatt lekérhető '+milyen+' kérések száma elfogyott - próbálja később', 'error');
+					return false;
+				} else {
+					return true;
+				}				
+			}
+			
+			var uzenetablak=document.getElementById('uzenetablak');
+			var uzenetszoveg=document.getElementById('uzenetszoveg');
+			var uzenet_szinessav=document.getElementById('uzenet_szinessav');
+			
+			function showMsgBox(szoveg, tipus) {
+				uzenetszoveg.innerHTML=szoveg;
+				switch (tipus) {
+					case 'error':
+						uzenetablak.className="uzenet_error";
+						uzenet_szinessav.className="uzenet_szinessav_error";
+						break;
+					case 'warning':
+						uzenetablak.className="uzenet_warning";
+						uzenet_szinessav.className="uzenet_szinessav_warning";
+						break;
+					case 'success':
+						uzenetablak.className="uzenet_success";
+						uzenet_szinessav.className="uzenet_szinessav_success";
+						break;
+				}
+				uzenetablak.style.display="block";
+				uzenetablak.style.opacity=1;
+				setTimeout(function(){uzenetablak.style.opacity=0}, 3200);
+				setTimeout(function(){uzenetablak.style.display="none"}, 3850);
+			}
+		</script>
+	</body>
+</html>
