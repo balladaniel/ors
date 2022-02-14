@@ -70,6 +70,33 @@
 			#btnClose {
 				margin-left: 6px;
 			}
+			#lebego_start_ablak {
+				position: absolute;
+				display: flex;
+				flex-direction: column;
+				top: 20px;
+				width: 400px;
+				border-radius: 3px;
+				background: #FFFFFFDD;
+				z-index: 1000;
+				box-shadow: 0px 0px 7px #000000CC;
+				backdrop-filter: blur(3px);
+				-webkit-backdrop-filter: blur(3px);
+			}
+			.lebego_start_ablak_hidden {
+				left: 466px;
+				opacity: 0;
+				transition: left 0.2s ease-out;
+				transition: opacity 0.4s ease-out;
+			}
+			.lebego_start_ablak_visible {
+				display: block;
+				left: 20px;
+				opacity: 1;
+				transition: left 0.2s ease-out;
+				transition: opacity 0.8s ease-out;
+			}
+			
             #sidebar {
 				position: absolute;
 				top: 0px;
@@ -399,9 +426,38 @@
 			
 			/* nyithato sidebar lista elemek vege */
 			
+			button.link { 
+				background: none; 
+				border: none; 
+				cursor: pointer;
+			}
 		</style>
 	</head>
 	<body>
+		<div id="lebego_start_ablak" class="lebego_start_ablak_visible">
+		
+			<div id="sidebar_top" style="display: flex; flex-direction: row; justify-content: center;">
+				<div id="" style="display: flex; justify-content: center; align-items: center; width: 30px; margin: 0 2px 0 2px;">
+					<img id="waypoint_add" style="left: -1px;" class="" onClick="" src="icons/add_circle_outline_black_24dp.svg" title="Közbeeső útvonalpont hozzáadása">
+				</div>
+				<div id="routeAB" style="display: flex; justify-content: center; flex-direction: column; width: 100%; row-gap: 5px">
+					<div id="route_wptrow_0" style="display: flex; justify-content: center; flex-direction: row; align-items: center;">
+						<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>A</b></div>
+						<input type="form" id="float_waypoint_0" class="ABfield" placeholder="Kiindulási pont"/>
+					</div>
+					<div id="route_wptrow_1" style="display: flex; flex-direction: row; align-items: center;">
+						<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>B</b></div>
+						<input type="form" id="float_waypoint_1" class="ABfield" placeholder="Célpont"/>
+					</div>
+				</div>
+				<div id="OK" style="display: flex; justify-content: center; flex-direction: column;">
+					<button id="float_navi_submit" onclick="pontMegjelenit()" style="height: 100%; max-height: 50px;">Go</button>
+				</div>
+			</div>
+			<div style="margin-bottom: 8px; text-align: center;">
+				<button id="egyebparams_gomb" style="color: #4387e8; font-size: 9pt; " class="link" onclick="sidebarStateChange()">Egyéb keresési paraméterek ></button>
+			</div>
+		</div>
 		<div id="sidebar" style="display: none; flex-direction: column">
 			<div id="sidebar_top" style="display: flex; flex-direction: row; justify-content: center;">
 				<div id="" style="display: flex; justify-content: center; align-items: center; width: 30px; margin: 0 2px 0 2px;">
@@ -409,16 +465,16 @@
 				</div>
 				<div id="routeAB" style="display: flex; justify-content: center; flex-direction: column; width: 100%; row-gap: 5px">
 					<div id="route_wptrow_0" style="display: flex; justify-content: center; flex-direction: row; align-items: center;">
-						<div style="width: 19px; font-size: 20px;"><b>A</b></div>
+						<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>A</b></div>
 						<input type="form" id="waypoint_0" class="ABfield" placeholder="Kiindulási pont"/>
 					</div>
 					<div id="route_wptrow_1" style="display: flex; flex-direction: row; align-items: center;">
-						<div style="width: 19px; font-size: 20px"><b>B</b></div>
+						<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>B</b></div>
 						<input type="form" id="waypoint_1" class="ABfield" placeholder="Célpont"/>
 					</div>
 				</div>
 				<div id="OK" style="display: flex; justify-content: center; flex-direction: column;">
-					<button id="navi_submit" style="height: 100%; max-height: 50px;">Go</button>
+					<button id="navi_submit" onclick="pontMegjelenit()" style="height: 100%; max-height: 50px;">Go</button>
 				</div>
 			</div>
 			
@@ -502,16 +558,16 @@
 		</div>
 		<script>		
 			// CHART.JS MINTA
-			var stars = [135, 170, 185, 140, 145];
-			var frameworks = ['500m', '1000m', '1500m', '2000m', '2500m'];
-			var ctx = document.getElementById('myChart');
-			var myChart = new Chart(ctx, {
+			var y = [135, 170, 185, 140, 145];
+			var x = ['500m', '1000m', '1500m', '2000m', '2500m'];
+			var chartdiv = document.getElementById('myChart');
+			var myChart = new Chart(chartdiv, {
 					type: 'line',
 					data: {
-						labels: frameworks,
+						labels: x,
 						datasets: [{
 							label: "Magasság (m) MINTA",
-							data: stars,
+							data: y,
 							backgroundColor: "rgba(67, 135, 232, 0.2)",
 							borderColor: "rgba(67, 135, 232, 1)",
 							borderWidth: 1.6,
@@ -541,7 +597,8 @@
 			var apikey='5b3ce3597851110001cf62484013f41f314445caac2390a84183388c';
 			var profile="driving-car";
 			console.log('Default profile (current): ', profile);
-			workdone = false;	
+			workdone = false;
+			var avoid_highways = document.getElementById('avoid_highways');
 			
 			//valtozik a profile, mentsuk globalis valtozokent
 			function setProfile(prof) {
@@ -549,21 +606,26 @@
 					case 'car':
 						profile="driving-car";
 						console.log('Profile changed to: ', profile);
+						avoid_highways.disabled = false;
 						break;
 					case 'bike':
 						profile="cycling-regular";
 						console.log('Profile changed to: ', profile);
+						avoid_highways.disabled = true;
+						avoid_highways.checked = false;
 						break;
 					case 'walk':
 						profile="foot-walking";
 						console.log('Profile changed to: ', profile);
+						avoid_highways.disabled = true;
+						avoid_highways.checked = false;
 						break;
 					default:
 						profile="driving-car";
 				}
 			}
 			
-			//egerkattintas kezelo
+			//egerkattintas kezelo, nem hasznalt jelenleg
 			map.on('click', function(e) {
 				if (navipontok.length == 2) {
 					navipontok=[];
@@ -576,15 +638,17 @@
 				}
 			} );
 			
-			object = document.getElementById('navi_submit');
-			object.onclick = function pontMegjelenit() {
-				var w0=document.getElementById('waypoint_0');
-				var w1=document.getElementById('waypoint_1');
-				var waypoint_0_text=document.getElementById('waypoint_0').value;
-				var waypoint_1_text=document.getElementById('waypoint_1').value;
+			var w0, w1, waypoint_0_text, waypoint_1_text;
+			
+			function pontMegjelenit() {
+				w0=document.getElementById(sidebarstate ? 'waypoint_0' : 'float_waypoint_0' );
+				w1=document.getElementById(sidebarstate ? 'waypoint_1' : 'float_waypoint_1' );
+				waypoint_0_text=document.getElementById(sidebarstate ? 'waypoint_0' : 'float_waypoint_0' ).value;
+				waypoint_1_text=document.getElementById(sidebarstate ? 'waypoint_1' : 'float_waypoint_1' ).value;
 				var hiba=false; // hiba boolean ures mezokhoz
-				
+								
 				// van ures mezo? ha igen, ne is folytassuk
+				// elo kell kesziteni tobb mint 2 wpt-ra
 				if (waypoint_0_text == "") {
 					console.log('wpt0 ures!');
 					hiba=true;
@@ -602,16 +666,15 @@
 						showMsgBox('Az egyik mező üresen maradt', 'warning');
 					return;
 				};
-			
-				// minden jo, folytatas
+				
+				// mezokben van valami, folytatas
 				lg.clearLayers();
 				navipontok = [];
 				for (var i=0; i<2; i++){
-					var text=document.getElementById('waypoint_'+i).value;
+					var text=document.getElementById(sidebarstate ? 'waypoint_'+i : 'float_waypoint_'+i).value;
 					console.log('PONTKERES');
 					pontKeres_geokod(text);
 				}
-				
 				
 				setTimeout(() => {  
 					for (var i=0; i<navipontok.length; i++){
@@ -628,6 +691,11 @@
 						};
 					}
 					getDirections();
+					if (sidebarstate == false) {
+						// lebego ablakbol inditottuk a keresest, ezert nyissuk a sidebart hogy lassak az eredmenyt
+						sidebarStateChange();
+					}
+					
 				}, 600); // meg kene oldani ugy hogy Promise-ra varjon, FONTOS!!! mert igy tovabb tarthat a geokodolas net miatt stb. es tovabblep az utrajzolasra, ott pedig meghal mert nincs koordinata ami alapjan az utat lekeri
 					
 					
@@ -710,14 +778,13 @@
 					}
 				  }
 				};
-
-				var avoid_highways = document.getElementById('avoid_highways').checked;
-				console.log('avoid highways? = ', avoid_highways)
-				if (avoid_highways) {
-					avoid_highways = "highways";
-					body = '{"coordinates":[['+navipontok[0].geometry.coordinates[0]+','+navipontok[0].geometry.coordinates[1]+'],['+navipontok[1].geometry.coordinates[0]+','+navipontok[1].geometry.coordinates[1]+']],"options":{"avoid_features":["'+avoid_highways+'"]},"radiuses":-1,"language":"hu"}';
+				
+				console.log('avoid highways? = ', avoid_highways.checked)
+				if (avoid_highways.checked) {
+					option = "highways";
+					body = '{"coordinates":[['+navipontok[0].geometry.coordinates[0]+','+navipontok[0].geometry.coordinates[1]+'],['+navipontok[1].geometry.coordinates[0]+','+navipontok[1].geometry.coordinates[1]+']],"options":{"avoid_features":["'+option+'"]},"radiuses":-1,"language":"hu"}';
 				} else {
-					avoid_highways = "";
+					option = "";
 					body = '{"coordinates":[['+navipontok[0].geometry.coordinates[0]+','+navipontok[0].geometry.coordinates[1]+'],['+navipontok[1].geometry.coordinates[0]+','+navipontok[1].geometry.coordinates[1]+']],"options":{},"radiuses":-1,"language":"hu"}';
 				}
 				console.log('Request body:', body);
@@ -762,6 +829,9 @@
 					result = result[0]; 
 					navipontok.push(result);
 					console.log('geokod_pont_eredmeny: ', result);
+				})
+				.catch(error => {
+					showMsgBox('Geokódolás: Hiba történt, lehetséges, hogy nem megfelelő az API-key? ('+error+')', 'error');
 				});
 			}
 			
@@ -772,19 +842,32 @@
 				var bttndiv = document.getElementById('sidebar_openclose');
 				var bttn = document.getElementById('sidebar_nyitogomb');
 				var map = document.getElementById('mapdiv');
+				var lebego_start_ablak = document.getElementById('lebego_start_ablak');
+				var wpt0 = document.getElementById('waypoint_0'); // elo kell kesziteni tobb mint 2 wpt-ra
+				var wpt1 = document.getElementById('waypoint_1');
+				var fwpt0 = document.getElementById('float_waypoint_0');
+				var fwpt1 = document.getElementById('float_waypoint_1');
 				if (sidebarstate == false) {
-					/* csukott a sidebar, nyissuk; terkep div bal oldala jobbrabb */
+					/* csukott a sidebar, nyissuk; terkep div bal oldala jobbrabb, lebego panel eltuntetes */
 					map.style.left="430px";
 					sb.style.display="flex";
 					bttndiv.style.left="435px";
 					bttn.className="sidebar_opened";
+					lebego_start_ablak.className="lebego_start_ablak_hidden";
+					setTimeout(function(){lebego_start_ablak.style.display="none"}, 420);
+					wpt0.value = fwpt0.value; // sidebar mezok es lebego mezok szinkron, elo kell kesziteni tobb mint 2 wpt-ra
+					wpt1.value = fwpt1.value;
 					sidebarstate = true;
 				} else {
-					/* nyitott a sidebar, csukjuk; terkep div balra teljesen */
+					/* nyitott a sidebar, csukjuk; terkep div balra teljesen, lebego panel megjelenites */
 					map.style.left="0px";
 					sb.style.display="none";
 					bttndiv.style.left="4px";
 					bttn.className="sidebar_closed";
+					setTimeout(function(){lebego_start_ablak.className="lebego_start_ablak_visible";}, 10);
+					lebego_start_ablak.style.display="block";
+					fwpt0.value = wpt0.value; // sidebar mezok es lebego mezok szinkron, elo kell kesziteni tobb mint 2 wpt-ra
+					fwpt1.value = wpt1.value;
 					sidebarstate = false;
 				}
 			}
