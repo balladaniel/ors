@@ -4,12 +4,14 @@
 		<title>OpenRouteService útvonaltervező</title>
 		<meta charset="utf-8">
 		<link rel="stylesheet" href="leaflet/leaflet.css" />
+		<link rel="stylesheet" href="leaflet/leaflet_contextmenu/leaflet.contextmenu.css" />
 		
 		<!-- FONTS -->
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 		<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..700&display=swap" rel="stylesheet">
 		
 		<script src="leaflet/leaflet.js"></script>
+		<script src="leaflet/leaflet_contextmenu/leaflet.contextmenu.js"></script>
 		<script src="chartjs/chart.min.js"></script>
 		<style>
 			html, body {
@@ -556,7 +558,24 @@
 			</div>
 			<div id="uzenet_szinessav"></div>
 		</div>
-		<script>		
+		<script>	
+			directions_icons = [
+			"icons/directions/0_turn_left_black_24dp.svg",
+			"icons/directions/1_turn_right_black_24dp.svg",
+			"icons/directions/2_sharp_left_24dp_sajat.svg",
+			"icons/directions/3_sharp_right_24dp_sajat.svg",
+			"icons/directions/4_turn_slight_left_black_24dp.svg",
+			"icons/directions/5_turn_slight_right_black_24dp.svg",
+			"icons/directions/6_straight_black_24dp.svg",
+			"icons/directions/7_enter_roundabout_24dp_sajat.svg",
+			"icons/directions/8_exit_roundabout_24dp_sajat.svg",
+			"icons/directions/9_u_turn_left_black_24dp.svg",
+			"icons/directions/10_goal_24dp_sajat.svg",
+			"icons/directions/11_depart_24dp_sajat.svg",
+			"icons/directions/12_keep_left_24dp_sajat.svg",
+			"icons/directions/13_keep_right_24dp_sajat.svg",
+			];
+			
 			// CHART.JS MINTA
 			var y = [135, 170, 185, 140, 145];
 			var x = ['500m', '1000m', '1500m', '2000m', '2500m'];
@@ -581,8 +600,58 @@
 				}
 			)			
 		
-			var map=L.map('mapdiv', {zoomControl: false}).setView([47.475,19.062], 8);
+			var map=L.map('mapdiv', {	zoomControl: false, 
+										//leaflet.contextmenu: https://github.com/aratcliffe/Leaflet.contextmenu
+										contextmenu: true,
+										contextmenuWidth: 140,
+										contextmenuItems: [{
+											text: 'Show coordinates',
+											callback: showCoordinates
+										}, {
+											text: 'Center map here',
+											callback: centerMap
+										}, {
+											text: 'Útvonal innen',
+											icon: 'icons/directions/11_depart_24dp_sajat.svg',
+											callback: naviFrom
+										}, {
+											text: 'Útvonal ide',
+											icon: 'icons/directions/10_goal_24dp_sajat.svg',
+											callback: naviTo
+										}, '-', {
+											text: 'Zoom in',
+											callback: zoomIn
+										}, {
+											text: 'Zoom out',
+											callback: zoomOut
+										}]
+										}).setView([47.475,19.062], 8);
 			L.control.zoom({position: 'bottomright'}).addTo(map); // zoom gombok a jobb also sarokba
+			
+			//contextmenu fuggvenyek
+			function showCoordinates (e) {
+				alert(e.latlng);
+			}
+			 
+			function centerMap (e) {
+				map.panTo(e.latlng);
+			}
+			 
+			function zoomIn (e) {
+				map.zoomIn();
+			}
+			 
+			function zoomOut (e) {
+				map.zoomOut();
+			}
+			
+			function naviFrom (e) {
+				console.log('naviFrom... nincs kesz');
+			}
+			
+			function naviTo (e) {
+				console.log('naviTo... nincs kesz');				
+			}
 
 			L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -599,6 +668,7 @@
 			console.log('Default profile (current): ', profile);
 			workdone = false;
 			var avoid_highways = document.getElementById('avoid_highways');
+			var geocoding_queue = 0;
 			
 			//valtozik a profile, mentsuk globalis valtozokent
 			function setProfile(prof) {
@@ -625,17 +695,34 @@
 				}
 			}
 			
+			/*
 			//egerkattintas kezelo, nem hasznalt jelenleg
 			map.on('click', function(e) {
 				if (navipontok.length == 2) {
 					navipontok=[];
 					lg.clearLayers();
 				}
-				L.marker(e.latlng).addTo(lg);
+				L.marker(e.latlng, {
+					//contextmenuben megjelenik egy uj opcio, ha markerre kattintunk (hasznos lehet)
+					contextmenu: true,
+					contextmenuItems: [{
+						text: 'Marker item',
+						index: 0
+					}, {
+						separator: true,
+						index: 1
+					}]
+				}).addTo(lg); 
 				navipontok.push(e.latlng);
 				if (navipontok.length == 2) { 
 					// tbc
 				}
+			} );
+			*/
+			
+			map.on('contextmenu', function(e) {
+				console.log('jobbgomb!');
+				// kis menut gyartani: "innen/ide" utvonal gombok, "mi van itt" gomb, esetleg koordinata kiiras
 			} );
 			
 			var w0, w1, waypoint_0_text, waypoint_1_text;
@@ -670,63 +757,18 @@
 				// mezokben van valami, folytatas
 				lg.clearLayers();
 				navipontok = [];
+				geocoding_queue = 2; // fel kell kesziteni tobb mint 2 wpt-ra
 				for (var i=0; i<2; i++){
 					var text=document.getElementById(sidebarstate ? 'waypoint_'+i : 'float_waypoint_'+i).value;
 					console.log('PONTKERES');
-					pontKeres_geokod(text);
+					navipontok[i] = {keres:text};
+					pontKeres_geokod(navipontok[i]);
 				}
-				
-				setTimeout(() => {  
-					for (var i=0; i<navipontok.length; i++){
-						console.log('PONTMEGJELENIT');
-						if (navipontok[i]) {
-							// valami ertelmes van benne, tegyuk ki a markert
-							new L.marker([navipontok[i].geometry.coordinates[1], navipontok[i].geometry.coordinates[0]]).addTo(lg);
-						} else {
-							// egyik pontot nem talalta, hiba, kilepes
-							hanyadik = i+1;
-							console.log('Nincs találat! ('+hanyadik+'. pont)');
-							showMsgBox('A(z) '+hanyadik+'. pont nem található', 'error');
-							return;
-						};
-					}
-					getDirections();
-					if (sidebarstate == false) {
-						// lebego ablakbol inditottuk a keresest, ezert nyissuk a sidebart hogy lassak az eredmenyt
-						sidebarStateChange();
-					}
-					
-				}, 600); // meg kene oldani ugy hogy Promise-ra varjon, FONTOS!!! mert igy tovabb tarthat a geokodolas net miatt stb. es tovabblep az utrajzolasra, ott pedig meghal mert nincs koordinata ami alapjan az utat lekeri
-					
-					
-				
-			/*
-					var waypoint_1_text=document.getElementById('waypoint_1').value;
-					var url='https://api.openrouteservice.org/geocode/search?api_key='+apikey+'&text='+waypoint_1_text;
-					fetch(url).then(r=>r.json()).then(d=>  {
-						
-						wpt1 = new L.marker([d.features[0].geometry.coordinates[1], d.features[0].geometry.coordinates[0]]).addTo(map); //lat, lon kell
-						navipontok.push(wpt1);
-						console.log('ponthozzaadas1: ', wpt1);
-						
-						});
-					
-					var waypoint_2_text=document.getElementById('waypoint_2').value;
-					var url='https://api.openrouteservice.org/geocode/search?api_key='+apikey+'&text='+waypoint_2_text;
-					fetch(url).then(r=>r.json()).then(d=>{
-						
-						wpt2 = new L.marker([d.features[0].geometry.coordinates[1], d.features[0].geometry.coordinates[0]]).addTo(map); //lat, lon kell
-						console.log('ponthozzaadas2: ', wpt2);
-						navipontok.push(wpt2);
-					console.log('navipontok_length: ', navipontok.length);
-					});	
-					
-			*/
 			};
 					
 			function getDirections() {
-				console.log('Pont 1:', '['+navipontok[0].geometry.coordinates[0]+','+navipontok[0].geometry.coordinates[1]+']');
-				console.log('Pont 2:', '['+navipontok[1].geometry.coordinates[0]+','+navipontok[1].geometry.coordinates[1]+']');
+				console.log('Pont 1:', '['+navipontok[0].valasz.geometry.coordinates[0]+','+navipontok[0].valasz.geometry.coordinates[1]+']');
+				console.log('Pont 2:', '['+navipontok[1].valasz.geometry.coordinates[0]+','+navipontok[1].valasz.geometry.coordinates[1]+']');
 				//var mivel=document.getElementById('route_profile_selector').value;
 				
 				// Directions Service GeoJSON (POST) (/v2/directions/{profile}/geojson)
@@ -766,14 +808,18 @@
 							for(var j=0; j<reszlet.length; j++) {
 								reszlet[j]=[reszlet[j][1], reszlet[j][0]];
 							}
-							L.polyline(reszlet).addTo(lg)
-							.bindTooltip(lepesek[i].instruction);
+							var t = L.polyline(reszlet).addTo(lg)
+							.bindTooltip('<div style="display: flex; flex-direction: row; justify-content: center; align-items: center;"><div style="display: flex;"><img src="'+directions_icons[lepesek[i].type]+'"/></div><div style="margin-left: 3px; margin-top: 1px; display: flex;">'+lepesek[i].instruction+'</div>'); 
+							t.on('mousemove',e=>{
+								//console.log(e.target);
+								e.target.getTooltip().setLatLng(e.target.getLatLngs()[0])
+							});
+							
 						}
 						
 						var bb1=L.latLng([r.bbox[1],r.bbox[0]]); //lat, lon!
-						console.log('bb1:', bb1);
 						var bb2=L.latLng([r.bbox[3],r.bbox[2]]);
-						console.log('bb2:', bb2);
+						console.log('bb1:', bb1, 'bb2:', bb2);
 						map.fitBounds(L.latLngBounds(bb1, bb2));
 					}
 				  }
@@ -782,10 +828,10 @@
 				console.log('avoid highways? = ', avoid_highways.checked)
 				if (avoid_highways.checked) {
 					option = "highways";
-					body = '{"coordinates":[['+navipontok[0].geometry.coordinates[0]+','+navipontok[0].geometry.coordinates[1]+'],['+navipontok[1].geometry.coordinates[0]+','+navipontok[1].geometry.coordinates[1]+']],"options":{"avoid_features":["'+option+'"]},"radiuses":-1,"language":"hu"}';
+					body = '{"coordinates":[['+navipontok[0].valasz.geometry.coordinates[0]+','+navipontok[0].valasz.geometry.coordinates[1]+'],['+navipontok[1].valasz.geometry.coordinates[0]+','+navipontok[1].valasz.geometry.coordinates[1]+']],"options":{"avoid_features":["'+option+'"]},"radiuses":-1,"language":"hu"}';
 				} else {
 					option = "";
-					body = '{"coordinates":[['+navipontok[0].geometry.coordinates[0]+','+navipontok[0].geometry.coordinates[1]+'],['+navipontok[1].geometry.coordinates[0]+','+navipontok[1].geometry.coordinates[1]+']],"options":{},"radiuses":-1,"language":"hu"}';
+					body = '{"coordinates":[['+navipontok[0].valasz.geometry.coordinates[0]+','+navipontok[0].valasz.geometry.coordinates[1]+'],['+navipontok[1].valasz.geometry.coordinates[0]+','+navipontok[1].valasz.geometry.coordinates[1]+']],"options":{},"radiuses":-1,"language":"hu"}';
 				}
 				console.log('Request body:', body);
 				console.log('Using profile:', profile);
@@ -822,13 +868,37 @@
 					
 					
 			// geokodolas, hozzaadja a pontot a navipontok[]-hoz	(NEM TUD MAGYARUL?! vagy igen?)
-			function pontKeres_geokod(text) {
-				var url='https://api.openrouteservice.org/geocode/search?api_key='+apikey+'&text='+text;
+			function pontKeres_geokod(pont) {
+				var url='https://api.openrouteservice.org/geocode/search?api_key='+apikey+'&text='+pont.keres;
 				fetch(url).then(r=>r.json()).then(d=>{
 					result = [d.features[0]]; 
 					result = result[0]; 
-					navipontok.push(result);
+					//navipontok.push(result);
+					pont.valasz=result;
 					console.log('geokod_pont_eredmeny: ', result);
+					geocoding_queue--;
+					console.log('geocoding_queue (még ennyi van hátra): ', geocoding_queue);
+					// mar mindegyik pont geokodolva
+					if (geocoding_queue==0) {
+						for (var i=0; i<navipontok.length; i++){
+							console.log('PONTMEGJELENIT');
+							if (navipontok[i].valasz) {
+								// valami ertelmes van benne, tegyuk ki a markert
+								new L.marker([navipontok[i].valasz.geometry.coordinates[1], navipontok[i].valasz.geometry.coordinates[0]]).addTo(lg);
+							} else {
+								// egyik pontot nem talalta, hiba, kilepes
+								hanyadik = i+1;
+								console.log('Nincs találat! ('+hanyadik+'. pont)');
+								showMsgBox('A(z) '+hanyadik+'. pont nem található', 'error');
+								return;
+							};
+						}
+						getDirections();
+						if (sidebarstate == false) {
+							// lebego ablakbol inditottuk a keresest, ezert nyissuk a sidebart hogy lassak az eredmenyt
+							sidebarStateChange();
+						}
+					}
 				})
 				.catch(error => {
 					showMsgBox('Geokódolás: Hiba történt, lehetséges, hogy nem megfelelő az API-key? ('+error+')', 'error');
