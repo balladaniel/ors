@@ -13,6 +13,7 @@
 		<script src="leaflet/leaflet.js"></script>
 		<script src="leaflet/leaflet_contextmenu/leaflet.contextmenu.js"></script>
 		<script src="chartjs/chart.min.js"></script>
+		<script src="turfjs/turf.min.js"></script>
 		<style>
 			html, body {
 				height: 100%;
@@ -496,8 +497,8 @@
 					<label for="avoid_highways">Avoid highways</label>
 				</div>
 				<div id="param2" class="paramgridbox" >
-					<input id="avoid_" name="avoid_" type="checkbox" onclick="pontMegjelenit()" style="display: flex;">
-					<label for="avoid_">barmi mas????</label>
+					<input id="avoid_tollways" name="avoid_tollways" type="checkbox" onclick="pontMegjelenit()" style="display: flex;">
+					<label for="avoid_tollways">Avoid tollways</label>
 				</div>
 				<div id="param3" class="paramwidegridbox" >ketoszlopotkitoltovalamicsoda, egyeb parameterek</div>
 			</div>
@@ -663,9 +664,8 @@
 			"icons/directions/13_keep_right_24dp_sajat.svg",
 			];
 			
-			// CHART.JS MINTA
-			var y = [1,2,3,2,3]; 
-			var x = ['mintalabel', 'mintalabel', 'mintalabel', 'mintalabel', 'mintalabel'];
+			var y = []; 
+			var x = [];
 			var chartdiv = document.getElementById('elevChart');
 			var elevChart = new Chart(chartdiv, {
 					type: 'line',
@@ -686,6 +686,22 @@
 						elements: {
 							point: {
 								radius: 0.1
+							}
+						},
+						scales: {
+							x: {
+								ticks: {
+									//precision: 0, //nem mukodik
+									callback: function(value, index, ticks) {
+										if (elevChart.data.labels[elevChart.data.labels.length-1] <= 3) {
+											// ha az utolso elem erteke (= ut hossza) kisebb mint 3, metert hasznalunk labelkent
+											return this.getLabelForValue(value*100) + ' m';
+										} else {
+											return this.getLabelForValue(value) + ' km';
+										}
+										//return Chart.Ticks.formatters.numeric.apply(this, [this.getLabelForValue(value), index, ticks]) + ' km';
+									}
+								}
 							}
 						}
 					}
@@ -759,9 +775,12 @@
 			console.log('Default profile (current): ', profile);
 			workdone = false;
 			var avoid_highways = document.getElementById('avoid_highways');
+			var avoid_tollways = document.getElementById('avoid_tollways');
 			var waypoint_count = 2; //ezt valtoztatjuk majd ha tobb pontot adunk hozza
 			var geocoding_queue = 0;
 			var current_polyline = [];
+			var current_polyline_osztott = [];
+			var directions_options = [];
 			var tav = 0;
 			
 			//valtozik a profile, mentsuk globalis valtozokent
@@ -901,12 +920,46 @@
 					
 					if (statusCodeHandler(this.status) === true) {
 						current_polyline=[];
+						current_polyline_osztott=[];
+						
 						tav=r.features[0].properties.summary.distance;
 						var ido=r.features[0].properties.summary.duration;
 						var lepesek=r.features[0].properties.segments[0].steps;
 						var koord = current_polyline = r.features[0].geometry.coordinates;
 						
-						if (current_polyline.length<2000) {
+						var turfline = turf.lineString(current_polyline);
+						var turfoptions = {units: 'kilometers'};
+						if (tav/1000 <= 5) {
+							osztaskoz = 0.1;
+						} else if (tav/1000 <= 50) {
+							osztaskoz = 0.1;
+						} else if (tav/1000 <= 100) {
+							osztaskoz = 0.5;
+						} else if (tav/1000 <= 250) {
+							osztaskoz = 0.5;
+						} else if (tav/1000 <= 500) {
+							osztaskoz = 1;
+						} else if (tav/1000 <= 1000) {
+							osztaskoz = 10;
+						} else if (tav/1000 <= 2500) {
+							osztaskoz = 25;
+						} else if (tav/1000 <= 6000) {
+							osztaskoz = 100;
+						}
+						elsopont=turf.along(turfline, 0, turfoptions);
+						current_polyline_osztott[0]=[elsopont.geometry.coordinates[0], elsopont.geometry.coordinates[1]]; //elso pont, hogy 0kmrol kezdjuk a magassagi gorbet
+						for (var i=osztaskoz, db = 1; i<tav/1000; i=i+osztaskoz) {
+							var along = turf.along(turfline, i, turfoptions);
+							//new L.marker([along.geometry.coordinates[1], along.geometry.coordinates[0]]).addTo(lg);
+							current_polyline_osztott[db]=[along.geometry.coordinates[0], along.geometry.coordinates[1]];
+							db = db+1;
+						}
+						utolsopont=turf.along(turfline, tav, turfoptions);
+						current_polyline_osztott[db]=[utolsopont.geometry.coordinates[0], utolsopont.geometry.coordinates[1]]  //utolso pont, hogy a celpont magassagat is rajzoljuk utolsokent
+						//console.log(turf.along(turfline, 0, turfoptions));
+						//console.log(current_polyline_osztott);
+						
+						if (current_polyline_osztott.length<2000) {
 							// el se inditsuk a magassagi kerest, ha 2000nel tobb node van
 							getElevation_line();
 							console.log('node count is less than 2000, getting elevation for polyline...');
@@ -924,7 +977,7 @@
 								reszlet[j]=[reszlet[j][1], reszlet[j][0]];
 							}
 							var t = L.polyline(reszlet).addTo(lg)
-							.bindTooltip('<div style="display: flex; flex-direction: row; justify-content: center; align-items: center;"><div style="display: flex;"><img src="'+directions_icons[lepesek[i].type]+'"/></div><div style="margin-left: 3px; margin-top: 1px; display: flex;">'+lepesek[i].instruction+'</div>'); 
+							.bindTooltip('<div style="display: flex; flex-direction: row; justify-content: center; align-items: center;"><div style="display: flex;"><img width=24px src="'+directions_icons[lepesek[i].type]+'"/></div><div style="margin-left: 3px; margin-top: 1px; display: flex;">'+lepesek[i].instruction+'</div>'); 
 							t.on('mousemove',e=>{
 								//console.log(e.target);
 								e.target.getTooltip().setLatLng(e.target.getLatLngs()[0])
@@ -1047,32 +1100,29 @@
 					
 						resultpoints = r.geometry.coordinates;
 						
-						// ideiglenes: nem jo, mert a teljes hosszt osztjuk el linearisan a torespontok szamaval:
-						var wholeroutelength = tav;								//ideiglenes
-						lineardivision = wholeroutelength/resultpoints.length;	//ideiglenes
-						currentlength = 0;										//ideiglenes
+						// chartjs adat- es labelbetoltes
+						currentdist = 0;
 						elevChart.data.datasets[0].data = [];
 						elevChart.data.labels = [];
-						for (var i=0; i<resultpoints.length; i++){
-							elevChart.data.datasets[0].data.push(resultpoints[i][2]);
+						for (var i=0; i<resultpoints.length-1; i++){
 							//elevChart.data.labels.push(i);
-							currentlength = currentlength + lineardivision; 				//ideiglenes
-							elevChart.data.labels.push(Math.round(currentlength)+' m'); 	//ideiglenes
+							elevChart.data.datasets[0].data.push(resultpoints[i][2]);
+							elevChart.data.labels.push(Math.round((currentdist + Number.EPSILON)*100)/100); 
+							currentdist = currentdist + osztaskoz; 					
 						}
-
-						//x = ['valami', 'valamimas', 'harmadik'];
-						//x.length = resultpoints.length;
+						elevChart.data.datasets[0].data.push(resultpoints[i][2]);								//utolso pont erteke
+						elevChart.data.labels.push(Math.round((tav/1000 + Number.EPSILON)*100)/100); 			//utolso pont labelje
 						//x.fill(0, 0, resultpoints.length); // mit, honnantol, meddig
-						//elevChart.data.labels = x;
 						elevChart.update();
 						console.log('chart updated');
 						
+						document.getElementById('collapsible2').checked = true;						
 						attribdiv.innerHTML = r.attribution;
 					}
 				  }
 				};
 				
-				body = '{"format_in":"polyline","format_out":"geojson","geometry":'+JSON.stringify(current_polyline)+'}';
+				body = '{"format_in":"polyline","format_out":"geojson","geometry":'+JSON.stringify(current_polyline_osztott)+'}';
 				
 				console.log('Request body:', body);
 				console.log('Using profile:', profile);
@@ -1080,6 +1130,20 @@
 					request.send(body);
 				}	
 			}
+			
+			/*function refreshDirectionOptions() {
+				//keresesi parameter beolvaso/frissito, amint valtozik valami
+				directions_options=[];
+				//directions_options=[{"avoid_features":[{    }]}];
+				directions_options='{"avoid_features":[{      }]}';
+				//var obj = JSON.parse(directions_options);
+				//console.log(obj);
+				if (avoid_highways.checked) { directions_options["avoid_features"].push({["highways"]}) }
+				if (avoid_tollways.checked) { directions_options["avoid_features"].push({["tollways"]}) }
+				avoid_highways;
+				avoid_tollways;
+				
+			}*/
 			
 			var sidebarstate = false; //alaphelyzet: csukva
 			
@@ -1116,14 +1180,13 @@
 					fwpt1.value = wpt1.value;
 					sidebarstate = false;
 				}
-				setTimeout(function(){map.invalidateSize()}, 440);
+				setTimeout(function(){map.invalidateSize()}, 200);
 				console.log('Mapdiv size invalidated');
 			}
 			
 			function openSidebarPanels() {
 				// sidebar container panelek kinyitasa, pl. ha megjelenitettuk az utat
 				document.getElementById('collapsible').checked = true;
-				document.getElementById('collapsible2').checked = true;
 			}
 			
 			function statusCodeHandler(code) {
@@ -1186,7 +1249,10 @@
 								document.getElementById('collapsible2').checked = false;
 								return false;
 							case 4002:
-								showMsgBox('A kért útvonal vélhetően kívül esik az SRTM által lefedett területen<br>[Wrong HTTP headers: '+message+']', 'warning');
+								showMsgBox('Hiba: GeometryCollection helyett LineString szükséges<br>[Wrong HTTP headers: '+message+']', 'warning');
+								elevChart.data.datasets[0].data = [];
+								elevChart.data.labels = [];
+								elevChart.update();
 								document.getElementById('ORS_elevattribution').innerHTML = '';
 								document.getElementById('collapsible2').checked = false;
 								return false;
@@ -1217,6 +1283,9 @@
 								return false;
 							case 4002:
 								showMsgBox('A kért útvonal vélhetően kívül esik az SRTM által lefedett területen<br>[Wrong HTTP headers: '+message+']', 'warning');
+								elevChart.data.datasets[0].data = [];
+								elevChart.data.labels = [];
+								elevChart.update();
 								document.getElementById('ORS_elevattribution').innerHTML = '';
 								document.getElementById('collapsible2').checked = false;
 								return false;
@@ -1267,7 +1336,7 @@
 			
 			function rateLimitCheck(n, milyen, resettime) {
 				if (n<=0){
-					showMsgBox('Az egy nap alatt lekérhető '+milyen+' kérések száma elfogyott - próbálja '+unixTimestampSolver(resettime)+' után', 'error');
+					showMsgBox('Az egy nap alatt lekérhető '+milyen+' kérések száma elfogyott - próbálja később'/*+unixTimestampSolver(resettime)+' után'*/, 'error');
 					return false;
 				} else {
 					return true;
