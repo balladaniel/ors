@@ -164,6 +164,10 @@
 			#route_profile_selector {
 				height: 25px;
 			}
+			#sidebar_results {
+				margin-left: 10px;
+				margin-right: 10px;
+			}
 			#mapdiv {
 				position: absolute;
 				left: 0px;
@@ -178,12 +182,15 @@
 				display: none;
 				grid-template-columns: repeat(2, minmax(0, 1fr));
 				grid-template-areas:
+					'header1Area header2Area'
 					'param1Area param2Area'
-					'param3Area param3Area';
-				margin: 0 0 10px 0;
+					'param3Area param4Area'
+					'param5Area param6Area'
+					'param7Area param7Area';
+				margin: 0 0 2px 0;
 				align-content: start;
 				column-gap: 7px;
-				row-gap: 7px;
+				row-gap: 2px;
 				border: none;
 				width: 100%;
 				font-weight: 400;
@@ -192,6 +199,15 @@
 				background-color: #ffffff00;
 			}
 
+			#header1Param { 
+				grid-area: header1Area;
+				margin-left: 10px;
+				justify-content: center;
+			}
+			#header2Param { 
+				grid-area: header2Area;
+				margin-right: 10px; 
+			}
 			#param1 { 
 				grid-area: param1Area;
 				margin-left: 10px;
@@ -200,10 +216,33 @@
 				grid-area: param2Area;
 				margin-right: 10px; 
 			}
-			#param3 {
-				grid-area: param3Area; 
+			#param3 { 
+				grid-area: param3Area;
+				margin-left: 10px;
+			}
+			#param4 { 
+				grid-area: param4Area;
+				margin-right: 10px; 
+			}
+			#param5 { 
+				grid-area: param5Area;
+				margin-left: 10px;
+			}
+			#param6 { 
+				grid-area: param6Area;
+				margin-right: 10px; 
+			}
+			#param7 {
+				grid-area: param7Area; 
 			}
 			
+			.headergridbox {
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				height: 20px;
+				font-size: 14px;
+			}
 			.paramgridbox {
 				display: flex;
 				flex-direction: row;
@@ -218,6 +257,26 @@
 				height: 20px;
 				margin-left: 10px; 
 				margin-right: 10px; 
+			}
+			
+			.separator {
+				width: 100%;
+			}
+			
+			.results_container {
+				font-size: 14px;
+			}
+			.results_title {
+				font-size: 16px;
+				font-weight: bold;
+				margin-left: 5px;
+				margin-right: 5px;
+			}
+			.results_param {
+				font-weight: bold;
+			}
+			.results_value {
+				
 			}
 			
 			.ABfield {
@@ -294,9 +353,9 @@
 				cursor: pointer;
 				background-size: contain;
 				background-repeat: no-repeat;
-				width: 35px;
-				height: 35px;
-				margin: 5px;
+				width: 28px;
+				height: 28px;
+				margin: 4px;
 				-webkit-transition: all 100ms ease-in;
 				   -moz-transition: all 100ms ease-in;
 						transition: all 100ms ease-in;
@@ -315,6 +374,17 @@
 			}
 			
 			
+			.itiner_tablazat_fejlecsor {
+				font-size: 13px;
+			}
+			.itiner_tablazat_sor {
+				font-size: 11px;
+			}
+			.itiner_tablazat_cella {
+				border: 1px solid #dddddd;
+				height: 30px;
+				align-items: center;
+			}
 			
 			/* nyithato sidebar lista elemek, interaktivan - 1. */
 			/* forrás: https://www.digitalocean.com/community/tutorials/css-collapsible */
@@ -376,7 +446,7 @@
 			}
 			.content-inner {
 				overflow: auto;
-				max-height: 210px;
+				max-height: 300px;
 			}
 			
 			/* nyithato sidebar lista elemek, interaktivan - 2. */
@@ -492,19 +562,40 @@
 			</div>
 			
 			<div id="navi_params" style="display: grid;">
+				<div id="header1Param" class="headergridbox" >
+					Elkerülendő:
+				</div>
 				<div id="param1" class="paramgridbox" >
 					<input id="avoid_highways" name="avoid_highways" type="checkbox" onclick="pontMegjelenit()" style="display: flex;">
-					<label for="avoid_highways">Avoid highways</label>
+					<label for="avoid_highways">Autópályák</label>
 				</div>
 				<div id="param2" class="paramgridbox" >
-					<input id="avoid_tollways" name="avoid_tollways" type="checkbox" onclick="pontMegjelenit()" style="display: flex;">
-					<label for="avoid_tollways">Avoid tollways</label>
+					<input id="avoid_borders" name="avoid_borders" type="checkbox" onclick="pontMegjelenit()" style="display: flex;">
+					<label for="avoid_borders">Avoid borders</label>
 				</div>
-				<div id="param3" class="paramwidegridbox" >ketoszlopotkitoltovalamicsoda, egyeb parameterek</div>
+				<div id="param3" class="paramgridbox" >
+					<input id="avoid_tollways" name="avoid_tollways" type="checkbox" onclick="pontMegjelenit()" style="display: flex;">
+					<label for="avoid_tollways">Útdíjak</label>
+				</div>
+				<div id="param4" class="paramgridbox" >
+					<label for="preference"></label>
+						<select name="preference" id="preference" onchange="pontMegjelenit()">
+							<option value="shortest">Legrövidebb</option>
+							<option value="fastest">Leggyorsabb</option>
+						</select>
+				</div>
+				<div id="param5" class="paramgridbox" >
+					<input id="avoid_ferries" name="avoid_ferries" type="checkbox" onclick="pontMegjelenit()" style="display: flex;">
+					<label for="avoid_ferries">Kompok</label>
+				</div>
+				<!-- szeles gridbox minta
+				<div id="param7" class="paramwidegridbox" >
+					valamicsoda
+				</div>
+				-->
 			</div>
 			
 			<div id="route_profile_wrapperdiv" style="display:flex; flex-direction: row; justify-content: end; align-items:center ">
-				Profile: 
 				<div class="route_profile_selector" style="display: flex; flex-direction: row;">
 					<div style="display: flex;">
 						<input checked="checked" id="car" type="radio" name="profile" value="driving-car" />
@@ -518,8 +609,25 @@
 						<input id="walk" type="radio" name="profile" value="foot-walking" />
 						<label class="route_profile walk" for="walk" onClick="setProfile('walk'); pontMegjelenit()"></label>
 					</div>
-				</div>	
-			</div>		
+				</div>
+			</div>
+			<div style="padding-left: 10px; padding-right: 10px;">	
+				<hr class="separator">
+			</div>
+			<div id="sidebar_results" class="results_container" style="display: flex; flex-direction: column;">
+				<div id="sidebar_results_title" style="display: flex; flex-direction: row; justify-content: center; width: 100%;">
+					<div id="results_title_A" class="results_title"></div> — <div id="results_title_B" class="results_title"></div>
+				</div>
+				<div id="sidebar_results_row_1" style="display: flex; flex-direction: row; justify-content: space-between; width: 100%;">
+					<div class="results_param">Idő:</div>
+					<div id="results_time" class="results_value">—</div>
+				</div>
+				<div id="sidebar_results_row_2" style="display: flex; flex-direction: row; justify-content: space-between; width: 100%;">
+					<div class="results_param">Hossz:</div>
+					<div id="results_distance" class="results_value">—</div>
+				</div>
+				
+			</div>	
 			
 			<!-- nem hasznalt mar 
 			<select id="route_profile_selector">
@@ -535,78 +643,22 @@
 					<div class="collapsible-content">
 						<div class="content-inner">
 							<table style="border-collapse: collapse; width: 100%;">
-								<tr>
-									<th style="border: 1px solid #dddddd;">Lépés #</th>
-									<th style="border: 1px solid #dddddd;">Instrukció (ikonnal)</th>
-									<th style="border: 1px solid #dddddd;">Hossz (m)</th>
-									<th style="border: 1px solid #dddddd;">Hossz (s)</th>
-								</tr>
-								<tr>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-								</tr>
-								<tr>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-								</tr>
-								<tr>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-								</tr>
-								<tr>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-								</tr>
-								<tr>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-								</tr>
-								<tr>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-								</tr>
-								<tr>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-								</tr>
-								<tr>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-								</tr>
-								<tr>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-								</tr>
-								<tr>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-								</tr>
-								<tr>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-									<td style="border: 1px solid #dddddd;">item1</td>
-								</tr>
+								<colgroup>
+									<col span="3">
+									<col span="1" style="width: 11%">
+								</colgroup>
+								<thead class="itiner_tablazat_fejlec">
+								
+									<tr class="itiner_tablazat_fejlecsor">
+										<th class="itiner_tablazat_cella">#</th>
+										<th class="itiner_tablazat_cella">Instrukció</th>
+										<th class="itiner_tablazat_cella">Hossz</th>
+										<th class="itiner_tablazat_cella">Idő (mp)</th>
+									</tr>
+								</thead>
+								<tbody id="table_directions_body">
+									<!-- JS tolti be a sorokat -->
+								</tbody>
 							</table>
 						</div>
 					</div>
@@ -776,6 +828,9 @@
 			workdone = false;
 			var avoid_highways = document.getElementById('avoid_highways');
 			var avoid_tollways = document.getElementById('avoid_tollways');
+			var avoid_ferries = document.getElementById('avoid_ferries');
+			var avoid_borders = document.getElementById('avoid_borders');
+			var preference = document.getElementById("preference");
 			var waypoint_count = 2; //ezt valtoztatjuk majd ha tobb pontot adunk hozza
 			var geocoding_queue = 0;
 			var current_polyline = [];
@@ -790,18 +845,23 @@
 						profile="driving-car";
 						console.log('Profile changed to: ', profile);
 						avoid_highways.disabled = false;
+						avoid_tollways.disabled = false;
 						break;
 					case 'bike':
 						profile="cycling-regular";
 						console.log('Profile changed to: ', profile);
 						avoid_highways.disabled = true;
 						avoid_highways.checked = false;
+						avoid_tollways.disabled = true;
+						avoid_tollways.checked = false;
 						break;
 					case 'walk':
 						profile="foot-walking";
 						console.log('Profile changed to: ', profile);
 						avoid_highways.disabled = true;
 						avoid_highways.checked = false;
+						avoid_tollways.disabled = true;
+						avoid_tollways.checked = false;
 						break;
 					default:
 						profile="driving-car";
@@ -847,6 +907,7 @@
 				waypoint_0_text=document.getElementById(sidebarstate ? 'waypoint_0' : 'float_waypoint_0' ).value;
 				waypoint_1_text=document.getElementById(sidebarstate ? 'waypoint_1' : 'float_waypoint_1' ).value;
 				var hiba=false; // hiba boolean ures mezokhoz
+				refreshDirectionOptions();
 								
 				// van ures mezo? ha igen, ne is folytassuk
 				// elo kell kesziteni tobb mint 2 wpt-ra
@@ -969,6 +1030,12 @@
 							showMsgBox('A magassági adat nem lekérhető, mert a töréspontok száma meghaladja a 2000-ret (ORS limitáció)', 'warning');
 						}
 						
+						document.getElementById('table_directions_body').innerHTML = '';
+						if (navipontok.length==2) {
+							document.getElementById('results_title_A').innerHTML = navipontok[0].valasz.properties.name;
+							document.getElementById('results_title_B').innerHTML = navipontok[1].valasz.properties.name;
+						}
+						
 						for(var i=0; i<lepesek.length; i++) {
 							var p1=lepesek[i].way_points[0];
 							var p2=lepesek[i].way_points[1];
@@ -977,7 +1044,15 @@
 								reszlet[j]=[reszlet[j][1], reszlet[j][0]];
 							}
 							var t = L.polyline(reszlet).addTo(lg)
-							.bindTooltip('<div style="display: flex; flex-direction: row; justify-content: center; align-items: center;"><div style="display: flex;"><img width=24px src="'+directions_icons[lepesek[i].type]+'"/></div><div style="margin-left: 3px; margin-top: 1px; display: flex;">'+lepesek[i].instruction+'</div>'); 
+							.bindTooltip('<div style="display: flex; flex-direction: column;"><div style="display: flex; flex-direction: row; justify-content: center; align-items: center;"><img width=24px src="'+
+							directions_icons[lepesek[i].type]
+							+'"/><div style="margin-left: 3px; margin-top: 1px; display: flex;">'+
+							lepesek[i].instruction
+							+'</div></div><div style="display: flex; flex-direction: row; justify-content: center; align-items: center;"><div style="display: flex;">Szakasz: </div><div style="margin-left: 3px; margin-top: 1px; display: flex;">'+
+							distanceFormatter(lepesek[i].distance)
+							+', '+
+							timeFormatter(lepesek[i].duration)+'</div>'); 
+							
 							t.on('mousemove',e=>{
 								//console.log(e.target);
 								e.target.getTooltip().setLatLng(e.target.getLatLngs()[0])
@@ -988,9 +1063,24 @@
 							t.on('mouseout',e=>{
 								e.target.setStyle({color: "#3388ff", weight: 3})
 							});
+							
+							lepes = i+1;
+							document.getElementById('table_directions_body').insertAdjacentHTML('beforeend','<tr class="itiner_tablazat_sor"><td class="itiner_tablazat_cella">'+
+							lepes
+							+'</td><td class="itiner_tablazat_cella"><div style="display: flex; flex-direction: row; justify-content: left; align-items: center;"><div style="display: flex;"><img width=20px src="'+
+							directions_icons[lepesek[i].type]
+							+'"/></div><div style="margin-left: 3px; margin-top: 1px; display: flex;">'+
+							lepesek[i].instruction
+							+'</div></td><td class="itiner_tablazat_cella">'+
+							distanceFormatter(lepesek[i].distance)
+							+'</td><td class="itiner_tablazat_cella">'+
+							timeFormatter(lepesek[i].duration)
+							+'</td></tr>');
 						}
 						
-						
+						document.getElementById('results_time').innerHTML = timeFormatter(ido);
+						document.getElementById('results_distance').innerHTML = distanceFormatter(tav);
+				
 						var bb1=L.latLng([r.bbox[1],r.bbox[0]]); //lat, lon!
 						var bb2=L.latLng([r.bbox[3],r.bbox[2]]);
 						console.log('bb1:', bb1, 'bb2:', bb2);
@@ -1001,14 +1091,15 @@
 				  }
 				};
 				
-				console.log('avoid highways? = ', avoid_highways.checked)
+				/*console.log('avoid highways? = ', avoid_highways.checked)
 				if (avoid_highways.checked) {
 					option = "highways";
 					body = '{"coordinates":[['+navipontok[0].valasz.geometry.coordinates[0]+','+navipontok[0].valasz.geometry.coordinates[1]+'],['+navipontok[1].valasz.geometry.coordinates[0]+','+navipontok[1].valasz.geometry.coordinates[1]+']],"options":{"avoid_features":["'+option+'"]},"radiuses":-1,"language":"hu"}';
 				} else {
 					option = "";
 					body = '{"coordinates":[['+navipontok[0].valasz.geometry.coordinates[0]+','+navipontok[0].valasz.geometry.coordinates[1]+'],['+navipontok[1].valasz.geometry.coordinates[0]+','+navipontok[1].valasz.geometry.coordinates[1]+']],"options":{},"radiuses":-1,"language":"hu"}';
-				}
+				}*/
+				body = '{"coordinates":[['+navipontok[0].valasz.geometry.coordinates[0]+','+navipontok[0].valasz.geometry.coordinates[1]+'],['+navipontok[1].valasz.geometry.coordinates[0]+','+navipontok[1].valasz.geometry.coordinates[1]+']],"attributes":["avgspeed"],"language":"hu","options":'+JSON.stringify(directions_options)+',"preference":"'+preference.value+'","radiuses":-1,"roundabout_exits":"true"}'; //koordinatak utan kell majd:    ,"alternative_routes":{"target_count":2}
 				console.log('Request body:', body);
 				console.log('Using profile:', profile);
 				if (internetConnectionCheck()) {
@@ -1016,49 +1107,7 @@
 				}
 					
 			}
-					
-					
-			// geokodolas, hozzaadja a pontot a navipontok[]-hoz	(NEM TUD MAGYARUL?! vagy igen?)
-			function pontKeres_geokod(pont) {
-				// Forward Geocode Service (GET) (/geocode/search)
-				console.log('Forward Geocode Service (GET) (/geocode/search)');
-				var url='https://api.openrouteservice.org/geocode/search?api_key='+apikey+'&text='+pont.keres;
-				fetch(url).then(r=>r.json()).then(d=>{
-					result = [d.features[0]]; 
-					result = result[0]; 
-					//navipontok.push(result);
-					pont.valasz=result;
-					console.log('geokod_pont_eredmeny: ', result);
-					geocoding_queue--;
-					console.log('geocoding_queue (még ennyi van hátra): ', geocoding_queue);
-					// mar mindegyik pont geokodolva
-					if (geocoding_queue==0) {
-						console.log('Minden pont elküldve geokódolásra, térképre rakás, ha van találat...');
-						for (var i=0; i<navipontok.length; i++){
-							if (navipontok[i].valasz) {
-								// valami ertelmes van benne, tegyuk ki a markert
-								new L.marker([navipontok[i].valasz.geometry.coordinates[1], navipontok[i].valasz.geometry.coordinates[0]]).addTo(lg);
-							} else {
-								// egyik pontot nem talalta, hiba, kilepes
-								hanyadik = i+1;
-								console.log('Nincs találat! ('+hanyadik+'. pont)');
-								showMsgBox('A(z) '+hanyadik+'. pont nem található', 'error');
-								return;
-							};
-						}
-						getDirections();
-						if (sidebarstate == false) {
-							// lebego ablakbol inditottuk a keresest, ezert nyissuk a sidebart hogy lassak az eredmenyt
-							sidebarStateChange();
-						}
-						openSidebarPanels();
-					}
-				})
-				.catch(error => {
-					showMsgBox('Geokódolás: Hiba történt, lehetséges, hogy nem megfelelő az API-key? ('+error+')', 'error');
-				});
-			}
-			
+				
 			function getElevation_line() {
 			
 				// Elevation Line Service GeoJSON (POST) (/elevation/line)
@@ -1129,21 +1178,63 @@
 				if (internetConnectionCheck()) {
 					request.send(body);
 				}	
+			}	
+					
+			// geokodolas, navipontok[i].keres alapjan keres, eredmeny koordikat hozzaadja a navipontok[i].valasz-hoz
+			function pontKeres_geokod(pont) {
+				// Forward Geocode Service (GET) (/geocode/search)
+				console.log('Forward Geocode Service (GET) (/geocode/search)');
+				var url='https://api.openrouteservice.org/geocode/search?lang=hu-HU&api_key='+apikey+'&text='+pont.keres;
+				console.log(url);
+				fetch(url).then(r=>r.json()).then(d=>{
+					result = [d.features[0]]; 
+					result = result[0]; 
+					//navipontok.push(result);
+					pont.valasz=result;
+					console.log('geokod_pont_eredmeny: ', result);
+					geocoding_queue--;
+					console.log('geocoding_queue (még ennyi van hátra): ', geocoding_queue);
+					// mar mindegyik pont geokodolva
+					if (geocoding_queue==0) {
+						console.log('Minden pont elküldve geokódolásra, térképre rakás, ha van találat...');
+						for (var i=0; i<navipontok.length; i++){
+							if (navipontok[i].valasz) {
+								// valami ertelmes van benne, tegyuk ki a markert
+								new L.marker([navipontok[i].valasz.geometry.coordinates[1], navipontok[i].valasz.geometry.coordinates[0]]).addTo(lg);
+							} else {
+								// egyik pontot nem talalta, hiba, kilepes
+								hanyadik = i+1;
+								console.log('Nincs találat! ('+hanyadik+'. pont)');
+								showMsgBox('A(z) '+hanyadik+'. pont nem található', 'error');
+								return;
+							};
+						}
+						getDirections();
+						if (sidebarstate == false) {
+							// lebego ablakbol inditottuk a keresest, ezert nyissuk a sidebart hogy lassak az eredmenyt
+							sidebarStateChange();
+						}
+						openSidebarPanels();
+					}
+				})
+				.catch(error => {
+					showMsgBox('Geokódolás: Hiba történt, lehetséges, hogy nem megfelelő az API-key? ('+error+')', 'error');
+				});
 			}
 			
-			/*function refreshDirectionOptions() {
+			function refreshDirectionOptions() {
 				//keresesi parameter beolvaso/frissito, amint valtozik valami
 				directions_options=[];
-				//directions_options=[{"avoid_features":[{    }]}];
-				directions_options='{"avoid_features":[{      }]}';
-				//var obj = JSON.parse(directions_options);
-				//console.log(obj);
-				if (avoid_highways.checked) { directions_options["avoid_features"].push({["highways"]}) }
-				if (avoid_tollways.checked) { directions_options["avoid_features"].push({["tollways"]}) }
-				avoid_highways;
-				avoid_tollways;
+				var base ='{"avoid_features":[],"avoid_borders":""}';
+				directions_options = JSON.parse(base);
 				
-			}*/
+				//utvonal beallitasok:
+				if (avoid_highways.checked) { directions_options["avoid_features"].push("highways") };
+				if (avoid_tollways.checked) { directions_options["avoid_features"].push("tollways") };
+				if (avoid_ferries.checked) { directions_options["avoid_features"].push("ferries") };
+				if (avoid_borders.checked) { directions_options["avoid_borders"] = ("all") } else { delete directions_options["avoid_borders"] }; //avoid_borders nem arrayt var!
+				console.log('DIRECTION OPTIONS UPDATED to:', JSON.stringify(directions_options));
+			}
 			
 			var sidebarstate = false; //alaphelyzet: csukva
 			
@@ -1189,6 +1280,59 @@
 				document.getElementById('collapsible').checked = true;
 			}
 			
+			function closeSidebarPanels() {
+				// sidebar container panelek becsukasa, pl. nem talalhato utvonalnal
+				document.getElementById('collapsible').checked = false;
+				document.getElementById('collapsible2').checked = false;
+			}
+			
+			function clearResults() {
+				// utvonaladatok torlese, ha nincs utvonal
+				document.getElementById('results_time').innerHTML = '—';
+				document.getElementById('results_distance').innerHTML = '—';
+			}
+			
+			function distanceFormatter(d) {
+				//alap: meter. eldonti hogy m vagy km kell, visszadja az erteket
+				if (d<1000) {
+					return d+' m';
+				} else {
+					return Math.round((d/1000 + Number.EPSILON)*100)/100+' km';
+				}
+			}
+			
+			function timeFormatter(t) {
+				// visszaadja: X óra X perc X mp
+				if (t==null) {
+					return 'nincs időadat';
+				}
+				t = parseInt(t,10);
+				var h = Math.floor(t/3600) // óra
+				var m = Math.floor((t-(h*3600))/60) // perc
+				var s = t - (h*3600) - (m*60) // másodperc
+				
+				if (t<=60) {
+					if (t==60) {
+						return m+' perc';
+					} else {
+						return s+' mp';
+					}
+				} else if (60<t && t<=3600) {
+					if (t==3600) {
+						return h+' óra';
+					} else {
+						if (s==0) {return m+' perc';}
+						else if (m==0) {return h+' óra '+s+' mp';}
+						else if (h==0) {return m+' perc '+s+' mp';}
+						else {return h+' óra '+m+' perc '+s+' mp';}
+					}
+				} else if (3600<t) {
+					if (s==0) {return h+' óra '+m+' perc';}
+					else if (m==0) {return h+' óra '+s+' mp';}
+					else {return h+' óra '+m+' perc '+s+' mp';}
+				}
+			}
+			
 			function statusCodeHandler(code) {
 				switch (code) {
 					case 200:
@@ -1200,6 +1344,8 @@
 					case 400:
 						console.log('Status code:', code, '(The request is incorrect and therefore can not be processed)');
 						showMsgBox('A kérés hibás, ezért az ORS nem tudja teljesíteni', 'error');
+						closeSidebarPanels();
+						clearResults();
 						return false;
 					case 401:
 						console.log('Status code:', code, '(Unauthorized)');
@@ -1210,6 +1356,8 @@
 					case 404:
 						console.log('Status code:', code, '(An element could not be found. If possible, a more detailed error code is provided)');
 						showMsgBox('Az útvonal nem hozható létre, próbálja más paraméterekkel', 'error');
+						closeSidebarPanels();
+						clearResults();
 						return false;
 					case 405:
 						console.log('Status code:', code, '(The specified HTTP method is not supported. For more details, refer to the EndPoint documentation)');
@@ -1220,6 +1368,8 @@
 					case 500:
 						console.log('Status code:', code, '(An unexpected error was encountered and a more detailed error code is provided)');
 						showMsgBox('A két pont között nem található útvonal', 'error');
+						closeSidebarPanels();
+						clearResults();
 						return false;
 					case 501:
 						console.log('Status code:', code, '(Indicates that the server does not support the functionality needed to fulfill the request)');
@@ -1227,9 +1377,11 @@
 					case 503:
 						console.log('Status code:', code, '(The server is currently unavailable due to overload or maintenance)');
 						showMsgBox('Az OpenRouteService szolgáltatás nem érhető el, próbálja később', 'error');
+						closeSidebarPanels();
 						return false;
 					default:
-						console.log('Status code:', code, '(Ismeretlen hiba, lehetséges, hogy nincs internetkapcsolat)');	
+						console.log('Status code:', code, '(Ismeretlen hiba, lehetséges, hogy nincs internetkapcsolat)');
+						closeSidebarPanels();
 						return false;					
 				}
 			}
