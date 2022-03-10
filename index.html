@@ -1,4 +1,30 @@
 <!doctype html>
+<!--
+
+	==== Openrouteservice útvonaltervező alkalmazás ====
+			
+	Az alábbi webes útvonaltervező alkalmazást Balla Dániel,
+	az ELTE IK Térképtudományi és Geoinformatikai Intézet 
+	mesterszakos hallgatója készítette, diplomamunka keretében.
+	
+	Attribution: 
+	- Leaflet.js: Vladimir Agafonkin - https://leafletjs.com/ (BSD 2-Clause "Simplified" License: https://github.com/Leaflet/Leaflet/blob/main/LICENSE)
+	- Tile services: 
+		- OpenStreetMap: © OpenStreetMap contributors - https://www.openstreetmap.org/ (Open Data Commons Open Database License (ODbL): https://www.openstreetmap.org/copyright)
+	- Openrouteservice: © openrouteservice.org by HeiGIT | Map data © OpenStreetMap contributors - https://openrouteservice.org/ (API results: CC-BY 4.0 (https://creativecommons.org/licenses/by/4.0/), https://openrouteservice.org/terms-of-service/)
+	- Leaflet.contextmenu: Adam Ratcliffe - https://github.com/aratcliffe/Leaflet.contextmenu (MIT License: http://www.opensource.org/licenses/mit-license.php)
+	- Chart.js: Downie, N., Perkins, D., Timberg, E., Sylvestre, J., Panzarino, Z., Brunel, S., & Linsley, T. - https://www.chartjs.org (MIT License: http://www.opensource.org/licenses/mit-license.php)
+	- Turf.js: Copyright (c) 2019 Morgan Herlocker - https://turfjs.org/ (MIT License: https://github.com/Turfjs/turf/blob/master/LICENSE)
+	
+	Felhasznált kódrészletek:
+	- Nyitható sidebar panelek (CSS, Digitalocean.com): https://www.digitalocean.com/community/tutorials/css-collapsible
+	
+	Egyéb elemek:
+	- Felhasználói felület betűtípusa (Open Sans): Google Fonts: https://fonts.google.com/icons (Apache License 2.0: https://www.apache.org/licenses/LICENSE-2.0.html)
+	- Felhasználói felület ikonjainak nagy része: Google Fonts: https://fonts.google.com/icons (Apache License 2.0: https://www.apache.org/licenses/LICENSE-2.0.html)
+
+-->
+
 <html>
 	<head>
 		<title>OpenRouteService útvonaltervező</title>
@@ -29,6 +55,22 @@
 			}
 			select {
 				font-family: inherit;
+			}
+			.visible_flex {
+				display: flex;
+			}
+			.hidden {
+				display: none;
+			}
+			.inactive {
+				filter: brightness(2.5) grayscale(1) opacity(.3);
+				cursor: not-allowed;
+			}
+			.active {
+				cursor: pointer;
+			}
+			.addwaypoint {
+				left: -1px;
 			}
             #uzenetablak {
 				position: fixed;
@@ -384,12 +426,13 @@
 				border: 1px solid #dddddd;
 				height: 30px;
 				align-items: center;
+				padding: 0px 2px 0px 2px;
 			}
 			
 			/* nyithato sidebar lista elemek, interaktivan - 1. */
 			/* forrás: https://www.digitalocean.com/community/tutorials/css-collapsible */
 			
-			.wrap-collapsible {
+			.wrap-collapsible {visegrád rév utca
 				margin-bottom: 1.2rem 0;
 				width: 100%;
 			}			
@@ -446,7 +489,7 @@
 			}
 			.content-inner {
 				overflow: auto;
-				max-height: 300px;
+				max-height: 260px;
 			}
 			
 			/* nyithato sidebar lista elemek, interaktivan - 2. */
@@ -517,11 +560,15 @@
 		</style>
 	</head>
 	<body>
+		<div id="" style="position: fixed; left: 800px; z-index: 15000">
+			<button id="navi_submit" onclick="getIsochrones()" style="height: 100%; max-height: 50px;">TEST: isochrones</button>
+		</div>
 		<div id="lebego_start_ablak" class="lebego_start_ablak_visible">
-		
 			<div id="sidebar_top" style="display: flex; flex-direction: row; justify-content: center;">
-				<div id="" style="display: flex; justify-content: center; align-items: center; width: 30px; margin: 0 2px 0 2px;">
-					<img id="waypoint_add" style="left: -1px;" class="" onClick="" src="icons/add_circle_outline_black_24dp.svg" title="Közbeeső útvonalpont hozzáadása">
+				<div id="" style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 30px; margin: 0 2px 0 2px;">
+					<img id="illustration_wpt_top_lebego" width="28px" src="icons/utvonal2_A_24dp_sajat.svg"/>
+					<img id="waypoint_add" class="addwaypoint active" role="button" onClick="sidebarStateChange(); waypointCountAdd()" src="icons/add_circle_outline_black_24dp.svg" title="Közbeeső útvonalpont hozzáadása">
+					<img id="illustration_wpt_bottom_lebego" width="28px" src="icons/utvonal2_B_24dp_sajat.svg"/>
 				</div>
 				<div id="routeAB" style="display: flex; justify-content: center; flex-direction: column; width: 100%; row-gap: 5px">
 					<div id="route_wptrow_0" style="display: flex; justify-content: center; flex-direction: row; align-items: center;">
@@ -533,8 +580,11 @@
 						<input type="form" id="float_waypoint_1" class="ABfield" onkeyup="if (event.keyCode==13) pontMegjelenit()" placeholder="Célpont"/>
 					</div>
 				</div>
+				<div id="reverse" style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 10px; margin: 0 2px 0 2px;">
+					<img id="reverse_waypoints" class="active" role="button" onClick="reverseWaypoints()" src="icons/swap_vert_black_24dp.svg" title="Irány megfordítása">
+				</div>
 				<div id="OK" style="display: flex; justify-content: center; flex-direction: column;">
-					<button id="float_navi_submit" onclick="pontMegjelenit()" style="height: 100%; max-height: 50px;">Go</button>
+					<button id="float_navi_submit" onclick="pontMegjelenit()" style="height: 100%; max-height: 50px; margin-left: 5px">Go</button>
 				</div>
 			</div>
 			<div style="margin-bottom: 8px; text-align: center;">
@@ -543,21 +593,31 @@
 		</div>
 		<div id="sidebar" style="display: none; flex-direction: column">
 			<div id="sidebar_top" style="display: flex; flex-direction: row; justify-content: center;">
-				<div id="" style="display: flex; justify-content: center; align-items: center; width: 30px; margin: 0 2px 0 2px;">
-					<img id="waypoint_add" style="left: -1px;" class="" onClick="" src="icons/add_circle_outline_black_24dp.svg" title="Közbeeső útvonalpont hozzáadása">
+				<div id="waypoint_add_div" style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 30px; margin: 0 2px 0 2px;">
+					<img id="illustration_wpt_top" width="28px" src="icons/utvonal2_A_24dp_sajat.svg"/>
+					<img id="waypoint_add_sidebar" class="addwaypoint active" role="button" onClick="waypointCountAdd()" src="icons/add_circle_outline_black_24dp.svg" title="Közbeeső útvonalpont hozzáadása"/>
+					<img id="illustration_wpt_bottom" width="28px" src="icons/utvonal2_B_24dp_sajat.svg"/>
 				</div>
 				<div id="routeAB" style="display: flex; justify-content: center; flex-direction: column; width: 100%; row-gap: 5px">
 					<div id="route_wptrow_0" style="display: flex; justify-content: center; flex-direction: row; align-items: center;">
 						<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>A</b></div>
 						<input type="form" id="waypoint_0" class="ABfield" onkeyup="if (event.keyCode==13) pontMegjelenit()" placeholder="Kiindulási pont"/>
 					</div>
+					<div id="route_wptrow_mid" style="display: none; flex-direction: row; align-items: center;">
+						<div style="width: 21px; font-size: 20px; margin-left: 5px;"><b></b></div>
+						<input type="form" id="waypoint_mid" class="ABfield" onkeyup="if (event.keyCode==13) pontMegjelenit()" placeholder="Közbeeső pont"/>
+						<img id="waypoint_remove" style="margin-right: 8px; cursor: pointer;" class="" role="button" onClick="waypointCountRemove()" src="icons/delete_black_24dp.svg" title="Közbeeső útvonalpont törlése">
+					</div>
 					<div id="route_wptrow_1" style="display: flex; flex-direction: row; align-items: center;">
 						<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>B</b></div>
 						<input type="form" id="waypoint_1" class="ABfield" onkeyup="if (event.keyCode==13) pontMegjelenit()" placeholder="Célpont"/>
 					</div>
 				</div>
+				<div id="reverse" style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 10px; margin: 0 2px 0 2px;">
+					<img id="reverse_waypoints" class="active" role="button" onClick="reverseWaypoints()" src="icons/swap_vert_black_24dp.svg" title="Irány megfordítása">
+				</div>
 				<div id="OK" style="display: flex; justify-content: center; flex-direction: column;">
-					<button id="navi_submit" onclick="pontMegjelenit()" style="height: 100%; max-height: 50px;">Go</button>
+					<button id="navi_submit" onclick="pontMegjelenit()" style="height: 100%; max-height: 50px; margin-left: 5px;">Go</button>
 				</div>
 			</div>
 			
@@ -648,12 +708,11 @@
 									<col span="1" style="width: 11%">
 								</colgroup>
 								<thead class="itiner_tablazat_fejlec">
-								
 									<tr class="itiner_tablazat_fejlecsor">
 										<th class="itiner_tablazat_cella">#</th>
 										<th class="itiner_tablazat_cella">Instrukció</th>
 										<th class="itiner_tablazat_cella">Hossz</th>
-										<th class="itiner_tablazat_cella">Idő (mp)</th>
+										<th class="itiner_tablazat_cella">Idő</th>
 									</tr>
 								</thead>
 								<tbody id="table_directions_body">
@@ -761,12 +820,15 @@
 			)			
 		
 			var map=L.map('mapdiv', {	zoomControl: false, 
-										//leaflet.contextmenu: https://github.com/aratcliffe/Leaflet.contextmenu
+										//leaflet.contextmenu forrás (Adam Ratcliffe): https://github.com/aratcliffe/Leaflet.contextmenu
 										contextmenu: true,
 										contextmenuWidth: 140,
 										contextmenuItems: [{
 											text: 'Show coordinates',
 											callback: showCoordinates
+										}, {
+											text: 'Mi található itt?',
+											callback: whatsHere
 										}, {
 											text: 'Center map here',
 											callback: centerMap
@@ -785,7 +847,7 @@
 											text: 'Zoom out',
 											callback: zoomOut
 										}]
-										}).setView([47.475,19.062], 8);
+										}).setView([47.19531,19.54467], 8);
 			L.control.zoom({position: 'bottomright'}).addTo(map); // zoom gombok a jobb also sarokba
 			
 			//contextmenu fuggvenyek
@@ -793,6 +855,10 @@
 				alert(e.latlng);
 			}
 			 
+			function whatsHere (e) {
+				pontKeres_geokod_reverse(e.latlng.lng, e.latlng.lat);
+			}
+			
 			function centerMap (e) {
 				map.panTo(e.latlng);
 			}
@@ -837,6 +903,7 @@
 			var current_polyline_osztott = [];
 			var directions_options = [];
 			var tav = 0;
+			var alternative_routes = 0;
 			
 			//valtozik a profile, mentsuk globalis valtozokent
 			function setProfile(prof) {
@@ -865,6 +932,54 @@
 						break;
 					default:
 						profile="driving-car";
+				}
+			}
+			
+			// novekszik az utvonalpontok szama
+			function waypointCountAdd() {
+				if (waypoint_count == 2) {
+				waypoint_count += 1; 
+					document.getElementById('route_wptrow_mid').style = "display: flex; flex-direction: row; align-items: center;";
+					document.getElementById('waypoint_add_sidebar').classList.remove('active');
+					document.getElementById('waypoint_add_sidebar').classList.add('inactive');
+					document.getElementById('waypoint_add_sidebar').setAttribute('onClick','');
+					document.getElementById('waypoint_add').classList.remove('active');
+					document.getElementById('waypoint_add').classList.add('inactive');
+					document.getElementById('waypoint_add').setAttribute('onClick','');
+					document.getElementById('illustration_wpt_top').src = "icons/utvonal3_A_24dp_sajat.svg";
+					document.getElementById('illustration_wpt_bottom').src = "icons/utvonal3_B_24dp_sajat.svg";
+				}
+			}
+			
+			// csökken az utvonalpontok szama
+			function waypointCountRemove() {
+				if (waypoint_count == 3) {
+					waypoint_count -= 1; 
+					document.getElementById('route_wptrow_mid').style = "display: none; flex-direction: row; align-items: center;";
+					document.getElementById('waypoint_add_sidebar').classList.remove('inactive');
+					document.getElementById('waypoint_add_sidebar').classList.add('active');
+					document.getElementById('waypoint_add_sidebar').setAttribute('onClick','waypointCountAdd()');
+					document.getElementById('waypoint_add').classList.remove('inactive');
+					document.getElementById('waypoint_add').classList.add('active');
+					document.getElementById('waypoint_add').setAttribute('onClick','sidebarStateChange(); waypointCountAdd()');
+					document.getElementById('illustration_wpt_top').src = "icons/utvonal2_A_24dp_sajat.svg";
+					document.getElementById('illustration_wpt_bottom').src = "icons/utvonal2_B_24dp_sajat.svg";
+				}
+			}
+			
+			// utvonalterv megforditasa
+			function reverseWaypoints() {
+				if (sidebarstate == false) {
+					var wpt0 = document.getElementById('float_waypoint_0').value;
+					var wpt1 = document.getElementById('float_waypoint_1').value;
+					document.getElementById('float_waypoint_1').value = wpt0; 
+					document.getElementById('float_waypoint_0').value = wpt1;
+				}
+				if (sidebarstate == true) {
+					var wpt0 = document.getElementById('waypoint_0').value;
+					var wpt1 = document.getElementById('waypoint_1').value;
+					document.getElementById('waypoint_1').value = wpt0; 
+					document.getElementById('waypoint_0').value = wpt1;
 				}
 			}
 			
@@ -904,25 +1019,48 @@
 			function pontMegjelenit() {
 				w0=document.getElementById(sidebarstate ? 'waypoint_0' : 'float_waypoint_0' );
 				w1=document.getElementById(sidebarstate ? 'waypoint_1' : 'float_waypoint_1' );
+				wmid=document.getElementById('waypoint_mid');
 				waypoint_0_text=document.getElementById(sidebarstate ? 'waypoint_0' : 'float_waypoint_0' ).value;
-				waypoint_1_text=document.getElementById(sidebarstate ? 'waypoint_1' : 'float_waypoint_1' ).value;
+				waypoint_1_text=document.getElementById('waypoint_mid').value;
+				waypoint_2_text=document.getElementById(sidebarstate ? 'waypoint_1' : 'float_waypoint_1' ).value;
 				var hiba=false; // hiba boolean ures mezokhoz
 				refreshDirectionOptions();
 								
 				// van ures mezo? ha igen, ne is folytassuk
-				// elo kell kesziteni tobb mint 2 wpt-ra
-				if (waypoint_0_text == "") {
-					console.log('wpt0 ures!');
-					hiba=true;
-					w0.classList.add("ABfield_error");
-					setTimeout(function(){w0.classList.remove("ABfield_error");}, 1500);
-				} 
-				if (waypoint_1_text == "") {
-					console.log('wpt1 ures!');
-					hiba=true;
-					w1.classList.add("ABfield_error");
-					setTimeout(function(){w1.classList.remove("ABfield_error");}, 1500);
-				};
+				if (waypoint_count == 2) {
+					if (waypoint_0_text == "") {
+						console.log('wpt0 ures!');
+						hiba=true;
+						w0.classList.add("ABfield_error");
+						setTimeout(function(){w0.classList.remove("ABfield_error");}, 1500);
+					} 
+					if (waypoint_2_text == "") {
+						console.log('wpt2 ures!');
+						hiba=true;
+						w1.classList.add("ABfield_error");
+						setTimeout(function(){w1.classList.remove("ABfield_error");}, 1500);
+					};
+					waypoint_1_text = waypoint_2_text;
+				} else {
+					if (waypoint_0_text == "") {
+						console.log('wpt0 ures!');
+						hiba=true;
+						w0.classList.add("ABfield_error");
+						setTimeout(function(){w0.classList.remove("ABfield_error");}, 1500);
+					} 
+					if (waypoint_1_text == "") {
+						console.log('wpt1 (mid) ures!');
+						hiba=true;
+						wmid.classList.add("ABfield_error");
+						setTimeout(function(){wmid.classList.remove("ABfield_error");}, 1500);
+					};
+					if (waypoint_2_text == "") {
+						console.log('wpt2 ures!');
+						hiba=true;
+						w1.classList.add("ABfield_error");
+						setTimeout(function(){w1.classList.remove("ABfield_error");}, 1500);
+					};
+				}
 				if (hiba) {
 					// valamelyik mezo ures, ne folytassuk, szoljunk rola
 						showMsgBox('Az egyik mező üresen maradt', 'warning');
@@ -933,9 +1071,8 @@
 				lg.clearLayers();
 				navipontok = [];
 				geocoding_queue = waypoint_count; 
-				for (var i=0; i<2; i++){
-					var text=document.getElementById(sidebarstate ? 'waypoint_'+i : 'float_waypoint_'+i).value;
-					//console.log('PONTKERES');
+				for (var i=0; i<waypoint_count; i++){
+					var text=eval('waypoint_'+i+'_text');
 					navipontok[i] = {keres:text};
 					pontKeres_geokod(navipontok[i]);
 				}
@@ -980,112 +1117,235 @@
 					}			
 					
 					if (statusCodeHandler(this.status) === true) {
-						current_polyline=[];
-						current_polyline_osztott=[];
-						
-						tav=r.features[0].properties.summary.distance;
-						var ido=r.features[0].properties.summary.duration;
-						var lepesek=r.features[0].properties.segments[0].steps;
-						var koord = current_polyline = r.features[0].geometry.coordinates;
-						
-						var turfline = turf.lineString(current_polyline);
-						var turfoptions = {units: 'kilometers'};
-						if (tav/1000 <= 5) {
-							osztaskoz = 0.1;
-						} else if (tav/1000 <= 50) {
-							osztaskoz = 0.1;
-						} else if (tav/1000 <= 100) {
-							osztaskoz = 0.5;
-						} else if (tav/1000 <= 250) {
-							osztaskoz = 0.5;
-						} else if (tav/1000 <= 500) {
-							osztaskoz = 1;
-						} else if (tav/1000 <= 1000) {
-							osztaskoz = 10;
-						} else if (tav/1000 <= 2500) {
-							osztaskoz = 25;
-						} else if (tav/1000 <= 6000) {
-							osztaskoz = 100;
-						}
-						elsopont=turf.along(turfline, 0, turfoptions);
-						current_polyline_osztott[0]=[elsopont.geometry.coordinates[0], elsopont.geometry.coordinates[1]]; //elso pont, hogy 0kmrol kezdjuk a magassagi gorbet
-						for (var i=osztaskoz, db = 1; i<tav/1000; i=i+osztaskoz) {
-							var along = turf.along(turfline, i, turfoptions);
-							//new L.marker([along.geometry.coordinates[1], along.geometry.coordinates[0]]).addTo(lg);
-							current_polyline_osztott[db]=[along.geometry.coordinates[0], along.geometry.coordinates[1]];
-							db = db+1;
-						}
-						utolsopont=turf.along(turfline, tav, turfoptions);
-						current_polyline_osztott[db]=[utolsopont.geometry.coordinates[0], utolsopont.geometry.coordinates[1]]  //utolso pont, hogy a celpont magassagat is rajzoljuk utolsokent
-						//console.log(turf.along(turfline, 0, turfoptions));
-						//console.log(current_polyline_osztott);
-						
-						if (current_polyline_osztott.length<2000) {
-							// el se inditsuk a magassagi kerest, ha 2000nel tobb node van
-							getElevation_line();
-							console.log('node count is less than 2000, getting elevation for polyline...');
-						} else {
-							document.getElementById('ORS_elevattribution').innerHTML = '';
-							document.getElementById('collapsible2').checked = false;
-							showMsgBox('A magassági adat nem lekérhető, mert a töréspontok száma meghaladja a 2000-ret (ORS limitáció)', 'warning');
-						}
-						
-						document.getElementById('table_directions_body').innerHTML = '';
-						if (navipontok.length==2) {
-							document.getElementById('results_title_A').innerHTML = navipontok[0].valasz.properties.name;
-							document.getElementById('results_title_B').innerHTML = navipontok[1].valasz.properties.name;
-						}
-						
-						for(var i=0; i<lepesek.length; i++) {
-							var p1=lepesek[i].way_points[0];
-							var p2=lepesek[i].way_points[1];
-							var reszlet=koord.slice(p1,p2+1);
-							for(var j=0; j<reszlet.length; j++) {
-								reszlet[j]=[reszlet[j][1], reszlet[j][0]];
+					
+						document.getElementById('table_directions_body').innerHTML = ''; //itiner tablazat body uritese
+						var x = alternative_routes;
+						for (x; x > -1; x--) {
+							//a kapott utvonalak tombjeben a vegerol megyunk az elsoig
+							
+							tav=r.features[x].properties.summary.distance;
+							var ido=r.features[x].properties.summary.duration;
+							var lepesek1=r.features[x].properties.segments[0].steps;
+							if (waypoint_count==3) { var lepesek2=r.features[x].properties.segments[1].steps; };
+							var koord = current_polyline = r.features[x].geometry.coordinates;
+							
+							//utvonal megjelenites, 1. szegmens (elso waypointtol az utolsoig, vagy ha 3 pont van, a kozepsoig)
+							for (var i=0; i<lepesek1.length; i++) {
+								var p1=lepesek1[i].way_points[0];
+								var p2=lepesek1[i].way_points[1];
+								var reszlet=koord.slice(p1,p2+1);
+								for (var j=0; j<reszlet.length; j++) {
+									reszlet[j]=[reszlet[j][1], reszlet[j][0]];
+								}
+								var t = L.polyline(reszlet).addTo(lg)
+								.bindTooltip('<div style="display: flex; flex-direction: column;"><div style="display: flex; flex-direction: row; justify-content: center; align-items: center;"><img width=24px src="'+
+								directions_icons[lepesek1[i].type]
+								+'"/><div style="margin-left: 3px; margin-top: 1px; display: flex;">'+
+								lepesek1[i].instruction
+								+'</div></div><div style="display: flex; flex-direction: row; justify-content: center; align-items: center;"><div style="display: flex;">Szakasz: </div><div style="margin-left: 3px; margin-top: 1px; display: flex;">'+
+								distanceFormatter(lepesek1[i].distance)
+								+', '+
+								timeFormatter(lepesek1[i].duration)+'</div>'); 
+								
+								if (x > 0) { 
+									// alternativ ut
+									t.setStyle({color: "gray"}); 
+								} 
+								if (x == 0) {
+									//fo ut
+									t.on('mousemove',e=>{
+										//console.log(e.target);
+										e.target.getTooltip().setLatLng(e.target.getLatLngs()[0]);
+									});
+									t.on('mouseover',e=>{
+										e.target.setStyle({color: "red", weight: 5});
+									});
+									t.on('mouseout',e=>{
+										e.target.setStyle({color: "#3388ff", weight: 3});
+									});
+									lepes = i+1;
+									document.getElementById('table_directions_body').insertAdjacentHTML('beforeend','<tr class="itiner_tablazat_sor"><td class="itiner_tablazat_cella">'+
+									lepes
+									+'</td><td class="itiner_tablazat_cella"><div style="display: flex; flex-direction: row; justify-content: left; align-items: center;"><div style="display: flex;"><img width=20px src="'+
+									directions_icons[lepesek1[i].type]
+									+'"/></div><div style="margin-left: 3px; margin-top: 1px; display: flex;">'+
+									lepesek1[i].instruction
+									+'</div></td><td class="itiner_tablazat_cella">'+
+									distanceFormatter(lepesek1[i].distance)
+									+'</td><td class="itiner_tablazat_cella">'+
+									timeFormatter(lepesek1[i].duration)
+									+'</td></tr>');
+								}
 							}
-							var t = L.polyline(reszlet).addTo(lg)
-							.bindTooltip('<div style="display: flex; flex-direction: column;"><div style="display: flex; flex-direction: row; justify-content: center; align-items: center;"><img width=24px src="'+
-							directions_icons[lepesek[i].type]
-							+'"/><div style="margin-left: 3px; margin-top: 1px; display: flex;">'+
-							lepesek[i].instruction
-							+'</div></div><div style="display: flex; flex-direction: row; justify-content: center; align-items: center;"><div style="display: flex;">Szakasz: </div><div style="margin-left: 3px; margin-top: 1px; display: flex;">'+
-							distanceFormatter(lepesek[i].distance)
-							+', '+
-							timeFormatter(lepesek[i].duration)+'</div>'); 
 							
-							t.on('mousemove',e=>{
-								//console.log(e.target);
-								e.target.getTooltip().setLatLng(e.target.getLatLngs()[0])
-							});
-							t.on('mouseover',e=>{
-								e.target.setStyle({color: "red", weight: 5})
-							});
-							t.on('mouseout',e=>{
-								e.target.setStyle({color: "#3388ff", weight: 3})
-							});
+							if (x == 0) {
+								//csak az elso utvonaltomb featurre fut le (fo ut, nem alternativ ut):
+								
+								current_polyline_osztott=[];
+								//polyline felosztas (turf.along)
+								var turfline = turf.lineString(current_polyline);
+								var turfoptions = {units: 'kilometers'};
+								if (tav/1000 <= 5) {
+									osztaskoz = 0.1;
+								} else if (tav/1000 <= 50) {
+									osztaskoz = 0.1;
+								} else if (tav/1000 <= 100) {
+									osztaskoz = 0.5;
+								} else if (tav/1000 <= 250) {
+									osztaskoz = 0.5;
+								} else if (tav/1000 <= 500) {
+									osztaskoz = 1;
+								} else if (tav/1000 <= 1000) {
+									osztaskoz = 10;
+								} else if (tav/1000 <= 2500) {
+									osztaskoz = 25;
+								} else if (tav/1000 <= 6000) {
+									osztaskoz = 100;
+								}
+								elsopont=turf.along(turfline, 0, turfoptions);
+								current_polyline_osztott[0]=[elsopont.geometry.coordinates[0], elsopont.geometry.coordinates[1]]; //elso pont, hogy 0kmrol kezdjuk a magassagi gorbet
+								for (var i=osztaskoz, db = 1; i<tav/1000; i=i+osztaskoz) {
+									var along = turf.along(turfline, i, turfoptions);
+									//new L.marker([along.geometry.coordinates[1], along.geometry.coordinates[0]]).addTo(lg);
+									current_polyline_osztott[db]=[along.geometry.coordinates[0], along.geometry.coordinates[1]];
+									db = db+1;
+								}
+								utolsopont=turf.along(turfline, tav, turfoptions);
+								current_polyline_osztott[db]=[utolsopont.geometry.coordinates[0], utolsopont.geometry.coordinates[1]]  //utolso pont, hogy a celpont magassagat is rajzoljuk utolsokent
+								
+								//magassagi lekeres
+								if (current_polyline_osztott.length<2000) {
+									// el se inditsuk a magassagi kerest, ha 2000nel tobb node van
+									getElevation_line();
+									console.log('node count is less than 2000, getting elevation for polyline...');
+								} else {
+									document.getElementById('ORS_elevattribution').innerHTML = '';
+									document.getElementById('collapsible2').checked = false;
+									showMsgBox('A magassági adat nem lekérhető, mert a töréspontok száma meghaladja a 2000-ret (ORS limitáció)', 'warning');
+								}
+							}
 							
-							lepes = i+1;
-							document.getElementById('table_directions_body').insertAdjacentHTML('beforeend','<tr class="itiner_tablazat_sor"><td class="itiner_tablazat_cella">'+
-							lepes
-							+'</td><td class="itiner_tablazat_cella"><div style="display: flex; flex-direction: row; justify-content: left; align-items: center;"><div style="display: flex;"><img width=20px src="'+
-							directions_icons[lepesek[i].type]
-							+'"/></div><div style="margin-left: 3px; margin-top: 1px; display: flex;">'+
-							lepesek[i].instruction
-							+'</div></td><td class="itiner_tablazat_cella">'+
-							distanceFormatter(lepesek[i].distance)
-							+'</td><td class="itiner_tablazat_cella">'+
-							timeFormatter(lepesek[i].duration)
-							+'</td></tr>');
+							if (waypoint_count == 3) {
+								//utvonal megjelenites, 2. szegmens (kozepso utvonalponttol a celpontig)
+								for (var i=0; i<lepesek2.length; i++) {
+									var p1=lepesek2[i].way_points[0];
+									var p2=lepesek2[i].way_points[1];
+									var reszlet=koord.slice(p1,p2+1);
+									for (var j=0; j<reszlet.length; j++) {
+										reszlet[j]=[reszlet[j][1], reszlet[j][0]];
+									}
+									var t = L.polyline(reszlet).addTo(lg)
+									.bindTooltip('<div style="display: flex; flex-direction: column;"><div style="display: flex; flex-direction: row; justify-content: center; align-items: center;"><img width=24px src="'+
+									directions_icons[lepesek2[i].type]
+									+'"/><div style="margin-left: 3px; margin-top: 1px; display: flex;">'+
+									lepesek2[i].instruction
+									+'</div></div><div style="display: flex; flex-direction: row; justify-content: center; align-items: center;"><div style="display: flex;">Szakasz: </div><div style="margin-left: 3px; margin-top: 1px; display: flex;">'+
+									distanceFormatter(lepesek2[i].distance)
+									+', '+
+									timeFormatter(lepesek2[i].duration)+'</div>'); 
+									
+									if (x > 0) { 
+										// alternativ ut
+										t.setStyle({color: "gray"}); 
+									} 
+									if (x == 0) {
+										//fo ut
+										t.on('mousemove',e=>{
+											//console.log(e.target);
+											e.target.getTooltip().setLatLng(e.target.getLatLngs()[0]);
+										});
+										t.on('mouseover',e=>{
+											e.target.setStyle({color: "red", weight: 5});
+										});
+										t.on('mouseout',e=>{
+											e.target.setStyle({color: "#3388ff", weight: 3});
+										});
+										lepes = lepes+1;
+										document.getElementById('table_directions_body').insertAdjacentHTML('beforeend','<tr class="itiner_tablazat_sor"><td class="itiner_tablazat_cella">'+
+										lepes
+										+'</td><td class="itiner_tablazat_cella"><div style="display: flex; flex-direction: row; justify-content: left; align-items: center;"><div style="display: flex;"><img width=20px src="'+
+										directions_icons[lepesek2[i].type]
+										+'"/></div><div style="margin-left: 3px; margin-top: 1px; display: flex;">'+
+										lepesek2[i].instruction
+										+'</div></td><td class="itiner_tablazat_cella">'+
+										distanceFormatter(lepesek2[i].distance)
+										+'</td><td class="itiner_tablazat_cella">'+
+										timeFormatter(lepesek2[i].duration)
+										+'</td></tr>');
+									}
+								}
+								
+								if (x == 0) {
+									//csak az elso utvonaltomb featurre fut le (fo ut, nem alternativ ut):
+									
+									current_polyline_osztott=[];
+									//polyline felosztas (turf.along)
+									var turfline = turf.lineString(current_polyline);
+									var turfoptions = {units: 'kilometers'};
+									if (tav/1000 <= 5) {
+										osztaskoz = 0.1;
+									} else if (tav/1000 <= 50) {
+										osztaskoz = 0.1;
+									} else if (tav/1000 <= 100) {
+										osztaskoz = 0.5;
+									} else if (tav/1000 <= 250) {
+										osztaskoz = 0.5;
+									} else if (tav/1000 <= 500) {
+										osztaskoz = 1;
+									} else if (tav/1000 <= 1000) {
+										osztaskoz = 10;
+									} else if (tav/1000 <= 2500) {
+										osztaskoz = 25;
+									} else if (tav/1000 <= 6000) {
+										osztaskoz = 100;
+									}
+									elsopont=turf.along(turfline, 0, turfoptions);
+									current_polyline_osztott[0]=[elsopont.geometry.coordinates[0], elsopont.geometry.coordinates[1]]; //elso pont, hogy 0kmrol kezdjuk a magassagi gorbet
+									for (var i=osztaskoz, db = 1; i<tav/1000; i=i+osztaskoz) {
+										var along = turf.along(turfline, i, turfoptions);
+										//new L.marker([along.geometry.coordinates[1], along.geometry.coordinates[0]]).addTo(lg);
+										current_polyline_osztott[db]=[along.geometry.coordinates[0], along.geometry.coordinates[1]];
+										db = db+1;
+									}
+									utolsopont=turf.along(turfline, tav, turfoptions);
+									current_polyline_osztott[db]=[utolsopont.geometry.coordinates[0], utolsopont.geometry.coordinates[1]]  //utolso pont, hogy a celpont magassagat is rajzoljuk utolsokent
+									
+									//magassagi lekeres
+									if (current_polyline_osztott.length<2000) {
+										// el se inditsuk a magassagi kerest, ha 2000nel tobb node van
+										getElevation_line();
+										console.log('node count is less than 2000, getting elevation for polyline...');
+									} else {
+										document.getElementById('ORS_elevattribution').innerHTML = '';
+										document.getElementById('collapsible2').checked = false;
+										showMsgBox('A magassági adat nem lekérhető, mert a töréspontok száma meghaladja a 2000-ret (ORS limitáció)', 'warning');
+									}
+									
+								}
+							}
+							
+							//itiner betoltes
+							if (navipontok.length==2) {
+								document.getElementById('results_title_A').innerHTML = navipontok[0].valasz.properties.name;
+								document.getElementById('results_title_B').innerHTML = navipontok[1].valasz.properties.name;
+							} else {
+								document.getElementById('results_title_A').innerHTML = navipontok[0].valasz.properties.name;
+								document.getElementById('results_title_B').innerHTML = navipontok[2].valasz.properties.name;
+							}
+							
 						}
-						
+							
+						//eredmenyek megjelenitese
 						document.getElementById('results_time').innerHTML = timeFormatter(ido);
 						document.getElementById('results_distance').innerHTML = distanceFormatter(tav);
 				
+						//leaflet panning az utvonalhoz
 						var bb1=L.latLng([r.bbox[1],r.bbox[0]]); //lat, lon!
 						var bb2=L.latLng([r.bbox[3],r.bbox[2]]);
 						console.log('bb1:', bb1, 'bb2:', bb2);
 						map.fitBounds(L.latLngBounds(bb1, bb2));
 						
+						//attribution
 						attribdiv.innerHTML = r.metadata.attribution;
 					}
 				  }
@@ -1099,7 +1359,11 @@
 					option = "";
 					body = '{"coordinates":[['+navipontok[0].valasz.geometry.coordinates[0]+','+navipontok[0].valasz.geometry.coordinates[1]+'],['+navipontok[1].valasz.geometry.coordinates[0]+','+navipontok[1].valasz.geometry.coordinates[1]+']],"options":{},"radiuses":-1,"language":"hu"}';
 				}*/
-				body = '{"coordinates":[['+navipontok[0].valasz.geometry.coordinates[0]+','+navipontok[0].valasz.geometry.coordinates[1]+'],['+navipontok[1].valasz.geometry.coordinates[0]+','+navipontok[1].valasz.geometry.coordinates[1]+']],"attributes":["avgspeed"],"language":"hu","options":'+JSON.stringify(directions_options)+',"preference":"'+preference.value+'","radiuses":-1,"roundabout_exits":"true"}'; //koordinatak utan kell majd:    ,"alternative_routes":{"target_count":2}
+				if (waypoint_count == 2) {
+					body = '{"coordinates":[['+navipontok[0].valasz.geometry.coordinates[0]+','+navipontok[0].valasz.geometry.coordinates[1]+'],['+navipontok[1].valasz.geometry.coordinates[0]+','+navipontok[1].valasz.geometry.coordinates[1]+']],"attributes":["avgspeed"],"language":"hu","options":'+JSON.stringify(directions_options)+',"preference":"'+preference.value+'","radiuses":-1,"roundabout_exits":"true"}'; //koordinatak utan kell majd:  ,"alternative_routes":{"target_count":3}
+				} else {
+					body = '{"coordinates":[['+navipontok[0].valasz.geometry.coordinates[0]+','+navipontok[0].valasz.geometry.coordinates[1]+'],['+navipontok[1].valasz.geometry.coordinates[0]+','+navipontok[1].valasz.geometry.coordinates[1]+'],['+navipontok[2].valasz.geometry.coordinates[0]+','+navipontok[2].valasz.geometry.coordinates[1]+']],"attributes":["avgspeed"],"language":"hu","options":'+JSON.stringify(directions_options)+',"preference":"'+preference.value+'","radiuses":-1,"roundabout_exits":"true"}'; //koordinatak utan kell majd:  ,"alternative_routes":{"target_count":3}
+				}
 				console.log('Request body:', body);
 				console.log('Using profile:', profile);
 				if (internetConnectionCheck()) {
@@ -1220,6 +1484,91 @@
 				.catch(error => {
 					showMsgBox('Geokódolás: Hiba történt, lehetséges, hogy nem megfelelő az API-key? ('+error+')', 'error');
 				});
+			}
+			
+			// geokodolas visszafele, erkezo koordinatapar alapjan keres, eredmeny egy string
+			function pontKeres_geokod_reverse(lon, lat) {
+				// Reverse Geocode Service (GET) (/geocode/reverse)
+				console.log('Reverse Geocode Service (GET) (/geocode/reverse)');
+				var url='https://api.openrouteservice.org/geocode/reverse?lang=hu-HU&api_key='+apikey+'&point.lon='+lon+'&point.lat='+lat;
+				fetch(url).then(r=>r.json()).then(d=>{
+					result = d.features[0].properties.name + ', ' + d.features[0].properties.neighbourhood + ', ' + d.features[0].properties.locality + ', ' + d.features[0].properties.country; 
+					return result;
+				})
+				.catch(error => {
+					showMsgBox('Fordított geokódolás: Hiba történt, lehetséges, hogy nem megfelelő az API-key? ('+error+')', 'error');
+				});
+			}
+			
+			function getIsochrones() {
+				
+				// Isochrones Service (/v2/isochrones/{profile})
+				console.log('Isochrones Service (POST) (/v2/isochrones/{profile}');
+				let request = new XMLHttpRequest();
+				request.open('POST', "https://api.openrouteservice.org/v2/isochrones/"+profile);
+				request.setRequestHeader('Accept', 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8');
+				request.setRequestHeader('Content-Type', 'application/json');
+				request.setRequestHeader('Authorization', apikey);
+				request.responseType = 'json';
+				
+				request.onreadystatechange = function () {
+				  if (this.readyState === 4) {
+					console.log('Status code:', this.status);
+					console.log('Headers:', this.getAllResponseHeaders());
+					console.log('Response Body:', this.response);
+					var headers = this.getAllResponseHeaders();
+					var r = this.response;
+					
+					var attribdiv = document.getElementById('ORSattribution');
+						
+					var hol = headers.search("x-ratelimit-remaining:");
+					var hol2 = headers.search("x-ratelimit-reset:");
+					var remaining='';
+					var reset='';
+					for(var i=0; i<4; i++){
+						remaining = remaining+headers.charAt(hol+23+i);
+					}
+					for(var i=0; i<10; i++){
+						reset = reset+headers.charAt(hol2+19+i);
+					}
+					if (rateLimitCheck(remaining, 'útvonalkeresési', reset) == false) {
+						attribdiv.innerHTML = '';
+						return;
+					}			
+					
+					if (statusCodeHandler(this.status) === true) {
+						lg.clearLayers();
+						for (var x=0; x<2; x++) {
+							
+							var nodes=r.features[x].geometry.coordinates[0];
+							console.log(r.features[0].geometry.coordinates[0]);
+							
+							for (var i=0; i<nodes.length; i++) {
+								nodes[i]=[nodes[i][1], nodes[i][0]];
+							}
+							var t = L.polygon(nodes).addTo(lg)
+							.bindTooltip('Idő: '+r.features[x].properties.value+' s'); 
+								
+						} 
+				
+						//leaflet panning a terulethez
+						var bb1=L.latLng([r.bbox[1],r.bbox[0]]); //lat, lon!
+						var bb2=L.latLng([r.bbox[3],r.bbox[2]]);
+						console.log('bb1:', bb1, 'bb2:', bb2);
+						map.fitBounds(L.latLngBounds(bb1, bb2));
+						
+						//attribution
+						attribdiv.innerHTML = r.metadata.attribution;
+					}
+				  }
+				};
+				body = '{"locations":[[8.681495,49.41461]],"range":[300, 500],"range_type":"time"}';
+				console.log('Request body:', body);
+				console.log('Using profile:', profile);
+				if (internetConnectionCheck()) {
+					request.send(body);
+				}
+				
 			}
 			
 			function refreshDirectionOptions() {
@@ -1367,7 +1716,7 @@
 						return false;
 					case 500:
 						console.log('Status code:', code, '(An unexpected error was encountered and a more detailed error code is provided)');
-						showMsgBox('A két pont között nem található útvonal', 'error');
+						showMsgBox('A két pont között nem található útvonal, próbálja más paraméterekkel', 'error');
 						closeSidebarPanels();
 						clearResults();
 						return false;
