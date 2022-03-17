@@ -228,7 +228,8 @@
 					'param1Area param2Area'
 					'param3Area param4Area'
 					'param5Area param6Area'
-					'param7Area param7Area';
+					'param7Area param8Area'
+					'param9Area param9Area';
 				margin: 0 0 2px 0;
 				align-content: start;
 				column-gap: 7px;
@@ -275,7 +276,19 @@
 				margin-right: 10px; 
 			}
 			#param7 {
-				grid-area: param7Area; 
+				grid-area: param7Area;
+				margin-left: 10px; 
+			}
+			#param8 {
+				grid-area: param8Area; 
+				margin-right: 10px; 
+			}
+			#param9 {
+				grid-area: param9Area; 
+			}
+			
+			#preference {
+				margin-left: 3px;
 			}
 			
 			.headergridbox {
@@ -573,15 +586,15 @@
 				<div id="routeAB" style="display: flex; justify-content: center; flex-direction: column; width: 100%; row-gap: 5px">
 					<div id="route_wptrow_0" style="display: flex; justify-content: center; flex-direction: row; align-items: center;">
 						<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>A</b></div>
-						<input type="form" id="float_waypoint_0" class="ABfield" onkeyup="if (event.keyCode==13) pontMegjelenit()" placeholder="Kiindulási pont"/>
+						<input type="form" id="float_waypoint_0" class="ABfield" onkeyup="if (event.keyCode==13) pontMegjelenit()" oninput="waypointFormsChanged()" placeholder="Kiindulási pont"/>
 					</div>
 					<div id="route_wptrow_1" style="display: flex; flex-direction: row; align-items: center;">
 						<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>B</b></div>
-						<input type="form" id="float_waypoint_1" class="ABfield" onkeyup="if (event.keyCode==13) pontMegjelenit()" placeholder="Célpont"/>
+						<input type="form" id="float_waypoint_1" class="ABfield" onkeyup="if (event.keyCode==13) pontMegjelenit()" oninput="waypointFormsChanged()" placeholder="Célpont"/>
 					</div>
 				</div>
 				<div id="reverse" style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 10px; margin: 0 2px 0 2px;">
-					<img id="reverse_waypoints" class="active" role="button" onClick="reverseWaypoints()" src="icons/swap_vert_black_24dp.svg" title="Irány megfordítása">
+					<img id="reverse_waypoints" class="active" role="button" onClick="reverseWaypoints(); pontMegjelenit()" src="icons/swap_vert_black_24dp.svg" title="Irány megfordítása">
 				</div>
 				<div id="OK" style="display: flex; justify-content: center; flex-direction: column;">
 					<button id="float_navi_submit" onclick="pontMegjelenit()" style="height: 100%; max-height: 50px; margin-left: 5px">Go</button>
@@ -601,20 +614,20 @@
 				<div id="routeAB" style="display: flex; justify-content: center; flex-direction: column; width: 100%; row-gap: 5px">
 					<div id="route_wptrow_0" style="display: flex; justify-content: center; flex-direction: row; align-items: center;">
 						<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>A</b></div>
-						<input type="form" id="waypoint_0" class="ABfield" onkeyup="if (event.keyCode==13) pontMegjelenit()" placeholder="Kiindulási pont"/>
+						<input type="form" id="waypoint_0" class="ABfield" onkeyup="if (event.keyCode==13) pontMegjelenit()" oninput="waypointFormsChanged()" placeholder="Kiindulási pont"/>
 					</div>
 					<div id="route_wptrow_mid" style="display: none; flex-direction: row; align-items: center;">
 						<div style="width: 21px; font-size: 20px; margin-left: 5px;"><b></b></div>
-						<input type="form" id="waypoint_mid" class="ABfield" onkeyup="if (event.keyCode==13) pontMegjelenit()" placeholder="Közbeeső pont"/>
-						<img id="waypoint_remove" style="margin-right: 8px; cursor: pointer;" class="" role="button" onClick="waypointCountRemove()" src="icons/delete_black_24dp.svg" title="Közbeeső útvonalpont törlése">
+						<input type="form" id="waypoint_mid" class="ABfield" onkeyup="if (event.keyCode==13) pontMegjelenit()" oninput="waypointFormsChanged()" placeholder="Közbeeső pont"/>
+						<img id="waypoint_remove" style="margin-right: 8px; cursor: pointer;" class="" role="button" onClick="waypointCountRemove(); pontMegjelenit()" src="icons/delete_black_24dp.svg" title="Közbeeső útvonalpont törlése">
 					</div>
 					<div id="route_wptrow_1" style="display: flex; flex-direction: row; align-items: center;">
 						<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>B</b></div>
-						<input type="form" id="waypoint_1" class="ABfield" onkeyup="if (event.keyCode==13) pontMegjelenit()" placeholder="Célpont"/>
+						<input type="form" id="waypoint_1" class="ABfield" onkeyup="if (event.keyCode==13) pontMegjelenit()" oninput="waypointFormsChanged()" placeholder="Célpont"/>
 					</div>
 				</div>
 				<div id="reverse" style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 10px; margin: 0 2px 0 2px;">
-					<img id="reverse_waypoints" class="active" role="button" onClick="reverseWaypoints()" src="icons/swap_vert_black_24dp.svg" title="Irány megfordítása">
+					<img id="reverse_waypoints" class="active" role="button" onClick="reverseWaypoints(); pontMegjelenit()" src="icons/swap_vert_black_24dp.svg" title="Irány megfordítása">
 				</div>
 				<div id="OK" style="display: flex; justify-content: center; flex-direction: column;">
 					<button id="navi_submit" onclick="pontMegjelenit()" style="height: 100%; max-height: 50px; margin-left: 5px;">Go</button>
@@ -630,26 +643,27 @@
 					<label for="avoid_highways">Autópályák</label>
 				</div>
 				<div id="param2" class="paramgridbox" >
-					<input id="avoid_borders" name="avoid_borders" type="checkbox" onclick="pontMegjelenit()" style="display: flex;">
-					<label for="avoid_borders">Avoid borders</label>
+					<label for="preference">Útvonal: </label>
+					<select name="preference" id="preference" onchange="pontMegjelenit()">
+						<option value="recommended">Ajánlott</option>
+						<option value="shortest">Legrövidebb</option>
+						<option value="fastest">Leggyorsabb</option>
+					</select>
 				</div>
 				<div id="param3" class="paramgridbox" >
 					<input id="avoid_tollways" name="avoid_tollways" type="checkbox" onclick="pontMegjelenit()" style="display: flex;">
 					<label for="avoid_tollways">Útdíjak</label>
 				</div>
-				<div id="param4" class="paramgridbox" >
-					<label for="preference"></label>
-						<select name="preference" id="preference" onchange="pontMegjelenit()">
-							<option value="shortest">Legrövidebb</option>
-							<option value="fastest">Leggyorsabb</option>
-						</select>
-				</div>
 				<div id="param5" class="paramgridbox" >
 					<input id="avoid_ferries" name="avoid_ferries" type="checkbox" onclick="pontMegjelenit()" style="display: flex;">
 					<label for="avoid_ferries">Kompok</label>
 				</div>
+				<div id="param7" class="paramgridbox" >
+					<input id="avoid_borders" name="avoid_borders" type="checkbox" onclick="pontMegjelenit()" style="display: flex;">
+					<label for="avoid_borders">Országhatárok</label>
+				</div>
 				<!-- szeles gridbox minta
-				<div id="param7" class="paramwidegridbox" >
+				<div id="param9" class="paramwidegridbox" >
 					valamicsoda
 				</div>
 				-->
@@ -814,8 +828,16 @@
 									}
 								}
 							}
+						},
+						plugins: {
+							tooltip: {
+								// barhol mozgatjuk az egeret a charton horizontalisan, kiirja a magassagi ertek tooltipet
+								mode: 'index',
+								intersect: false
+							}
 						}
 					}
+						
 				}
 			)			
 		
@@ -826,26 +848,26 @@
 										contextmenuItems: [{
 											text: 'Show coordinates',
 											callback: showCoordinates
-										}, {
+											}, {
 											text: 'Mi található itt?',
 											callback: whatsHere
-										}, {
-											text: 'Center map here',
+											}, {
+											text: 'Térkép mozdítása ide',
 											callback: centerMap
-										}, {
+											}, {
+											text: 'Nagyítás',
+											callback: zoomIn
+											}, {
+											text: 'Kicsinyítés',
+											callback: zoomOut
+											}, '-', {
 											text: 'Útvonal innen',
 											icon: 'icons/directions/11_depart_24dp_sajat.svg',
 											callback: naviFrom
-										}, {
+											}, {
 											text: 'Útvonal ide',
 											icon: 'icons/directions/10_goal_24dp_sajat.svg',
 											callback: naviTo
-										}, '-', {
-											text: 'Zoom in',
-											callback: zoomIn
-										}, {
-											text: 'Zoom out',
-											callback: zoomOut
 										}]
 										}).setView([47.19531,19.54467], 8);
 			L.control.zoom({position: 'bottomright'}).addTo(map); // zoom gombok a jobb also sarokba
@@ -872,11 +894,94 @@
 			}
 			
 			function naviFrom (e) {
-				console.log('naviFrom... nincs kesz');
+				navipontok[0].keres='-';
+				navipontok[0].nev_display=String(e.latlng.lat).substring(0, 8) + ', ' + String(e.latlng.lng).substring(0, 8);
+				navipontok[0].valasz.properties.name=String(e.latlng.lat).substring(0, 8) + ', ' + String(e.latlng.lng).substring(0, 8);
+				navipontok[0].valasz.geometry.coordinates[0]=e.latlng.lng;
+				navipontok[0].valasz.geometry.coordinates[1]=e.latlng.lat;
+				document.getElementById('waypoint_0').value='';
+				document.getElementById('waypoint_0').placeholder = String(e.latlng.lat).substring(0, 8) + ', ' + String(e.latlng.lng).substring(0, 8);
+				document.getElementById('float_waypoint_0').value='';
+				document.getElementById('float_waypoint_0').placeholder = String(e.latlng.lat).substring(0, 8) + ', ' + String(e.latlng.lng).substring(0, 8);
+				
+				lg.clearLayers();
+				
+				for (var i=0; i<navipontok.length; i++){
+					if (navipontok[i].valasz) {
+						// tegyuk ki a markereket
+						new L.marker([navipontok[i].valasz.geometry.coordinates[1], navipontok[i].valasz.geometry.coordinates[0]]).addTo(lg);
+					} else {
+						// egyik pontot nem talalta, hiba, kilepes
+						hanyadik = i+1;
+						console.log('Nincs találat! ('+hanyadik+'. pont)');
+						showMsgBox('A(z) '+hanyadik+'. pont nem található', 'error');
+						return;
+					};
+				}
+						
+				geocodingNeeded = false;
+				pontMegjelenit();
 			}
 			
 			function naviTo (e) {
-				console.log('naviTo... nincs kesz');				
+				if (waypoint_count == 3) {
+					navipontok[2].keres='-';
+					navipontok[2].nev_display=String(e.latlng.lat).substring(0, 8) + ', ' + String(e.latlng.lng).substring(0, 8);
+					navipontok[2].valasz.properties.name=String(e.latlng.lat).substring(0, 8) + ', ' + String(e.latlng.lng).substring(0, 8);
+					navipontok[2].valasz.geometry.coordinates[0]=e.latlng.lng;
+					navipontok[2].valasz.geometry.coordinates[1]=e.latlng.lat;
+					document.getElementById('waypoint_1').value='';
+					document.getElementById('waypoint_1').placeholder = String(e.latlng.lat).substring(0, 8) + ', ' + String(e.latlng.lng).substring(0, 8);
+					document.getElementById('float_waypoint_1').value='';
+					document.getElementById('float_waypoint_1').placeholder = String(e.latlng.lat).substring(0, 8) + ', ' + String(e.latlng.lng).substring(0, 8);
+					
+					lg.clearLayers();
+					
+					for (var i=0; i<navipontok.length; i++){
+						if (navipontok[i].valasz) {
+							// tegyuk ki a markereket
+							new L.marker([navipontok[i].valasz.geometry.coordinates[1], navipontok[i].valasz.geometry.coordinates[0]]).addTo(lg);
+						} else {
+							// egyik pontot nem talalta, hiba, kilepes
+							hanyadik = i+1;
+							console.log('Nincs találat! ('+hanyadik+'. pont)');
+							showMsgBox('A(z) '+hanyadik+'. pont nem található', 'error');
+							return;
+						};
+					};
+							
+					geocodingNeeded = false;
+					pontMegjelenit();
+				} else {
+					navipontok[1].keres='-';
+					navipontok[1].nev_display=String(e.latlng.lat).substring(0, 8) + ', ' + String(e.latlng.lng).substring(0, 8);
+					navipontok[1].valasz.properties.name=String(e.latlng.lat).substring(0, 8) + ', ' + String(e.latlng.lng).substring(0, 8);
+					navipontok[1].valasz.geometry.coordinates[0]=e.latlng.lng;
+					navipontok[1].valasz.geometry.coordinates[1]=e.latlng.lat;
+					document.getElementById('waypoint_1').value='';
+					document.getElementById('waypoint_1').placeholder = String(e.latlng.lat).substring(0, 8) + ', ' + String(e.latlng.lng).substring(0, 8);
+					document.getElementById('float_waypoint_1').value='';
+					document.getElementById('float_waypoint_1').placeholder = String(e.latlng.lat).substring(0, 8) + ', ' + String(e.latlng.lng).substring(0, 8);
+						
+					lg.clearLayers();
+					
+					for (var i=0; i<navipontok.length; i++){
+						if (navipontok[i].valasz) {
+							// tegyuk ki a markereket
+							new L.marker([navipontok[i].valasz.geometry.coordinates[1], navipontok[i].valasz.geometry.coordinates[0]]).addTo(lg);
+						} else {
+							// egyik pontot nem talalta, hiba, kilepes
+							hanyadik = i+1;
+							console.log('Nincs találat! ('+hanyadik+'. pont)');
+							showMsgBox('A(z) '+hanyadik+'. pont nem található', 'error');
+							return;
+						};
+					};
+							
+					geocodingNeeded = false;
+					pontMegjelenit();
+				}
+							
 			}
 
 			L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -888,6 +993,8 @@
 			var lg=L.layerGroup().addTo(map);
 			
 			var navipontok=[];
+			var np_base ='[{"keres":"","nev_display":"","valasz":{"properties":{"name":""},"geometry":{"coordinates":["",""]}}},{"keres":"","nev_display":"","valasz":{"properties":{"name":""},"geometry":{"coordinates":["",""]}}}]';
+			navipontok = JSON.parse(np_base);
 			var apikey='5b3ce3597851110001cf62484013f41f314445caac2390a84183388c';
 			var profile="driving-car";
 			console.log('Default profile (current): ', profile);
@@ -904,6 +1011,7 @@
 			var directions_options = [];
 			var tav = 0;
 			var alternative_routes = 0;
+			var geocodingNeeded = true;
 			
 			//valtozik a profile, mentsuk globalis valtozokent
 			function setProfile(prof) {
@@ -954,7 +1062,11 @@
 			// csökken az utvonalpontok szama
 			function waypointCountRemove() {
 				if (waypoint_count == 3) {
-					waypoint_count -= 1; 
+					waypoint_count -= 1;
+					if (navipontok.length == 3) { 
+						navipontok.splice(1, 1); 
+						document.getElementById('waypoint_mid').value = null;
+					}
 					document.getElementById('route_wptrow_mid').style = "display: none; flex-direction: row; align-items: center;";
 					document.getElementById('waypoint_add_sidebar').classList.remove('inactive');
 					document.getElementById('waypoint_add_sidebar').classList.add('active');
@@ -969,17 +1081,26 @@
 			
 			// utvonalterv megforditasa
 			function reverseWaypoints() {
+				navipontok.reverse();
 				if (sidebarstate == false) {
 					var wpt0 = document.getElementById('float_waypoint_0').value;
 					var wpt1 = document.getElementById('float_waypoint_1').value;
 					document.getElementById('float_waypoint_1').value = wpt0; 
 					document.getElementById('float_waypoint_0').value = wpt1;
+					if (document.getElementById('float_waypoint_0').placeholder != "Kiindulási pont" || document.getElementById('float_waypoint_1').placeholder != "Célpont" ) {
+						document.getElementById('float_waypoint_0').placeholder = navipontok[0].nev_display;
+						document.getElementById('float_waypoint_1').placeholder = navipontok[1].nev_display;
+					}
 				}
 				if (sidebarstate == true) {
 					var wpt0 = document.getElementById('waypoint_0').value;
 					var wpt1 = document.getElementById('waypoint_1').value;
 					document.getElementById('waypoint_1').value = wpt0; 
 					document.getElementById('waypoint_0').value = wpt1;
+					if (document.getElementById('waypoint_0').placeholder != "Kiindulási pont" || document.getElementById('waypoint_1').placeholder != "Célpont" ) {
+						document.getElementById('waypoint_0').placeholder = navipontok[0].nev_display;
+						document.getElementById('waypoint_1').placeholder = navipontok[1].nev_display;
+					}
 				}
 			}
 			
@@ -1028,13 +1149,30 @@
 								
 				// van ures mezo? ha igen, ne is folytassuk
 				if (waypoint_count == 2) {
-					if (waypoint_0_text == "") {
-						console.log('wpt0 ures!');
+					//2 waypoint
+					if (waypoint_2_text != "") {
+						if (waypoint_0_text == "") {
+							console.log('wpt0 ures!');
+							hiba=true;
+							w0.classList.add("ABfield_error");
+							setTimeout(function(){w0.classList.remove("ABfield_error");}, 1500);
+						}; 
+					} else if (waypoint_0_text == "" && w0.placeholder == "Kiindulási pont") {
+							console.log('wpt0 ures!');
+							hiba=true;
+							w0.classList.add("ABfield_error");
+							setTimeout(function(){w0.classList.remove("ABfield_error");}, 1500);
+					}; 
+					
+					if (waypoint_0_text != ""){
+						if (waypoint_2_text == "") {
+						console.log('wpt2 ures!');
 						hiba=true;
-						w0.classList.add("ABfield_error");
-						setTimeout(function(){w0.classList.remove("ABfield_error");}, 1500);
-					} 
-					if (waypoint_2_text == "") {
+						w1.classList.add("ABfield_error");
+						setTimeout(function(){w1.classList.remove("ABfield_error");}, 1500);
+						};
+					}; 
+					if (waypoint_2_text == "" && w1.placeholder == "Célpont") {
 						console.log('wpt2 ures!');
 						hiba=true;
 						w1.classList.add("ABfield_error");
@@ -1042,12 +1180,33 @@
 					};
 					waypoint_1_text = waypoint_2_text;
 				} else {
+					//3 waypoint
+					if (waypoint_0_text != "" || waypoint_1_text != "" || waypoint_2_text != "") {
+						if (waypoint_0_text == "") {
+							console.log('wpt0 ures!');
+							hiba=true;
+							w0.classList.add("ABfield_error");
+							setTimeout(function(){w0.classList.remove("ABfield_error");}, 1500);
+						}; 
+						if (waypoint_1_text == "") {
+							console.log('wpt1 (mid) ures!');
+							hiba=true;
+							wmid.classList.add("ABfield_error");
+							setTimeout(function(){wmid.classList.remove("ABfield_error");}, 1500);
+						};
+						if (waypoint_2_text == "") {
+							console.log('wpt2 ures!');
+							hiba=true;
+							w1.classList.add("ABfield_error");
+							setTimeout(function(){w1.classList.remove("ABfield_error");}, 1500);
+						};
+					};
 					if (waypoint_0_text == "") {
 						console.log('wpt0 ures!');
 						hiba=true;
 						w0.classList.add("ABfield_error");
 						setTimeout(function(){w0.classList.remove("ABfield_error");}, 1500);
-					} 
+					}; 
 					if (waypoint_1_text == "") {
 						console.log('wpt1 (mid) ures!');
 						hiba=true;
@@ -1060,7 +1219,28 @@
 						w1.classList.add("ABfield_error");
 						setTimeout(function(){w1.classList.remove("ABfield_error");}, 1500);
 					};
-				}
+				};
+				if (w0.placeholder != "Kiindulási pont" && w1.placeholder != "Célpont") {
+					lg.clearLayers();
+					for (var i=0; i<navipontok.length; i++){
+						if (navipontok[i].valasz) {
+							// valami ertelmes van benne, tegyuk ki a markert
+							new L.marker([navipontok[i].valasz.geometry.coordinates[1], navipontok[i].valasz.geometry.coordinates[0]]).addTo(lg);
+						} else {
+							// egyik pontot nem talalta, hiba, kilepes
+							hanyadik = i+1;
+							console.log('Nincs találat! ('+hanyadik+'. pont)');
+							showMsgBox('A(z) '+hanyadik+'. pont nem található', 'error');
+							return;
+						};
+					};
+					getDirections();
+					if (sidebarstate == false) {
+						// lebego ablakbol inditottuk a keresest, ezert nyissuk a sidebart hogy lassak az eredmenyt
+						sidebarStateChange();
+					}
+					return;
+				};
 				if (hiba) {
 					// valamelyik mezo ures, ne folytassuk, szoljunk rola
 						showMsgBox('Az egyik mező üresen maradt', 'warning');
@@ -1068,20 +1248,41 @@
 				};
 				
 				// mezokben van valami, folytatas
+				
 				lg.clearLayers();
-				navipontok = [];
-				geocoding_queue = waypoint_count; 
-				for (var i=0; i<waypoint_count; i++){
-					var text=eval('waypoint_'+i+'_text');
-					navipontok[i] = {keres:text};
-					pontKeres_geokod(navipontok[i]);
+				
+				if (geocodingNeeded == true) {
+					// ures, vagy valtozott az utvonalpont bemenet, ezert geokodolunk
+					navipontok = [];
+					navipontok = JSON.parse(np_base);
+					geocoding_queue = waypoint_count; 
+					for (var i=0; i<waypoint_count; i++){
+						var text=eval('waypoint_'+i+'_text');
+						navipontok[i] = {keres:text};
+						pontKeres_geokod(navipontok[i]);
+					}
+				} else {
+					// nem kell geokodolni (mert mar van eredmenyunk a tombben, es nem valtozott az utvonalpont bemenet)
+					for (var i=0; i<navipontok.length; i++){
+						if (navipontok[i].valasz) {
+							// valami ertelmes van benne, tegyuk ki a markert
+							new L.marker([navipontok[i].valasz.geometry.coordinates[1], navipontok[i].valasz.geometry.coordinates[0]]).addTo(lg);
+						} else {
+							// egyik pontot nem talalta, hiba, kilepes
+							hanyadik = i+1;
+							console.log('Nincs találat! ('+hanyadik+'. pont)');
+							showMsgBox('A(z) '+hanyadik+'. pont nem található', 'error');
+							return;
+						};
+					}
+					getDirections();
 				}
 			};
 					
 			function getDirections() {
 				console.log('Pont 1:', '['+navipontok[0].valasz.geometry.coordinates[0]+','+navipontok[0].valasz.geometry.coordinates[1]+']');
 				console.log('Pont 2:', '['+navipontok[1].valasz.geometry.coordinates[0]+','+navipontok[1].valasz.geometry.coordinates[1]+']');
-				
+								
 				// Directions Service GeoJSON (POST) (/v2/directions/{profile}/geojson)
 				console.log('Directions Service GeoJSON (POST) (/v2/directions/{profile}/geojson)');
 				let request = new XMLHttpRequest();
@@ -1175,6 +1376,7 @@
 									+'</td><td class="itiner_tablazat_cella">'+
 									timeFormatter(lepesek1[i].duration)
 									+'</td></tr>');
+									openSidebarPanels();
 								}
 							}
 							
@@ -1272,6 +1474,7 @@
 										+'</td><td class="itiner_tablazat_cella">'+
 										timeFormatter(lepesek2[i].duration)
 										+'</td></tr>');
+										openSidebarPanels();
 									}
 								}
 								
@@ -1455,6 +1658,13 @@
 					result = result[0]; 
 					//navipontok.push(result);
 					pont.valasz=result;
+					if (d.features[0].properties.layer == 'locality') {
+						pont.nev_display=d.features[0].properties.locality + ', ' + d.features[0].properties.region + ', ' + d.features[0].properties.country;
+					} else if (d.features[0].properties.layer == 'address') {
+						pont.nev_display=d.features[0].properties.name + ', ' + d.features[0].properties.region + ', ' + d.features[0].properties.locality + ', ' + d.features[0].properties.country;
+					} else {
+						pont.nev_display=d.features[0].properties.name + ', ' + d.features[0].properties.country;
+					}
 					console.log('geokod_pont_eredmeny: ', result);
 					geocoding_queue--;
 					console.log('geocoding_queue (még ennyi van hátra): ', geocoding_queue);
@@ -1478,6 +1688,20 @@
 							// lebego ablakbol inditottuk a keresest, ezert nyissuk a sidebart hogy lassak az eredmenyt
 							sidebarStateChange();
 						}
+						if (waypoint_count == 2) {
+							document.getElementById('waypoint_0').placeholder = 'Kiindulási pont';
+							document.getElementById('waypoint_1').placeholder = 'Célpont';
+							document.getElementById('waypoint_0').value = navipontok[0].nev_display;
+							document.getElementById('waypoint_1').value = navipontok[1].nev_display;
+						} else if (waypoint_count == 3) {
+							document.getElementById('waypoint_0').placeholder = 'Kiindulási pont';
+							document.getElementById('waypoint_mid').placeholder = 'Közbeeső pont';
+							document.getElementById('waypoint_1').placeholder = 'Célpont';
+							document.getElementById('waypoint_0').value = navipontok[0].nev_display;
+							document.getElementById('waypoint_mid').value = navipontok[1].nev_display;
+							document.getElementById('waypoint_1').value = navipontok[2].nev_display;
+						}
+						geocodingNeeded = false;
 						openSidebarPanels();
 					}
 				})
@@ -1492,7 +1716,12 @@
 				console.log('Reverse Geocode Service (GET) (/geocode/reverse)');
 				var url='https://api.openrouteservice.org/geocode/reverse?lang=hu-HU&api_key='+apikey+'&point.lon='+lon+'&point.lat='+lat;
 				fetch(url).then(r=>r.json()).then(d=>{
-					result = d.features[0].properties.name + ', ' + d.features[0].properties.neighbourhood + ', ' + d.features[0].properties.locality + ', ' + d.features[0].properties.country; 
+					result = d.features[0].properties.name + ', ' + 
+					(d.features[0].properties.neighbourhood != null ? d.features[0].properties.neighbourhood + ', ' : '') + 
+					(d.features[0].properties.locality != null ? d.features[0].properties.locality + ', ' : '') + 
+					(d.features[0].properties.country != null ? d.features[0].properties.country : ''); 
+					
+					showMsgBox(result, 'success');
 					return result;
 				})
 				.catch(error => {
@@ -1606,7 +1835,9 @@
 					lebego_start_ablak.className="lebego_start_ablak_hidden";
 					setTimeout(function(){lebego_start_ablak.style.display="none"}, 420);
 					wpt0.value = fwpt0.value; // sidebar mezok es lebego mezok szinkron, elo kell kesziteni tobb mint 2 wpt-ra
+					wpt0.placeholder = fwpt0.placeholder;
 					wpt1.value = fwpt1.value;
+					wpt1.placeholder = fwpt1.placeholder;
 					sidebarstate = true;
 				} else {
 					/* nyitott a sidebar, csukjuk; terkep div balra teljesen, lebego panel megjelenites */
@@ -1617,7 +1848,9 @@
 					setTimeout(function(){lebego_start_ablak.className="lebego_start_ablak_visible";}, 10);
 					lebego_start_ablak.style.display="block";
 					fwpt0.value = wpt0.value; // sidebar mezok es lebego mezok szinkron, elo kell kesziteni tobb mint 2 wpt-ra
+					fwpt0.placeholder = wpt0.placeholder;
 					fwpt1.value = wpt1.value;
+					fwpt1.placeholder = wpt1.placeholder;
 					sidebarstate = false;
 				}
 				setTimeout(function(){map.invalidateSize()}, 200);
@@ -1639,6 +1872,15 @@
 				// utvonaladatok torlese, ha nincs utvonal
 				document.getElementById('results_time').innerHTML = '—';
 				document.getElementById('results_distance').innerHTML = '—';
+			}
+			
+			function waypointFormsChanged() {
+				console.log('waypoint forms changed, geocoding next time');
+				geocodingNeeded = true;
+				document.getElementById('waypoint_0').placeholder = 'Kiindulási pont';
+				document.getElementById('float_waypoint_0').placeholder = 'Kiindulási pont';
+				document.getElementById('waypoint_1').placeholder = 'Célpont';
+				document.getElementById('float_waypoint_1').placeholder = 'Célpont';
 			}
 			
 			function distanceFormatter(d) {
