@@ -31,6 +31,7 @@
 <html>
 	<head>
 		<title>OpenRouteService útvonaltervező</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta charset="utf-8">
 		<link rel="stylesheet" href="leaflet/leaflet.css" />
 		<link rel="stylesheet" href="leaflet/leaflet_contextmenu/leaflet.contextmenu.css" />
@@ -494,9 +495,9 @@
 				-webkit-transition: all 100ms ease-in;
 				   -moz-transition: all 100ms ease-in;
 						transition: all 100ms ease-in;
-				-webkit-filter: brightness(2.5) grayscale(1) opacity(.4);
-				   -moz-filter: brightness(2.5) grayscale(1) opacity(.4);
-						filter: brightness(2.5) grayscale(1) opacity(.4);
+				-webkit-filter: brightness(2.5) grayscale(1) opacity(.27);
+				   -moz-filter: brightness(2.5) grayscale(1) opacity(.27);
+						filter: brightness(2.5) grayscale(1) opacity(.27);
 			}
 			.route_profile:hover {
 				-webkit-filter: brightness(1.2) grayscale(.5) opacity(.6);
@@ -703,7 +704,7 @@
 			}
 			.content-inner3 {
 				overflow: auto;
-				max-height: 260px;
+				max-height: 345px;
 			}
 			
 			/* nyithato sidebar lista elemek vege */
@@ -839,7 +840,7 @@
 			<div id="sidebar_top" style="display: flex; flex-direction: row; justify-content: center;">
 				<div id="" style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 30px; margin: 0 2px 0 2px;">
 					<img id="illustration_wpt_top_lebego" width="28px" src="icons/utvonal2_A_24dp_sajat.svg"/>
-					<img id="waypoint_add" class="addwaypoint active" role="button" onClick="sidebarStateChange(); waypointCountAdd()" src="icons/add_circle_outline_black_24dp.svg" title="Közbeeső útvonalpont hozzáadása">
+					<img id="waypoint_add" class="addwaypoint active" role="button" onClick="sidebarStateChange(); waypointCountAdd()" src="icons/add_circle_outline_black_24dp.svg" tabindex="0" title="Közbeeső útvonalpont hozzáadása">
 					<img id="illustration_wpt_bottom_lebego" width="28px" src="icons/utvonal2_B_24dp_sajat.svg"/>
 				</div>
 				<div id="routeAB" style="display: flex; justify-content: center; flex-direction: column; width: 100%; row-gap: 5px">
@@ -853,14 +854,14 @@
 					</div>
 				</div>
 				<div id="reverse" style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 10px; margin: 0 2px 0 2px;">
-					<img id="reverse_waypoints" class="active" role="button" onClick="reverseWaypoints(); pontMegjelenit()" src="icons/swap_vert_black_24dp.svg" title="Irány megfordítása">
+					<img id="reverse_waypoints" class="active" role="button" onClick="reverseWaypoints(); pontMegjelenit()" src="icons/swap_vert_black_24dp.svg" tabindex="0" title="Irány megfordítása">
 				</div>
 				<div id="OK" style="display: flex; justify-content: center; flex-direction: column;">
 					<button id="float_navi_submit" onclick="pontMegjelenit()" style="height: 100%; max-height: 50px; margin-left: 5px">Go</button>
 				</div>
 			</div>
 			<div style="margin-bottom: 8px; text-align: center;">
-				<button id="egyebparams_gomb" style="color: #4387e8; font-size: 9pt; " class="link" onclick="sidebarStateChange()">Egyéb keresési paraméterek ></button>
+				<button id="egyebparams_gomb" style="color: #4387e8; font-size: 9pt; " class="link" onclick="sidebarStateChange()">Egyéb keresési paraméterek, izokrónkészítés ></button>
 			</div>
 		</div>
 		<div id="sidebar" style="display: none; flex-direction: column">
@@ -883,7 +884,7 @@
 				<div id="sidebar_top" style="display: flex; flex-direction: row; justify-content: center;">
 					<div id="waypoint_add_div" style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 30px; margin: 0 2px 0 2px;">
 						<img id="illustration_wpt_top" width="24px" src="icons/utvonal2_A_24dp_sajat.svg"/>
-						<img id="waypoint_add_sidebar" class="addwaypoint active" role="button" onClick="waypointCountAdd()" src="icons/add_circle_outline_black_24dp.svg" title="Közbeeső útvonalpont hozzáadása"/>
+						<img id="waypoint_add_sidebar" class="addwaypoint active" role="button" onClick="waypointCountAdd()" src="icons/add_circle_outline_black_24dp.svg" tabindex="0" title="Közbeeső útvonalpont hozzáadása"/>
 						<img id="illustration_wpt_bottom" width="24px" src="icons/utvonal2_B_24dp_sajat.svg"/>
 					</div>
 					<div id="routeAB" style="display: flex; justify-content: center; flex-direction: column; width: 100%; row-gap: 5px">
@@ -902,7 +903,7 @@
 						</div>
 					</div>
 					<div id="reverse" style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 10px; margin: 0 2px 0 2px;">
-						<img id="reverse_waypoints" class="active" role="button" onClick="reverseWaypoints(); pontMegjelenit()" src="icons/swap_vert_black_24dp.svg" title="Irány megfordítása">
+						<img id="reverse_waypoints" class="active" role="button" onClick="reverseWaypoints(); pontMegjelenit()" src="icons/swap_vert_black_24dp.svg" tabindex="0" title="Irány megfordítása">
 					</div>
 					<div id="OK" style="display: flex; justify-content: center; flex-direction: column;">
 						<button id="navi_submit" onclick="pontMegjelenit()" style="height: 100%; max-height: 50px; margin-left: 5px;">Go</button>
@@ -943,15 +944,15 @@
 					<div class="route_profile_selector" style="display: flex; flex-direction: row;">
 						<div style="display: flex;">
 							<input id="car" type="radio" name="profile" value="driving-car" checked/>
-							<label class="route_profile car" for="car" id="carlabel" onClick="setProfile('driving-car'); pontMegjelenit()"></label>
+							<label class="route_profile car" for="car" id="carlabel" onClick="setProfile('driving-car'); pontMegjelenit()" tabindex="0"></label>
 						</div>
 						<div style="display: flex;">
 							<input id="bike" type="radio" name="profile" value="cycling-regular" />
-							<label class="route_profile bike" for="bike" onClick="setProfile('cycling-regular'); pontMegjelenit()"></label>
+							<label class="route_profile bike" for="bike" onClick="setProfile('cycling-regular'); pontMegjelenit()" tabindex="0"></label>
 						</div>
 						<div style="display: flex;">
 							<input id="walk" type="radio" name="profile" value="foot-walking" />
-							<label class="route_profile walk" for="walk" onClick="setProfile('foot-walking'); pontMegjelenit()"></label>
+							<label class="route_profile walk" for="walk" onClick="setProfile('foot-walking'); pontMegjelenit()" tabindex="0"></label>
 						</div>
 					</div>
 				</div>
@@ -1072,15 +1073,15 @@
 					<div class="route_profile_selector_2" style="display: flex; flex-direction: row;">
 						<div style="display: flex;">
 							<input checked="checked" id="car_iso" type="radio" name="profile_2" value="driving-car" />
-							<label class="route_profile car" for="car_iso" onClick="setProfile('driving-car'); isochroneCheck()"></label>
+							<label class="route_profile car" for="car_iso" onClick="setProfile('driving-car'); isochroneCheck()" tabindex="0"></label>
 						</div>
 						<div style="display: flex;">
 							<input id="bike_iso" type="radio" name="profile_2" value="cycling-regular" />
-							<label class="route_profile bike" for="bike_iso" onClick="setProfile('cycling-regular'); isochroneCheck()"></label>
+							<label class="route_profile bike" for="bike_iso" onClick="setProfile('cycling-regular'); isochroneCheck()" tabindex="0"></label>
 						</div>
 						<div style="display: flex;">
 							<input id="walk_iso" type="radio" name="profile_2" value="foot-walking" />
-							<label class="route_profile walk" for="walk_iso" onClick="setProfile('foot-walking'); isochroneCheck()"></label>
+							<label class="route_profile walk" for="walk_iso" onClick="setProfile('foot-walking'); isochroneCheck()" tabindex="0"></label>
 						</div>
 					</div>
 				</div>
@@ -1232,6 +1233,9 @@
 										//return Chart.Ticks.formatters.numeric.apply(this, [this.getLabelForValue(value), index, ticks]) + ' km';
 									}
 								}
+							},
+							y: {
+								//min: 0 //megoldja a minuszos ertekeknel a -50ig valo grafikon rajzolast, de igy mindig latszik a 0, magasabb utaknal is
 							}
 						},
 						plugins: {
@@ -1284,7 +1288,16 @@
 											callback: isoCenter
 										}]
 										}).setView([47.19531,19.54467], 8);
-			L.control.zoom({position: 'bottomright'}).addTo(map); // zoom gombok a jobb also sarokba
+			L.control.zoom({position: 'bottomright'}).addTo(map); 	// zoom gombok a jobb also sarokba
+			L.control.scale({position: 'bottomleft'}).addTo(map); 	// merteklec bal also sarokba
+			
+			//kurzor alatti koordinata a jobb also leaflet attrib ele
+			map.on('mousemove', function(e) {
+				map.attributionControl.setPrefix(parseFloat(e.latlng.lat.toFixed(6))+', '+parseFloat(e.latlng.lng.toFixed(6))+' | <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a>')
+			});
+			map.on('mouseout', function(e) {
+				map.attributionControl.setPrefix('<a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a>')
+			});
 			
 			//contextmenu fuggvenyek
 			function showCoordinates (e) {
@@ -1304,7 +1317,12 @@
 				isopontok[0].valasz.geometry.coordinates[0]=e.latlng.lng;
 				isopontok[0].valasz.geometry.coordinates[1]=e.latlng.lat;
 				document.getElementById('isochrone_center_0').value=String(e.latlng.lat).substring(0, 8) + ', ' + String(e.latlng.lng).substring(0, 8);
+				document.getElementById("isoch_tab_button").click();
 				isochroneCheck();
+				if (sidebarstate == false) {
+					// jobbgombbal inditottuk a keresest, ezert nyissuk a sidebart hogy lassak az eredmenyt
+					sidebarStateChange();
+				}
 			}
 			 
 			function zoomIn (e) {
@@ -1423,6 +1441,7 @@
 				document.getElementById(tab).style.display = "block";
 				evt.currentTarget.className += " active";
 			  
+				/*
 				if (navi_tab_button.classList.contains("active")) {
 					map.contextmenu.setDisabled(6, false);
 					map.contextmenu.setDisabled(7, false);
@@ -1432,6 +1451,7 @@
 					map.contextmenu.setDisabled(7, true);
 					map.contextmenu.setDisabled(8, false);
 				}
+				*/
 			}
 			document.getElementById("navi_tab_button").click();
 
@@ -1446,6 +1466,7 @@
 			var navipontok=[];
 			var isopontok=[];
 			var isoranges=[];
+			var isopolygons=[];
 			var np_base ='[{"keres":"","nev_display":"","valasz":{"properties":{"name":""},"geometry":{"coordinates":["",""]}}},{"keres":"","nev_display":"","valasz":{"properties":{"name":""},"geometry":{"coordinates":["",""]}}}]';
 			navipontok = JSON.parse(np_base);
 			var ip_base ='[{"keres":"","nev_display":"","valasz":{"properties":{"name":""},"geometry":{"coordinates":["",""]}}}]';
@@ -1779,6 +1800,7 @@
 					}
 					if (rateLimitCheck(remaining, 'útvonalkeresési', reset) == false) {
 						attribdiv.innerHTML = '';
+						map.attributionControl.removeAttribution('openrouteservice.org | OpenStreetMap contributors');
 						return;
 					}			
 					
@@ -2053,6 +2075,7 @@
 						
 						//attribution
 						attribdiv.innerHTML = 'útvonaltervezés:<br>'+r.metadata.attribution;
+						map.attributionControl.addAttribution(r.metadata.attribution);
 						
 						//hideLoadingIcon();
 					}
@@ -2143,6 +2166,7 @@
 						
 						document.getElementById('collapsible2').checked = true;						
 						attribdiv.innerHTML = 'magassági adatok:<br>'+r.attribution;
+						map.attributionControl.addAttribution(r.attribution);
 						
 						hideLoadingIcon();
 					}
@@ -2222,10 +2246,15 @@
 				console.log('Reverse Geocode Service (GET) (/geocode/reverse)');
 				var url='https://api.openrouteservice.org/geocode/reverse?lang=hu-HU&api_key='+apikey+'&point.lon='+lon+'&point.lat='+lat;
 				fetch(url).then(r=>r.json()).then(d=>{
-					result = d.features[0].properties.name + ', ' + 
+					result = '<div style="text-align: center"><b>' + d.features[0].properties.name + '</b>, ' + 
 					(d.features[0].properties.neighbourhood != null ? d.features[0].properties.neighbourhood + ', ' : '') + 
-					(d.features[0].properties.locality != null ? d.features[0].properties.locality + ', ' : '') + 
-					(d.features[0].properties.country != null ? d.features[0].properties.country : ''); 
+					(d.features[0].properties.locality != null ? d.features[0].properties.locality + ', ' : '') + '<br>' +
+					(d.features[0].properties.region != null ? d.features[0].properties.region + ', ' : '') + 
+					(d.features[0].properties.country != null ? d.features[0].properties.country : '') + '</div>' + 
+					'<br><b>Szélesség:</b> '
+					+lat+
+					'<br><b>Hosszúság:</b> '
+					+lon; 
 					
 					if (show == true) {
 						//popupban megmutatjuk, mi van ott
@@ -2319,11 +2348,10 @@
 						}
 						getIsochrones();
 						if (sidebarstate == false) {
-							// lebego ablakbol inditottuk a keresest, ezert nyissuk a sidebart hogy lassak az eredmenyt
+							// lebego ablakbol/jobbgombbal inditottuk a keresest, ezert nyissuk a sidebart hogy lassak az eredmenyt
 							sidebarStateChange();
 						}
 						document.getElementById('isochrone_center_0').value = isopontok[0].nev_display;
-						openSidebarPanels();
 					}
 				})
 				.catch(error => {
@@ -2374,6 +2402,7 @@
 					}
 					if (rateLimitCheck(remaining, 'izokrónkészítő', reset) == false) {
 						attribdiv.innerHTML = '';
+						document.getElementById('collapsible3').checked = false;
 						return;
 					}			
 					
@@ -2388,17 +2417,18 @@
 								nodes[i]=[nodes[i][1], nodes[i][0]];
 							}
 							if (preference_isotype.value == 'time') {
-								var t = L.polygon(nodes, {color: polygonColor(x)}).addTo(lg)
-								.bindTooltip('Idő: '+timeFormatter(r.features[x].properties.value)); 
+								isopolygons[x] = L.polygon(nodes, {color: polygonColor(x)}).addTo(lg)
+								.bindTooltip('Idő: '+timeFormatter(r.features[x].properties.value), {sticky: true}).bringToBack(); 
 							} else if (preference_isotype.value == 'distance') {
-								var t = L.polygon(nodes, {color: polygonColor(x)}).addTo(lg)
-								.bindTooltip('Távolság: '+distanceFormatter(r.features[x].properties.value)); 
+								isopolygons[x] = L.polygon(nodes, {color: polygonColor(x)}).addTo(lg)
+								.bindTooltip('Távolság: '+distanceFormatter(r.features[x].properties.value), {sticky: true}).bringToBack(); 
 							}
 							
 							lepes = x+1;
 							document.getElementById('table_isochrones_body').insertAdjacentHTML('beforeend','<tr class="itiner_tablazat_sor"><td class="itiner_tablazat_cella">'+
+							'<div style="display: flex; flex-direction: row; align-items: center;"><input type="checkbox" onchange="isochroneCheckboxChange(this.checked, '+x+')" checked/><div style="margin-left: 4px; margin-right: 5px;"><b>'+
 							lepes
-							+'</td><td class="itiner_tablazat_cella"><div style="display: flex; flex-direction: row; justify-content: left; align-items: center;"><div style="margin-left: 3px; margin-top: 1px; display: flex;">'+
+							+'</b></div></div></td><td class="itiner_tablazat_cella"><div style="display: flex; flex-direction: row; justify-content: left; align-items: center;"><div style="margin-left: 3px; margin-top: 1px; display: flex;">'+
 							String((preference_isotype_value == "time") ? timeFormatter(r.features[x].properties.value) : distanceFormatter(r.features[x].properties.value))
 							+'</td><td class="itiner_tablazat_cella" width="5px" bgcolor="'+
 							polygonColor(x)
@@ -2421,6 +2451,9 @@
 						
 						//attribution
 						attribdiv.innerHTML = 'izokróngenerálás:<br>'+r.metadata.attribution;
+						map.attributionControl.removeAttribution('openrouteservice.org | OpenStreetMap contributors'); //navi attrib torles, ha van
+						map.attributionControl.removeAttribution('service by https://openrouteservice.org | data by http://srtm.csi.cgiar.org'); //elev attrib torles, ha van
+						map.attributionControl.addAttribution(r.metadata.attribution);
 						
 						hideLoadingIcon();
 					}
@@ -2439,6 +2472,25 @@
 					request.send(body);
 				}
 				
+			}
+			
+			//izokron poligon lathatosag kezelo
+			function isochroneCheckboxChange(checked, i) {
+				if(checked == false){
+					map.removeLayer(isopolygons[i]);
+					/*isopolygons[i].setStyle({opacity: 0}); 
+					isopolygons[i].setStyle({fillOpacity: 0});
+					isopolygons[i].setStyle({interactive: false}); */
+				} else {
+					map.addLayer(isopolygons[i]);
+					for (var j=0; j<isopolygons.length; j++) {
+						// ha a sor kozepen levo poligont kapcsolunk vissza, csak leghatra/legelore tudjuk rakni (csunya+tooltip gond lesz):
+						// ez a loop vizualisan sorba rendezi oket ujra
+						isopolygons[j].bringToBack();
+					}
+					/*isopolygons[i].setStyle({opacity: 1}); 
+					isopolygons[i].setStyle({fillOpacity: 0.2});*/
+				}
 			}
 			
 			function refreshDirectionOptions() {
@@ -2755,6 +2807,7 @@
 							case 4001:
 								showMsgBox('ValueError in parameters: '+message, 'warning');
 								document.getElementById('ORS_elevattribution').innerHTML = '';
+								map.attributionControl.removeAttribution('service by https://openrouteservice.org | data by http://srtm.csi.cgiar.org');
 								document.getElementById('collapsible2').checked = false;
 								hideLoadingIcon();
 								return false;
@@ -2764,18 +2817,21 @@
 								elevChart.data.labels = [];
 								elevChart.update();
 								document.getElementById('ORS_elevattribution').innerHTML = '';
+								map.attributionControl.removeAttribution('service by https://openrouteservice.org | data by http://srtm.csi.cgiar.org');
 								document.getElementById('collapsible2').checked = false;
 								hideLoadingIcon();
 								return false;
 							case 4003:
 								showMsgBox('A magassági adat nem lekérhető, mert a töréspontok száma meghaladja a 2000-ret (ORS limitáció)<br>[Problems with the provided geometry: '+message+']', 'warning');
 								document.getElementById('ORS_elevattribution').innerHTML = '';
+								map.attributionControl.removeAttribution('service by https://openrouteservice.org | data by http://srtm.csi.cgiar.org');
 								document.getElementById('collapsible2').checked = false;
 								hideLoadingIcon();
 								return false;
 							case 4004:
 								showMsgBox('Exceeded the number of allowed vertices: '+message, 'warning');
 								document.getElementById('ORS_elevattribution').innerHTML = '';
+								map.attributionControl.removeAttribution('service by https://openrouteservice.org | data by http://srtm.csi.cgiar.org');
 								document.getElementById('collapsible2').checked = false;
 								hideLoadingIcon();
 								return false;
@@ -2794,27 +2850,32 @@
 							case 4001:
 								showMsgBox('ValueError in parameters: '+message, 'warning');
 								document.getElementById('ORS_elevattribution').innerHTML = '';
+								map.attributionControl.removeAttribution('service by https://openrouteservice.org | data by http://srtm.csi.cgiar.org');
 								document.getElementById('collapsible2').checked = false;
 								hideLoadingIcon();
 								return false;
 							case 4002:
 								showMsgBox('Nincs magassági adat: A kért útvonal vélhetően kívül esik az SRTM által lefedett területen<br>[Wrong HTTP headers: '+message+']', 'warning');
+								map.attributionControl.removeAttribution('service by https://openrouteservice.org | data by http://srtm.csi.cgiar.org');
 								elevChart.data.datasets[0].data = [];
 								elevChart.data.labels = [];
 								elevChart.update();
 								document.getElementById('ORS_elevattribution').innerHTML = '';
+								map.attributionControl.removeAttribution('service by https://openrouteservice.org | data by http://srtm.csi.cgiar.org');
 								document.getElementById('collapsible2').checked = false;
 								hideLoadingIcon();
 								return false;
 							case 4003:
 								showMsgBox('Problems with the provided geometry: '+message, 'warning');
 								document.getElementById('ORS_elevattribution').innerHTML = '';
+								map.attributionControl.removeAttribution('service by https://openrouteservice.org | data by http://srtm.csi.cgiar.org');
 								document.getElementById('collapsible2').checked = false;
 								hideLoadingIcon();
 								return false;
 							case 4004:
 								showMsgBox('Exceeded the number of allowed vertices: '+message, 'warning');
 								document.getElementById('ORS_elevattribution').innerHTML = '';
+								map.attributionControl.removeAttribution('service by https://openrouteservice.org | data by http://srtm.csi.cgiar.org');
 								document.getElementById('collapsible2').checked = false;
 								hideLoadingIcon();
 								return false;
