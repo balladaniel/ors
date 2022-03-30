@@ -1483,19 +1483,31 @@
 			var loading_icon = document.getElementById("loading_icon");
 			var loading_icon2 = document.getElementById("loading_icon2");
 			if (getCookie('profile') != "") {
+				//van mentett profile cookie
 				var profile=getCookie('profile');
 				setProfile(profile);
 				console.log('Current profile (read from cookie): ', profile);
+				//alap indulo ertekek:
+				if (profile=='driving-car') {
+					document.getElementById('maxrange').value = 1200; //20p alapbol
+				}
+				if (profile=='cycling-regular') {
+					document.getElementById('maxrange').value = 1800; //30p alapbol
+				}
+				if (profile=='foot-walking') {
+					document.getElementById('maxrange').value = 1800; //30p alapbol
+				}
 			} else {
+				//nincs mentett profile cookie, alaphelyzet (autos)
 				var profile="driving-car";
 				setProfile(profile);
 				console.log('Current profile (default): ', profile);
 				document.getElementById('maxrange').value = 600; //10p alapbol
 				document.getElementById('iso_rangenum').innerHTML=timeFormatter(document.getElementById('maxrange').value);
 			}
-			var isochrone_count = 1; //dinamikus
-			var waypoint_count = 2; //dinamikus
-			var geocoding_queue = 0;
+			var isochrone_count = 1; 	//dinamikus
+			var waypoint_count = 2; 	//dinamikus
+			var geocoding_queue = 0; 	//dinamikus
 			var current_polyline = [];
 			var current_polyline_osztott = [];
 			var directions_options = [];
@@ -1569,6 +1581,7 @@
 				if (waypoint_count == 2) {
 					waypoint_count += 1; 
 					navipontok.push({"keres":"","nev_display":"","valasz":{"properties":{"name":""},"geometry":{"coordinates":["",""]}}});
+					[navipontok[1], navipontok[2]] = [navipontok[2], navipontok[1]];
 					document.getElementById('route_wptrow_mid').style = "display: flex; flex-direction: row; align-items: center;";
 					document.getElementById('waypoint_add_sidebar').classList.remove('active');
 					document.getElementById('waypoint_add_sidebar').classList.add('inactive');
@@ -2074,7 +2087,7 @@
 						map.fitBounds(L.latLngBounds(bb1, bb2));
 						
 						//attribution
-						attribdiv.innerHTML = 'útvonaltervezés:<br>'+r.metadata.attribution;
+						attribdiv.innerHTML = 'útvonaltervezés:<br>'+r.metadata.attribution+'<br>futás ideje: '+unixTimestampSolver(r.metadata.timestamp/1000);
 						map.attributionControl.addAttribution(r.metadata.attribution);
 						
 						//hideLoadingIcon();
@@ -2450,7 +2463,7 @@
 						map.fitBounds(L.latLngBounds(bb1, bb2));
 						
 						//attribution
-						attribdiv.innerHTML = 'izokróngenerálás:<br>'+r.metadata.attribution;
+						attribdiv.innerHTML = 'izokróngenerálás:<br>'+r.metadata.attribution+'<br>futás ideje: '+unixTimestampSolver(r.metadata.timestamp/1000);
 						map.attributionControl.removeAttribution('openrouteservice.org | OpenStreetMap contributors'); //navi attrib torles, ha van
 						map.attributionControl.removeAttribution('service by https://openrouteservice.org | data by http://srtm.csi.cgiar.org'); //elev attrib torles, ha van
 						map.attributionControl.addAttribution(r.metadata.attribution);
