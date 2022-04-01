@@ -930,6 +930,10 @@
 						<input id="avoid_tollways" name="avoid_tollways" type="checkbox" onclick="pontMegjelenit()" style="display: flex;">
 						<label for="avoid_tollways">Útdíjak</label>
 					</div>
+					<!--<div id="param4" class="paramgridbox" >
+						<label for="alternative_routes">Alternatív:</label>
+						<input type="range" id="alt_routes" name="alt_routes" min="0" max="2" value="0" oninput="document.getElementById('alt_routesnum').innerHTML=this.value; alternative_routes=this.value;" onchange="pontMegjelenit()" class="preference" style="max-width: 100px;"><span id="alt_routesnum">0</span>
+					</div>-->
 					<div id="param5" class="paramgridbox" >
 						<input id="avoid_ferries" name="avoid_ferries" type="checkbox" onclick="pontMegjelenit()" style="display: flex;">
 						<label for="avoid_ferries">Kompok</label>
@@ -1967,16 +1971,16 @@
 										document.getElementById('table_directions_body').insertAdjacentHTML('beforeend','<tr class="itiner_tablazat_sor"><td class="itiner_tablazat_cella">'+
 										lepes
 										+'</td><td class="itiner_tablazat_cella"'+
-										String((i == lepesek1.length-1) ? 'colspan="3" style="font-weight:bold"' : '')
+										String((i == lepesek2.length-1) ? 'colspan="3" style="font-weight:bold"' : '')
 										+'><div style="display: flex; flex-direction: row; justify-content: left; align-items: center;"><div style="display: flex;"><img width=20px src="'+
-										directions_icons[lepesek1[i].type]
+										directions_icons[lepesek2[i].type]
 										+'"/></div><div style="margin-left: 3px; margin-top: 1px; display: flex;">'+
-										lepesek1[i].instruction
+										lepesek2[i].instruction
 										+'</div></td>'+
-										String((i == lepesek1.length-1) ? '' : '<td class="itiner_tablazat_cella">'+
-										distanceFormatter(lepesek1[i].distance)
+										String((i == lepesek2.length-1) ? '' : '<td class="itiner_tablazat_cella">'+
+										distanceFormatter(lepesek2[i].distance)
 										+'</td><td class="itiner_tablazat_cella">'+
-										timeFormatter(lepesek1[i].duration)
+										timeFormatter(lepesek2[i].duration)
 										+'</td>')
 										+'</tr>');
 										openSidebarPanels();
@@ -2092,7 +2096,7 @@
 						map.fitBounds(L.latLngBounds(bb1, bb2));
 						
 						//attribution
-						attribdiv.innerHTML = 'útvonaltervezés:<br>'+r.metadata.attribution+'<br>futás ideje: '+unixTimestampSolver(r.metadata.timestamp/1000);
+						attribdiv.innerHTML = 'Útvonaltervezés:<br>'+r.metadata.attribution+'<br>Kérés ideje: '+unixTimestampSolver(r.metadata.timestamp/1000);
 						map.attributionControl.addAttribution(r.metadata.attribution);
 						
 						//hideLoadingIcon();
@@ -2109,9 +2113,9 @@
 					body = '{"coordinates":[['+navipontok[0].valasz.geometry.coordinates[0]+','+navipontok[0].valasz.geometry.coordinates[1]+'],['+navipontok[1].valasz.geometry.coordinates[0]+','+navipontok[1].valasz.geometry.coordinates[1]+']],"options":{},"radiuses":-1,"language":"hu"}';
 				}*/
 				if (waypoint_count == 2) {
-					body = '{"coordinates":[['+navipontok[0].valasz.geometry.coordinates[0]+','+navipontok[0].valasz.geometry.coordinates[1]+'],['+navipontok[1].valasz.geometry.coordinates[0]+','+navipontok[1].valasz.geometry.coordinates[1]+']],"attributes":["avgspeed"],"language":"hu","options":'+JSON.stringify(directions_options)+',"preference":"'+preference.value+'","radiuses":-1,"roundabout_exits":"true"}'; //koordinatak utan kell majd:  ,"alternative_routes":{"target_count":3}
+					body = '{"coordinates":[['+navipontok[0].valasz.geometry.coordinates[0]+','+navipontok[0].valasz.geometry.coordinates[1]+'],['+navipontok[1].valasz.geometry.coordinates[0]+','+navipontok[1].valasz.geometry.coordinates[1]+']],"attributes":["avgspeed"],"language":"hu","options":'+JSON.stringify(directions_options)+',"preference":"'+preference.value+'","radiuses":-1,"roundabout_exits":"true"}'; //koordinatak utan kell majd:  ,"alternative_routes":{"target_count":'+parseInt(parseInt(alternative_routes)+1)+'}
 				} else {
-					body = '{"coordinates":[['+navipontok[0].valasz.geometry.coordinates[0]+','+navipontok[0].valasz.geometry.coordinates[1]+'],['+navipontok[1].valasz.geometry.coordinates[0]+','+navipontok[1].valasz.geometry.coordinates[1]+'],['+navipontok[2].valasz.geometry.coordinates[0]+','+navipontok[2].valasz.geometry.coordinates[1]+']],"attributes":["avgspeed"],"language":"hu","options":'+JSON.stringify(directions_options)+',"preference":"'+preference.value+'","radiuses":-1,"roundabout_exits":"true"}'; //koordinatak utan kell majd:  ,"alternative_routes":{"target_count":3}
+					body = '{"coordinates":[['+navipontok[0].valasz.geometry.coordinates[0]+','+navipontok[0].valasz.geometry.coordinates[1]+'],['+navipontok[1].valasz.geometry.coordinates[0]+','+navipontok[1].valasz.geometry.coordinates[1]+'],['+navipontok[2].valasz.geometry.coordinates[0]+','+navipontok[2].valasz.geometry.coordinates[1]+']],"attributes":["avgspeed"],"language":"hu","options":'+JSON.stringify(directions_options)+',"preference":"'+preference.value+'","radiuses":-1,"roundabout_exits":"true"}'; //koordinatak utan kell majd:  ,"alternative_routes":{"target_count":'+parseInt(parseInt(alternative_routes)+1)+'}
 				}
 				console.log('Request body:', body);
 				console.log('Using profile:', profile);
@@ -2183,7 +2187,7 @@
 						console.log('chart updated');
 						
 						document.getElementById('collapsible2').checked = true;						
-						attribdiv.innerHTML = 'magassági adatok:<br>'+r.attribution;
+						attribdiv.innerHTML = 'Magassági adatok:<br>'+r.attribution;
 						map.attributionControl.addAttribution(r.attribution);
 						
 						hideLoadingIcon();
@@ -2468,7 +2472,7 @@
 						map.fitBounds(L.latLngBounds(bb1, bb2));
 						
 						//attribution
-						attribdiv.innerHTML = 'izokróngenerálás:<br>'+r.metadata.attribution+'<br>futás ideje: '+unixTimestampSolver(r.metadata.timestamp/1000);
+						attribdiv.innerHTML = 'Izokróngenerálás:<br>'+r.metadata.attribution+'<br>Kérés ideje: '+unixTimestampSolver(r.metadata.timestamp/1000);
 						map.attributionControl.removeAttribution('openrouteservice.org | OpenStreetMap contributors'); //navi attrib torles, ha van
 						map.attributionControl.removeAttribution('service by https://openrouteservice.org | data by http://srtm.csi.cgiar.org'); //elev attrib torles, ha van
 						map.attributionControl.addAttribution(r.metadata.attribution);
