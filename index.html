@@ -294,7 +294,7 @@
 			}
 			
 			.preference {
-				margin-left: 3px;
+				margin-left: 7px;
 			}
 			
 			.headergridbox {
@@ -335,13 +335,13 @@
 				grid-template-columns: repeat(2, minmax(0, 1fr));
 				grid-template-areas:
 					'iheader1Area iheader1Area'
-					'iparam1Area iparam1Area'
+					'iparam1Area iparam2Area'
 					'iparam3Area iparam4Area'
 					'iparam5Area iparam6Area'
 					'iparam7Area iparam8Area';
 				margin: 0 0 2px 0;
 				align-content: start;
-				column-gap: 7px;
+				column-gap: 2px;
 				row-gap: 6px;
 				border: none;
 				width: 100%;
@@ -362,6 +362,7 @@
 			#iparam2 { 
 				grid-area: iparam2Area;
 				margin-right: 10px;
+				justify-content: right;
 			}
 			#iparam3 { 
 				grid-area: iparam3Area;
@@ -370,6 +371,7 @@
 			#iparam4 { 
 				grid-area: iparam4Area;
 				margin-right: 10px;
+				justify-content: right;
 			}
 			#iparam5 { 
 				grid-area: iparam5Area;
@@ -378,6 +380,7 @@
 			#iparam6 { 
 				grid-area: iparam6Area;
 				margin-right: 10px;
+				justify-content: right;
 			}
 			#iparam7 { 
 				grid-area: iparam7Area;
@@ -846,18 +849,18 @@
 				<div id="routeAB" style="display: flex; justify-content: center; flex-direction: column; width: 100%; row-gap: 5px">
 					<div id="route_wptrow_0" style="display: flex; justify-content: center; flex-direction: row; align-items: center;">
 						<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>A</b></div>
-						<input type="form" id="float_waypoint_0" class="ABfield" onkeyup="if (event.keyCode==13) pontMegjelenit()" oninput="waypointFormsChanged()" placeholder="Kiindulási pont" title="Adjon meg egy helyet, vagy egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577)"/>
+						<input type="form" id="float_waypoint_0" class="ABfield" onkeyup="if (event.keyCode==13) directionsCheck()" oninput="waypointFormsChanged()" placeholder="Kiindulási pont" title="Adjon meg egy helyet, vagy egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577)"/>
 					</div>
 					<div id="route_wptrow_1" style="display: flex; flex-direction: row; align-items: center;">
 						<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>B</b></div>
-						<input type="form" id="float_waypoint_1" class="ABfield" onkeyup="if (event.keyCode==13) pontMegjelenit()" oninput="waypointFormsChanged()" placeholder="Célpont" title="Adjon meg egy helyet, vagy egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577)"/>
+						<input type="form" id="float_waypoint_1" class="ABfield" onkeyup="if (event.keyCode==13) directionsCheck()" oninput="waypointFormsChanged()" placeholder="Célpont" title="Adjon meg egy helyet, vagy egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577)"/>
 					</div>
 				</div>
 				<div id="reverse" style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 10px; margin: 0 2px 0 2px;">
-					<img id="reverse_waypoints" class="active" role="button" onClick="reverseWaypoints(); pontMegjelenit()" src="icons/swap_vert_black_24dp.svg" tabindex="0" title="Irány megfordítása">
+					<img id="reverse_waypoints" class="active" role="button" onClick="reverseWaypoints(); directionsCheck()" src="icons/swap_vert_black_24dp.svg" tabindex="0" title="Irány megfordítása">
 				</div>
 				<div id="OK" style="display: flex; justify-content: center; flex-direction: column;">
-					<button id="float_navi_submit" onclick="pontMegjelenit()" style="height: 100%; max-height: 50px; margin-left: 5px">Go</button>
+					<button id="float_navi_submit" onclick="directionsCheck()" style="height: 100%; max-height: 50px; margin-left: 5px">Go</button>
 				</div>
 			</div>
 			<div style="margin-bottom: 8px; text-align: center;">
@@ -890,23 +893,23 @@
 					<div id="routeAB" style="display: flex; justify-content: center; flex-direction: column; width: 100%; row-gap: 5px">
 						<div id="route_wptrow_0" style="display: flex; justify-content: center; flex-direction: row; align-items: center;">
 							<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>A</b></div>
-							<input type="form" id="waypoint_0" class="ABfield" onkeyup="if (event.keyCode==13) pontMegjelenit()" oninput="waypointFormsChanged()" placeholder="Kiindulási pont" title="Adjon meg egy helyet, vagy egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577)"/>
+							<input type="form" id="waypoint_0" class="ABfield" onkeyup="if (event.keyCode==13) directionsCheck()" oninput="waypointFormsChanged()" placeholder="Kiindulási pont" title="Adjon meg egy helyet, vagy egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577)"/>
 						</div>
 						<div id="route_wptrow_mid" style="display: none; flex-direction: row; align-items: center;">
 							<div style="width: 22px; font-size: 20px; margin-left: 5px;"></div>
-							<input type="form" id="waypoint_mid" class="ABfield" onkeyup="if (event.keyCode==13) pontMegjelenit()" oninput="waypointFormsChanged()" placeholder="Közbeeső pont" title="Adjon meg egy helyet, vagy egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577)"/>
-							<img id="waypoint_remove" style="margin-right: 8px; cursor: pointer;" class="" role="button" onClick="waypointCountRemove(); pontMegjelenit()" src="icons/delete_black_24dp.svg" title="Közbeeső útvonalpont törlése">
+							<input type="form" id="waypoint_mid" class="ABfield" onkeyup="if (event.keyCode==13) directionsCheck()" oninput="waypointFormsChanged()" placeholder="Közbeeső pont" title="Adjon meg egy helyet, vagy egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577)"/>
+							<img id="waypoint_remove" style="margin-right: 8px; cursor: pointer;" class="" role="button" onClick="waypointCountRemove(); directionsCheck()" src="icons/delete_black_24dp.svg" title="Közbeeső útvonalpont törlése">
 						</div>
 						<div id="route_wptrow_1" style="display: flex; flex-direction: row; align-items: center;">
 							<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>B</b></div>
-							<input type="form" id="waypoint_1" class="ABfield" onkeyup="if (event.keyCode==13) pontMegjelenit()" oninput="waypointFormsChanged()" placeholder="Célpont" title="Adjon meg egy helyet, vagy egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577)"/>
+							<input type="form" id="waypoint_1" class="ABfield" onkeyup="if (event.keyCode==13) directionsCheck()" oninput="waypointFormsChanged()" placeholder="Célpont" title="Adjon meg egy helyet, vagy egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577)"/>
 						</div>
 					</div>
 					<div id="reverse" style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 10px; margin: 0 2px 0 2px;">
-						<img id="reverse_waypoints" class="active" role="button" onClick="reverseWaypoints(); pontMegjelenit()" src="icons/swap_vert_black_24dp.svg" tabindex="0" title="Irány megfordítása">
+						<img id="reverse_waypoints" class="active" role="button" onClick="reverseWaypoints(); directionsCheck()" src="icons/swap_vert_black_24dp.svg" tabindex="0" title="Irány megfordítása">
 					</div>
 					<div id="OK" style="display: flex; justify-content: center; flex-direction: column;">
-						<button id="navi_submit" onclick="pontMegjelenit()" style="height: 100%; max-height: 50px; margin-left: 5px;">Go</button>
+						<button id="navi_submit" onclick="directionsCheck()" style="height: 100%; max-height: 50px; margin-left: 5px;">Go</button>
 					</div>
 				</div>
 				
@@ -915,31 +918,31 @@
 						Elkerülendő:
 					</div>
 					<div id="param1" class="paramgridbox" >
-						<input id="avoid_highways" name="avoid_highways" type="checkbox" onclick="pontMegjelenit()" style="display: flex;">
+						<input id="avoid_highways" name="avoid_highways" type="checkbox" onclick="directionsCheck()" style="display: flex;">
 						<label for="avoid_highways">Autópályák</label>
 					</div>
 					<div id="param2" class="paramgridbox" >
 						<label for="preference">Útvonal: </label>
-						<select name="preference" id="preference" class="preference" onchange="pontMegjelenit()">
+						<select name="preference" id="preference" class="preference" onchange="directionsCheck()">
 							<option value="recommended">Ajánlott</option>
 							<option value="shortest">Legrövidebb</option>
 							<option value="fastest">Leggyorsabb</option>
 						</select>
 					</div>
 					<div id="param3" class="paramgridbox" >
-						<input id="avoid_tollways" name="avoid_tollways" type="checkbox" onclick="pontMegjelenit()" style="display: flex;">
+						<input id="avoid_tollways" name="avoid_tollways" type="checkbox" onclick="directionsCheck()" style="display: flex;">
 						<label for="avoid_tollways">Útdíjak</label>
 					</div>
 					<!--<div id="param4" class="paramgridbox" >
 						<label for="alternative_routes">Alternatív:</label>
-						<input type="range" id="alt_routes" name="alt_routes" min="0" max="2" value="0" oninput="document.getElementById('alt_routesnum').innerHTML=this.value; alternative_routes=this.value;" onchange="pontMegjelenit()" class="preference" style="max-width: 100px;"><span id="alt_routesnum">0</span>
+						<input type="range" id="alt_routes" name="alt_routes" min="0" max="2" value="0" oninput="document.getElementById('alt_routesnum').innerHTML=this.value; alternative_routes=this.value;" onchange="directionsCheck()" class="preference" style="max-width: 100px;"><span id="alt_routesnum">0</span>
 					</div>-->
 					<div id="param5" class="paramgridbox" >
-						<input id="avoid_ferries" name="avoid_ferries" type="checkbox" onclick="pontMegjelenit()" style="display: flex;">
+						<input id="avoid_ferries" name="avoid_ferries" type="checkbox" onclick="directionsCheck()" style="display: flex;">
 						<label for="avoid_ferries">Kompok</label>
 					</div>
 					<div id="param7" class="paramgridbox" >
-						<input id="avoid_borders" name="avoid_borders" type="checkbox" onclick="pontMegjelenit()" style="display: flex;">
+						<input id="avoid_borders" name="avoid_borders" type="checkbox" onclick="directionsCheck()" style="display: flex;">
 						<label for="avoid_borders">Országhatárok</label>
 					</div>
 				</div>
@@ -948,15 +951,15 @@
 					<div class="route_profile_selector" style="display: flex; flex-direction: row;">
 						<div style="display: flex;">
 							<input id="car" type="radio" name="profile" value="driving-car" checked/>
-							<label class="route_profile car" for="car" id="carlabel" onClick="setProfile('driving-car'); pontMegjelenit()" tabindex="0"></label>
+							<label class="route_profile car" for="car" id="carlabel" onClick="setProfile('driving-car'); directionsCheck()" tabindex="0"></label>
 						</div>
 						<div style="display: flex;">
 							<input id="bike" type="radio" name="profile" value="cycling-regular" />
-							<label class="route_profile bike" for="bike" onClick="setProfile('cycling-regular'); pontMegjelenit()" tabindex="0"></label>
+							<label class="route_profile bike" for="bike" onClick="setProfile('cycling-regular'); directionsCheck()" tabindex="0"></label>
 						</div>
 						<div style="display: flex;">
 							<input id="walk" type="radio" name="profile" value="foot-walking" />
-							<label class="route_profile walk" for="walk" onClick="setProfile('foot-walking'); pontMegjelenit()" tabindex="0"></label>
+							<label class="route_profile walk" for="walk" onClick="setProfile('foot-walking'); directionsCheck()" tabindex="0"></label>
 						</div>
 					</div>
 				</div>
@@ -1049,27 +1052,37 @@
 						Beállítások:
 					</div>
 					<div id="iparam1" class="paramgridbox" >
-						<label for="intervals" id="intervals_label">Max. idő:</label>
-						<input type="range" id="maxrange" name="intervals" min="1" max="120" value="120" oninput="document.getElementById('iso_rangenum').innerHTML=this.value;" onchange="isochroneCheck()" class="preference" style="max-width: 100px;"><span id="iso_rangenum">120</span><div id="iso_rangeunit" style="margin-left: 3px;"></div>
+						<label for="iso_type" id="iso_type_label">Módszer (idő/távolság):</label>
+					</div>
+					<div id="iparam2" class="paramgridbox" >
+						Izokrón
+						<label for="iso_type" class="switch">
+							<input name="iso_type" id="iso_type" type="checkbox" onchange="preference_isotype_value=( (this.checked) ? 'distance' : 'time'); refreshIsochronesOptions(); isochroneCheck()">
+							<span class="slider round"></span>
+						</label>
+						Izodisztans
 					</div>
 					<div id="iparam3" class="paramgridbox" >
-						<label for="intervals">Izokrónok:</label>
-						<input type="range" id="intervals" name="intervals" min="1" max="10" value="4" oninput="document.getElementById('iso_num').innerHTML=this.value;" onchange="isochroneCheck()" class="preference" style="max-width: 100px;"><span id="iso_num">4</span>
+						<label for="intervals" id="intervals_label">Maximális idő:</label>
+					</div>
+					<div id="iparam4" class="paramgridbox" >
+						<span id="iso_rangenum">120</span><!--<div id="iso_rangeunit" style="margin-left: 3px;"></div>-->
+						<input type="range" id="maxrange" name="intervals" min="1" max="120" value="120" oninput="document.getElementById('iso_rangenum').innerHTML=this.value;" onchange="isochroneCheck()" class="preference" style="max-width: 100px;">
 					</div>
 					<div id="iparam5" class="paramgridbox" >
-						<label for="iso_type">Módszer:</label>
+						<label for="intervals">Izokrónok száma (db):</label>
+					</div>
+					<div id="iparam6" class="paramgridbox" >
+						<span id="iso_num">4</span>
+						<input type="range" id="intervals" name="intervals" min="1" max="10" value="4" oninput="document.getElementById('iso_num').innerHTML=this.value;" onchange="isochroneCheck()" class="preference" style="max-width: 100px;">
+					</div>
+					<div id="iparam7" class="paramgridbox" >
+						<!--<label for="iso_type">Módszer:</label>
 						<select name="iso_type" id="iso_type" class="preference" onchange="preference_isotype_value=(this.value); refreshIsochronesOptions(); isochroneCheck()">
 							<option value="time">Izokrón (idő alapján)</option>
 							<option value="distance">Izodisztans (távolság alapján)</option>
 						</select>
-					</div>
-					<div id="iparam7" class="paramgridbox" >
-						<s>Izokrón
-						<label class="switch">
-							<input type="checkbox" checked>
-							<span class="slider round"></span>
-						</label>
-						Izodisztans</s>
+						-->
 					</div>
 				</div>
 				<div id="route_profile_wrapperdiv" style="display:flex; flex-direction: row; justify-content: space-between; align-items:center">
@@ -1360,7 +1373,7 @@
 				}
 						
 				geocodingNeeded = false;
-				pontMegjelenit();
+				directionsCheck();
 			}
 			
 			function naviTo (e) {
@@ -1390,7 +1403,7 @@
 					};
 							
 					geocodingNeeded = false;
-					pontMegjelenit();
+					directionsCheck();
 				} else {
 					navipontok[1].keres='-';
 					navipontok[1].nev_display=String(e.latlng.lat).substring(0, 8) + ', ' + String(e.latlng.lng).substring(0, 8);
@@ -1416,7 +1429,7 @@
 					};
 							
 					geocodingNeeded = false;
-					pontMegjelenit();
+					directionsCheck();
 				}
 							
 			}
@@ -1480,7 +1493,7 @@
 			var avoid_borders = document.getElementById('avoid_borders');
 			var preference = document.getElementById("preference");
 			var preference_isotype = document.getElementById("iso_type");
-			var preference_isotype_value = document.getElementById("iso_type").value;
+			var preference_isotype_value = (preference_isotype.checked) ? 'distance' : 'time';
 			var loading_icon = document.getElementById("loading_icon");
 			var loading_icon2 = document.getElementById("loading_icon2");
 			if (getCookie('profile') != "") {
@@ -1665,7 +1678,7 @@
 			
 			var w0, w1, waypoint_0_text, waypoint_1_text;
 			
-			function pontMegjelenit() {
+			function directionsCheck() {
 				w0=document.getElementById(sidebarstate ? 'waypoint_0' : 'float_waypoint_0' );
 				w1=document.getElementById(sidebarstate ? 'waypoint_1' : 'float_waypoint_1' );
 				wmid=document.getElementById('waypoint_mid');
@@ -1733,7 +1746,7 @@
 					//geocoding_queue = waypoint_count;
 					for (var i=0; i<waypoint_count; i++){
 						var text=eval('waypoint_'+i+'_text');
-						var regex = text.match(/^([0-9]+(\.[0-9]+)?),\s*([0-9]+(\.[0-9]+)?)$/);
+						var regex = text.match(/^(-?[0-9]+(\.[0-9]+)?),\s*(-?[0-9]+(\.[0-9]+)?)$/);
 						if (regex != null) {
 							//koordinata
 							navipontok[i].valasz.geometry.coordinates[1] = parseFloat(regex[1]); //lat
@@ -1742,9 +1755,14 @@
 							new L.marker([navipontok[i].valasz.geometry.coordinates[1], navipontok[i].valasz.geometry.coordinates[0]], {icon: markerIcon(i, 'navi')}).addTo(lg);
 						} else {
 							//szoveg -> geokodolas
-							geocoding_queue++;
-							navipontok[i] = {keres:text};
-							pontKeres_geokod(navipontok[i]);
+							if (internetConnectionCheck()) {
+								geocoding_queue++;
+								navipontok[i] = {keres:text};
+								pontKeres_geokod(navipontok[i]);
+							} else {
+								// nincs internetkapcsolat
+								return;
+							}
 						}
 					}
 					getDirections();
@@ -1877,7 +1895,7 @@
 									+'</div></td>'+
 									String((i == lepesek1.length-1) ? '' : '<td class="itiner_tablazat_cella">'+
 									distanceFormatter(lepesek1[i].distance)
-									+'</td><td class="itiner_tablazat_cella">'+
+									+'</td><td class="itiner_tablazat_cella" style="min-width: 40px;">'+
 									timeFormatter(lepesek1[i].duration)
 									+'</td>')
 									+'</tr>');
@@ -1979,7 +1997,7 @@
 										+'</div></td>'+
 										String((i == lepesek2.length-1) ? '' : '<td class="itiner_tablazat_cella">'+
 										distanceFormatter(lepesek2[i].distance)
-										+'</td><td class="itiner_tablazat_cella">'+
+										+'</td><td class="itiner_tablazat_cella" style="min-width: 40px;">'+
 										timeFormatter(lepesek2[i].duration)
 										+'</td>')
 										+'</tr>');
@@ -2438,10 +2456,12 @@
 							for (var i=0; i<nodes.length; i++) {
 								nodes[i]=[nodes[i][1], nodes[i][0]];
 							}
-							if (preference_isotype.value == 'time') {
+							if (!preference_isotype.checked) {
+								// time
 								isopolygons[x] = L.polygon(nodes, {color: polygonColor(x)}).addTo(lg)
 								.bindTooltip('Idő: '+timeFormatter(r.features[x].properties.value), {sticky: true}).bringToBack(); 
-							} else if (preference_isotype.value == 'distance') {
+							} else if (preference_isotype.checked) {
+								// distance
 								isopolygons[x] = L.polygon(nodes, {color: polygonColor(x)}).addTo(lg)
 								.bindTooltip('Távolság: '+distanceFormatter(r.features[x].properties.value), {sticky: true}).bringToBack(); 
 							}
@@ -2538,12 +2558,12 @@
 					isoranges[i] = (maxrange/count)*(i+1);
 				}
 				if (preference_isotype_value == "time") {
-					document.getElementById('intervals_label').textContent = "Max. idő:";
+					document.getElementById('intervals_label').textContent = "Maximális idő:";
 					//document.getElementById('iso_rangeunit').innerHTML = "s";
 					document.getElementById("maxrange").setAttribute("oninput","document.getElementById('iso_rangenum').innerHTML=timeFormatter(this.value);");
 					refreshIsochroneRangeLimits();
 				} else if (preference_isotype_value == "distance") {
-					document.getElementById('intervals_label').textContent = "Max. táv:";
+					document.getElementById('intervals_label').textContent = "Maximális táv:";
 					//document.getElementById('iso_rangeunit').innerHTML = "m";
 					document.getElementById("maxrange").setAttribute("oninput","document.getElementById('iso_rangenum').innerHTML=distanceFormatter(this.value);");
 					document.getElementById("maxrange").step = 100;
@@ -2747,7 +2767,13 @@
 						else {return h+' óra '+m+' perc '+s+' mp';}
 					}
 				} else if (3600<t) {
-					if (s==0) {return h+' óra '+m+' perc';}
+					if (s==0) {
+						if (m==0) {
+							return h+' óra ';
+						} else {
+							return h+' óra '+m+' perc';
+						}
+					}
 					else if (m==0) {return h+' óra '+s+' mp';}
 					else {return h+' óra '+m+' perc '+s+' mp';}
 				}
