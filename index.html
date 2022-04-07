@@ -2058,7 +2058,7 @@
 							if (navipontok.length==2) {
 								
 								text = document.getElementById('waypoint_0').value;
-								var regex = text.match(/^([0-9]+(\.[0-9]+)?),\s*([0-9]+(\.[0-9]+)?)$/);
+								var regex = text.match(/^(-?[0-9]+(\.[0-9]+)?),\s*(-?[0-9]+(\.[0-9]+)?)$/);
 								if (regex != null) {
 									//koordinata
 									document.getElementById('results_title_A').innerHTML = navipontok[0].nev_display;
@@ -2068,7 +2068,7 @@
 								}
 								
 								text = document.getElementById('waypoint_1').value;
-								var regex = text.match(/^([0-9]+(\.[0-9]+)?),\s*([0-9]+(\.[0-9]+)?)$/);
+								var regex = text.match(/^(-?[0-9]+(\.[0-9]+)?),\s*(-?[0-9]+(\.[0-9]+)?)$/);
 								if (regex != null) {
 									//koordinata
 									document.getElementById('results_title_B').innerHTML = navipontok[1].nev_display;
@@ -2080,7 +2080,7 @@
 							} else {
 								
 								text = document.getElementById('waypoint_0').value;
-								var regex = text.match(/^([0-9]+(\.[0-9]+)?),\s*([0-9]+(\.[0-9]+)?)$/);
+								var regex = text.match(/^(-?[0-9]+(\.[0-9]+)?),\s*(-?[0-9]+(\.[0-9]+)?)$/);
 								if (regex != null) {
 									//koordinata
 									document.getElementById('results_title_A').innerHTML = navipontok[0].nev_display;
@@ -2090,7 +2090,7 @@
 								}
 								
 								text = document.getElementById('waypoint_1').value;
-								var regex = text.match(/^([0-9]+(\.[0-9]+)?),\s*([0-9]+(\.[0-9]+)?)$/);
+								var regex = text.match(/^(-?[0-9]+(\.[0-9]+)?),\s*(-?[0-9]+(\.[0-9]+)?)$/);
 								if (regex != null) {
 									//koordinata
 									document.getElementById('results_title_B').innerHTML = navipontok[2].nev_display;
@@ -2292,9 +2292,9 @@
 					(d.features[0].properties.region != null ? d.features[0].properties.region + ', ' : '') + 
 					(d.features[0].properties.country != null ? d.features[0].properties.country : '') + '</div>' + 
 					'<br><b>Szélesség:</b> '
-					+lat+
+					+parseFloat(lat.toFixed(6))+
 					'<br><b>Hosszúság:</b> '
-					+lon; 
+					+parseFloat(lon.toFixed(6)); 
 					
 					if (show == true) {
 						//popupban megmutatjuk, mi van ott
@@ -2334,7 +2334,7 @@
 				
 				for (var i=0; i<isochrone_count; i++){
 					var text=document.getElementById('isochrone_center_'+i).value;
-					var regex = text.match(/^([0-9]+(\.[0-9]+)?),\s*([0-9]+(\.[0-9]+)?)$/);
+					var regex = text.match(/^(-?[0-9]+(\.[0-9]+)?),\s*(-?[0-9]+(\.[0-9]+)?)$/);
 					if (regex != null) {
 						//koordinata
 						isopontok[i].valasz.geometry.coordinates[1] = parseFloat(regex[1]); //lat
