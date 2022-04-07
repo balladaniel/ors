@@ -1265,6 +1265,8 @@
 			)			
 		
 			var map=L.map('mapdiv', {	zoomControl: false, 
+										maxBounds: L.latLngBounds(L.latLng(-90, -180), L.latLng(90, 180)),
+										maxBoundsViscosity: 1.0,
 										//leaflet.contextmenu forrás (Adam Ratcliffe): https://github.com/aratcliffe/Leaflet.contextmenu
 										contextmenu: true,
 										contextmenuWidth: 165,
