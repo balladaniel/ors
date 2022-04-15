@@ -13,6 +13,7 @@
 		- OpenStreetMap: © OpenStreetMap contributors - https://www.openstreetmap.org/ (Open Data Commons Open Database License (ODbL): https://www.openstreetmap.org/copyright)
 	- Openrouteservice: © openrouteservice.org by HeiGIT | Map data © OpenStreetMap contributors - https://openrouteservice.org/ (API results: CC-BY 4.0 (https://creativecommons.org/licenses/by/4.0/), https://openrouteservice.org/terms-of-service/)
 	- Leaflet.contextmenu: Adam Ratcliffe - https://github.com/aratcliffe/Leaflet.contextmenu (MIT License: http://www.opensource.org/licenses/mit-license.php)
+	- Leaflet.PolylineMeasure: Copyright (c) 2017, PPete (“ppete2 on GitHub), Copyright (c) 2012-2013, Jürgen Treml - https://github.com/ppete2/Leaflet.PolylineMeasure (BSD 2-Clause "Simplified" License: https://github.com/ppete2/Leaflet.PolylineMeasure/blob/master/LICENSE.txt)
 	- Chart.js: Downie, N., Perkins, D., Timberg, E., Sylvestre, J., Panzarino, Z., Brunel, S., & Linsley, T. - https://www.chartjs.org (MIT License: http://www.opensource.org/licenses/mit-license.php)
 	- Turf.js: Copyright (c) 2019 Morgan Herlocker - https://turfjs.org/ (MIT License: https://github.com/Turfjs/turf/blob/master/LICENSE)
 	
@@ -23,7 +24,7 @@
 	- Cookie olvasó függvény (JS, w3schools.com): https://www.w3schools.com/js/js_cookies.asp
 	
 	Egyéb elemek:
-	- Felhasználói felület betűtípusa (Open Sans): Google Fonts: https://fonts.google.com/icons (Apache License 2.0: https://www.apache.org/licenses/LICENSE-2.0.html)
+	- Felhasználói felület betűtípusa (Open Sans): Google Fonts: https://fonts.google.com/ (Apache License 2.0: https://www.apache.org/licenses/LICENSE-2.0.html)
 	- Felhasználói felület ikonjainak nagy része: Google Fonts: https://fonts.google.com/icons (Apache License 2.0: https://www.apache.org/licenses/LICENSE-2.0.html)
 
 -->
@@ -33,17 +34,22 @@
 		<title>OpenRouteService útvonaltervező</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 		<meta charset="utf-8">
+		
+		<!-- CSS STYLESHEETS -->
 		<link rel="stylesheet" href="leaflet/leaflet.css" />
 		<link rel="stylesheet" href="leaflet/leaflet_contextmenu/leaflet.contextmenu.css" />
+		<link rel="stylesheet" href="leaflet/leaflet_polylinemeasure/Leaflet.PolylineMeasure.css" />
 		
 		<!-- FONTS -->
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 		<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..700&display=swap" rel="stylesheet">
 		
+		<!-- SCRIPTS -->
 		<script src="leaflet/leaflet.js"></script>
 		<script src="leaflet/leaflet_contextmenu/leaflet.contextmenu.js"></script>
 		<script src="chartjs/chart.min.js"></script>
 		<script src="turfjs/turf.min.js"></script>
+		<script src="leaflet/leaflet_polylinemeasure/Leaflet.PolylineMeasure.js"></script>
 		<style>
 			html, body {
 				height: 100%;
@@ -1211,7 +1217,17 @@
 				shadowSize: [41, 41],
 				shadowAnchor: [12, 41]
 			});
+			var icon_elevmarker = L.icon({
+				iconUrl: 'icons/marker_elevmarker_sajat.png',
+				iconSize: [25, 41],
+				iconAnchor: [12, 36],
+				popupAnchor: [-3, -76],
+				shadowUrl: 'icons/marker_elevmarker_shadow_sajat.png',
+				shadowSize: [41, 41],
+				shadowAnchor: [12, 36]
+			});
 			
+			var elevmarker;
 			var y = []; 
 			var x = [];
 			var chartdiv = document.getElementById('elevChart');
@@ -1258,11 +1274,42 @@
 								mode: 'index',
 								intersect: false
 							}
+						},
+						onHover: (e) => {
+							//egerkurzor a grafikon felett van
+							if (e.type == 'mousemove') {
+								const canvasPosition = Chart.helpers.getRelativePosition(e, elevChart);
+
+								// Substitute the appropriate scale IDs
+								const dataX = elevChart.scales.x.getValueForPixel(canvasPosition.x);
+								const dataY = elevChart.scales.y.getValueForPixel(canvasPosition.y);
+								if (0 <= dataX && dataX < current_polyline_osztott.length) {
+									if (!elevmarker) {
+										elevmarker = new L.marker([current_polyline_osztott[dataX][1], current_polyline_osztott[dataX][0]], {icon: icon_elevmarker}).addTo(this.map).bindTooltip(String(elevChart.data.datasets[0].data[dataX])+' m').openTooltip();
+									} else {
+										elevmarker.setLatLng([current_polyline_osztott[dataX][1], current_polyline_osztott[dataX][0]]);
+										elevmarker.bindTooltip(String(elevChart.data.datasets[0].data[dataX])+' m').openTooltip();
+									}
+								}
+							}
+							
 						}
-					}
-						
+					},
+					plugins: [{
+						// egerkurzor elhagyja a grafikont
+						id: 'mouseoutEventCatcher',
+						beforeEvent(chart, args, pluginOptions) {
+							const event = args.event;
+							if (event.type === 'mouseout') {
+								if (elevmarker) {
+									map.removeLayer(elevmarker);
+									elevmarker = null;
+								}
+							}
+						}
+					}]
 				}
-			)			
+			)	
 		
 			var map=L.map('mapdiv', {	zoomControl: false, 
 										maxBounds: L.latLngBounds(L.latLng(-90, -180), L.latLng(90, 180)),
@@ -1303,9 +1350,44 @@
 											icon: 'icons/adjust_black_24dp.svg',
 											callback: isoCenter
 										}]
-										}).setView([47.19531,19.54467], 8);
+									}).setView([47.19531,19.54467], 8);
 			L.control.zoom({position: 'bottomright'}).addTo(map); 	// zoom gombok a jobb also sarokba
 			L.control.scale({position: 'bottomleft'}).addTo(map); 	// merteklec bal also sarokba
+			L.control.polylineMeasure({		position: 'bottomright',
+											unit: 'kilometres',
+											useSubunits: true,
+											measureControlTitleOn: 'Távolságmérés',
+											measureControlTitleOff: 'Távolságmérés befejezése',
+											clearControlTitle: 'Mérések törlése',
+											showBearings: true,
+											bearingTextIn: 'Érkező',
+											bearingTextOut: 'Kimenő',
+											tooltipTextFinish: '<b>Vonal befejezése</b>: Klikk<br>',
+											tooltipTextDelete: '<b>Pont törlése:</b> SHIFT+klikk',
+											tooltipTextMove: '<b>Pont mozgatása:</b> "fogd-és-húzd"<br>',
+											tooltipTextResume: '<br><b>Vonal folytatása:</b> CTRL-klikk',
+											tooltipTextAdd: '<b>Pont hozzáadása:</b> CTRL-klikk',
+											showClearControl: true,
+											startCircle: {
+												fillColor: '#0f0',
+												radius: 5
+											},
+											intermedCircle: {
+												fillColor: '#fff',
+												radius: 3.5
+											},
+											currentCircle: {
+												color: '#000',
+												weight: 1,
+												fillColor: '#ff0',
+												fillOpacity: 1,
+												radius: 5
+											},
+											endCircle: {
+												fillColor: '#f00',
+												radius: 5
+											}
+										}).addTo(map);	// leaflet.polylinemeasure forrás (ppete2): https://github.com/ppete2/Leaflet.PolylineMeasure
 			
 			//kurzor alatti koordinata a jobb also leaflet attrib ele
 			map.on('mousemove', function(e) {
@@ -2974,7 +3056,7 @@
 			
 			function rateLimitCheck(n, milyen, resettime) {
 				if (n<=0){
-					showMsgBox('Az egy nap alatt lekérhető '+milyen+' kérések száma elfogyott - próbálja később'/*+unixTimestampSolver(resettime)+' után'*/, 'error');
+					showMsgBox('Az egy nap alatt lekérhető '+milyen+' kérések száma elfogyott - próbálja később, '+unixTimestampSolver(resettime)+' után', 'error');
 					hideLoadingIcon();
 					return false;
 				} else {
