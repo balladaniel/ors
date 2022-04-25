@@ -51,10 +51,14 @@
 		<script src="turfjs/turf.min.js"></script>
 		<script src="leaflet/leaflet_polylinemeasure/Leaflet.PolylineMeasure.js"></script>
 		<style>
+			@font-face {
+				font-family: "OpenSans-Local";
+				src: url('fonts/OpenSans-Regular.ttf');
+			}
 			html, body {
 				height: 100%;
 				margin: 0;
-				font-family: 'Open Sans';
+				font-family: 'Open Sans', 'OpenSans-Local';
 				font-style: normal;
 			}
 			input[type="form"] {
@@ -83,6 +87,16 @@
 			}
 			.addwaypoint {
 				left: -1px;
+			}		
+			.addwaypoint:hover {
+				-webkit-filter: brightness(2.5) grayscale(1) opacity(.6);
+				   -moz-filter: brightness(2.5) grayscale(1) opacity(.6);
+						filter: brightness(2.5) grayscale(1) opacity(.6);
+			}	
+			.reversewaypoints:hover {
+				-webkit-filter: brightness(2.5) grayscale(1) opacity(.6);
+				   -moz-filter: brightness(2.5) grayscale(1) opacity(.6);
+						filter: brightness(2.5) grayscale(1) opacity(.6);
 			}
             #uzenetablak {
 				position: fixed;
@@ -147,6 +161,11 @@
 			@media (max-width: 550px) {
 				.currenttool_popup {
 					top: 45px;					
+				}
+			}
+			@media (min-width: 550px) and (max-width: 1029px) {
+				.currenttool_popup_closedsb {
+					left: 520px;	
 				}
 			}
 			.opacity0 {
@@ -884,7 +903,7 @@
 					top: 120px;
 					width: 23px;
 					height: 55px;
-					transform: translate(-50%, 0) rotate(90deg); /* X: 0, Y: a div magassaganek felet vissza hogy kozepen legyen */
+					transform: translate(-50%, 0) rotate(90deg); /* X: a div szelessegenek felet vissza hogy kozepen legyen, Y: 0 */
 				}
 				#sidebar {
 					height: 425px;
@@ -924,15 +943,15 @@
 				<div id="routeAB" style="display: flex; justify-content: center; flex-direction: column; width: 100%; row-gap: 5px">
 					<div id="route_wptrow_0" style="display: flex; justify-content: center; flex-direction: row; align-items: center;">
 						<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>A</b></div>
-						<input type="form" id="float_waypoint_0" class="ABfield" onkeyup="if (event.keyCode==13) directionsCheck()" oninput="waypointFormsChanged()" onfocusin="listenToABMapClick(this, 0)" onfocusout="stopListeningToABMapClick()" placeholder="Kiindulási pont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
+						<input type="form" id="float_waypoint_0" class="ABfield" onkeyup="if (event.keyCode==13) {this.blur(); directionsCheck();}" oninput="waypointFormsChanged()" onfocusin="listenToABMapClick(this, 0)" onfocusout="stopListeningToABMapClick()" placeholder="Kiindulási pont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
 					</div>
 					<div id="route_wptrow_1" style="display: flex; flex-direction: row; align-items: center;">
 						<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>B</b></div>
-						<input type="form" id="float_waypoint_1" class="ABfield" onkeyup="if (event.keyCode==13) directionsCheck()" oninput="waypointFormsChanged()" onfocusin="listenToABMapClick(this, parseInt((waypoint_count==2)?1:2))" onfocusout="stopListeningToABMapClick()" placeholder="Célpont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
+						<input type="form" id="float_waypoint_1" class="ABfield" onkeyup="if (event.keyCode==13) {this.blur(); directionsCheck();}" oninput="waypointFormsChanged()" onfocusin="listenToABMapClick(this, parseInt((waypoint_count==2)?1:2))" onfocusout="stopListeningToABMapClick()" placeholder="Célpont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
 					</div>
 				</div>
 				<div id="reverse" style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 10px; margin: 0 2px 0 2px;">
-					<img id="reverse_waypoints" class="active" role="button" onClick="reverseWaypoints(); directionsCheck()" src="icons/swap_vert_black_24dp.svg" tabindex="0" title="Irány megfordítása">
+					<img id="reverse_waypoints" class="reversewaypoints active" role="button" onClick="reverseWaypoints(); directionsCheck()" src="icons/swap_vert_black_24dp.svg" tabindex="0" title="Irány megfordítása">
 				</div>
 				<div id="OK" style="display: flex; justify-content: center; flex-direction: column;">
 					<button id="float_navi_submit" onclick="directionsCheck()" style="height: 100%; max-height: 50px; margin-left: 5px">Go</button>
@@ -968,20 +987,20 @@
 					<div id="routeAB" style="display: flex; justify-content: center; flex-direction: column; width: 100%; row-gap: 5px">
 						<div id="route_wptrow_0" style="display: flex; justify-content: center; flex-direction: row; align-items: center;">
 							<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>A</b></div>
-							<input type="form" id="waypoint_0" class="ABfield" onkeyup="if (event.keyCode==13) directionsCheck()" oninput="waypointFormsChanged()" onfocusin="listenToABMapClick(this, 0)" onfocusout="stopListeningToABMapClick()" placeholder="Kiindulási pont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
+							<input type="form" id="waypoint_0" class="ABfield" onkeyup="if (event.keyCode==13) {this.blur(); directionsCheck();}" oninput="waypointFormsChanged()" onfocusin="listenToABMapClick(this, 0)" onfocusout="stopListeningToABMapClick()" placeholder="Kiindulási pont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
 						</div>
 						<div id="route_wptrow_mid" style="display: none; flex-direction: row; align-items: center;">
 							<div style="width: 22px; font-size: 20px; margin-left: 5px;"></div>
-							<input type="form" id="waypoint_mid" class="ABfield" onkeyup="if (event.keyCode==13) directionsCheck()" oninput="waypointFormsChanged()" onfocusin="listenToABMapClick(this, 1)" onfocusout="stopListeningToABMapClick()" placeholder="Közbeeső pont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
+							<input type="form" id="waypoint_mid" class="ABfield" onkeyup="if (event.keyCode==13) {this.blur(); directionsCheck();}" oninput="waypointFormsChanged()" onfocusin="listenToABMapClick(this, 1)" onfocusout="stopListeningToABMapClick()" placeholder="Közbeeső pont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
 							<img id="waypoint_remove" style="margin-right: 8px; cursor: pointer;" class="" role="button" onClick="waypointCountRemove(); directionsCheck()" src="icons/delete_black_24dp.svg" title="Közbeeső útvonalpont törlése">
 						</div>
 						<div id="route_wptrow_1" style="display: flex; flex-direction: row; align-items: center;">
 							<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>B</b></div>
-							<input type="form" id="waypoint_1" class="ABfield" onkeyup="if (event.keyCode==13) directionsCheck()" oninput="waypointFormsChanged()" onfocusin="listenToABMapClick(this, parseInt((waypoint_count==2)?1:2))" onfocusout="stopListeningToABMapClick()" placeholder="Célpont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
+							<input type="form" id="waypoint_1" class="ABfield" onkeyup="if (event.keyCode==13) {this.blur(); directionsCheck();}" oninput="waypointFormsChanged()" onfocusin="listenToABMapClick(this, parseInt((waypoint_count==2)?1:2))" onfocusout="stopListeningToABMapClick()" placeholder="Célpont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
 						</div>
 					</div>
 					<div id="reverse" style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 10px; margin: 0 2px 0 2px;">
-						<img id="reverse_waypoints" class="active" role="button" onClick="reverseWaypoints(); directionsCheck()" src="icons/swap_vert_black_24dp.svg" tabindex="0" title="Irány megfordítása">
+						<img id="reverse_waypoints" class="reversewaypoints active" role="button" onClick="reverseWaypoints(); directionsCheck()" src="icons/swap_vert_black_24dp.svg" tabindex="0" title="Irány megfordítása">
 					</div>
 					<div id="OK" style="display: flex; justify-content: center; flex-direction: column;">
 						<button id="navi_submit" onclick="directionsCheck()" style="height: 100%; max-height: 50px; margin-left: 5px;">Go</button>
@@ -1115,7 +1134,7 @@
 					<div id="isochrone_centers" style="display: flex; justify-content: center; flex-direction: column; width: 100%; row-gap: 5px">
 						<div id="isochrone_center_0_div" style="display: flex; justify-content: center; flex-direction: row; align-items: center;">
 							<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>1</b></div>
-							<input type="form" id="isochrone_center_0" class="ABfield" onkeyup="if (event.keyCode==13) isochroneCheck()" oninput="" onfocusin="listenToABMapClick_ISO(this, 0)" onfocusout="stopListeningToABMapClick()" placeholder="Középpont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
+							<input type="form" id="isochrone_center_0" class="ABfield" onkeyup="if (event.keyCode==13) {this.blur(); isochroneCheck();}" oninput="" onfocusin="listenToABMapClick_ISO(this, 0)" onfocusout="stopListeningToABMapClick()" placeholder="Középpont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
 						</div>
 					</div>
 					<div id="OK" style="display: flex; justify-content: center; flex-direction: column;">
@@ -1212,9 +1231,9 @@
 		
 			<div id="sidebar_bottom" style="display: none; flex-direction:column; align-items: center; margin-top: auto;">
 				<div id="sidebar_attributions" style="display: flex; flex-direction:column; align-items: center; gap: 5px;">
-					<div id="attribution_label"></div>
-					<div id="ORSattribution" class="attrib_content"></div>
+					<div id="ORS_naviattribution" class="attrib_content"></div>
 					<div id="ORS_elevattribution" class="attrib_content"></div>
+					<div id="ORS_timestamp" class="attrib_content"></div>
 				</div>
 			</div>
 		</div>
@@ -1223,8 +1242,8 @@
 			<input type="button" id="sidebar_nyitogomb" onClick="sidebarStateChange()" class="sidebar_closed" />
 		</div>
 		<div id="mapdiv">
-			<div id="currenttool_popup" class="leaflet-top currenttool_popup opacity0" >
-				<div id="currenttool_popup_content" style="display: flex; flex-direction: row; align-items: center;">Kattintson a térképre</div>
+			<div id="currenttool_popup" class="leaflet-top currenttool_popup currenttool_popup_closedsb opacity0" >
+				<div id="currenttool_popup_content" style="display: flex; flex-direction: row; align-items: center; font-family: 'Open Sans'"></div>
 			</div>
 		</div>
 		<div id="uzenetablak">
@@ -1412,11 +1431,11 @@
 											callback: zoomOut
 											}, '-', {
 											text: 'Útvonal innen',
-											icon: 'icons/directions/11_depart_24dp_sajat.svg',
+											icon: 'icons/A_black_24dp_sajat.png',
 											callback: naviFrom
 											}, {
 											text: 'Útvonal ide',
-											icon: 'icons/directions/10_goal_24dp_sajat.svg',
+											icon: 'icons/B_black_24dp_sajat.png',
 											callback: naviTo,
 											}, {
 											text: 'Izokrón innen',
@@ -1464,7 +1483,7 @@
 			
 			//kurzor alatti koordinata a jobb also leaflet attrib ele
 			map.on('mousemove', function(e) {
-				map.attributionControl.setPrefix(parseFloat(e.latlng.lat.toFixed(6))+', '+parseFloat(e.latlng.lng.toFixed(6))+' | <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a>')
+				map.attributionControl.setPrefix(parseFloat(e.latlng.lat.toFixed(6))+'°, '+parseFloat(e.latlng.lng.toFixed(6))+'° | <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a>')
 			});
 			map.on('mouseout', function(e) {
 				map.attributionControl.setPrefix('<a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a>')
@@ -1472,7 +1491,7 @@
 			
 			//contextmenu fuggvenyek
 			function showCoordinates (e) {
-				showMsgBox('Szélesség: '+parseFloat(e.latlng.lat.toFixed(5))+'<br>'+'Hosszúság: '+parseFloat(e.latlng.lng.toFixed(5)), 'success');
+				showMsgBox('Szélesség: '+parseFloat(e.latlng.lat.toFixed(5))+'°<br>'+'Hosszúság: '+parseFloat(e.latlng.lng.toFixed(5))+'°', 'success');
 			}
 			 
 			function whatsHere (e) {
@@ -1507,7 +1526,7 @@
 			function naviFrom (e) {
 				document.getElementById("navi_tab_button").click();
 				navipontok[0].keres='-';
-				navipontok[0].nev_display=String(e.latlng.lat).substring(0, 8) + ', ' + String(e.latlng.lng).substring(0, 8);
+				navipontok[0].nev_display=String(e.latlng.lat).substring(0, 8) + '°, ' + String(e.latlng.lng).substring(0, 8) + '°';
 				navipontok[0].valasz.properties.name=String(e.latlng.lat).substring(0, 8) + ', ' + String(e.latlng.lng).substring(0, 8);
 				navipontok[0].valasz.geometry.coordinates[0]=e.latlng.lng;
 				navipontok[0].valasz.geometry.coordinates[1]=e.latlng.lat;
@@ -1978,7 +1997,7 @@
 					var headers = this.getAllResponseHeaders();
 					var r = this.response;
 					
-					var attribdiv = document.getElementById('ORSattribution');
+					var attribdiv = document.getElementById('ORS_naviattribution');
 						
 					var hol = headers.search("x-ratelimit-remaining:");
 					var hol2 = headers.search("x-ratelimit-reset:");
@@ -2278,7 +2297,8 @@
 						
 						//attribution
 						document.getElementById('sidebar_bottom').style.display = "flex";
-						attribdiv.innerHTML = 'Útvonaltervezés:<br>'+r.metadata.attribution+'<br>Kérés ideje: '+unixTimestampSolver(r.metadata.timestamp/1000);
+						attribdiv.innerHTML = 'Útvonaltervezés:<br>'+r.metadata.attribution;
+						document.getElementById('ORS_timestamp').innerHTML ='Kérés ideje: '+unixTimestampSolver(r.metadata.timestamp/1000);
 						map.attributionControl.addAttribution(r.metadata.attribution);
 						
 						//hideLoadingIcon();
@@ -2457,8 +2477,8 @@
 					(d.features[0].properties.country != null ? d.features[0].properties.country : '') + '</div>' + 
 					'<br><b>Szélesség:</b> '
 					+parseFloat(lat.toFixed(6))+
-					'<br><b>Hosszúság:</b> '
-					+parseFloat(lon.toFixed(6)); 
+					'°<br><b>Hosszúság:</b> '
+					+parseFloat(lon.toFixed(6))+'°'; 
 					
 					if (show == true) {
 						//popupban megmutatjuk, mi van ott
@@ -2590,7 +2610,7 @@
 					var headers = this.getAllResponseHeaders();
 					var r = this.response;
 					
-					var attribdiv = document.getElementById('ORSattribution');
+					var attribdiv = document.getElementById('ORS_naviattribution');
 					attribdiv.innerHTML = '';
 					document.getElementById('ORS_elevattribution').innerHTML = '';
 						
@@ -2622,11 +2642,11 @@
 							}
 							if (!preference_isotype.checked) {
 								// time
-								isopolygons[x] = L.polygon(nodes, {color: polygonColor(x)}).addTo(lg)
+								isopolygons[x] = L.polygon(nodes, {color: polygonColor(x), fillOpacity: 0.13}).addTo(lg)
 								.bindTooltip('Idő: '+timeFormatter(r.features[x].properties.value), {sticky: true}).bringToBack(); 
 							} else if (preference_isotype.checked) {
 								// distance
-								isopolygons[x] = L.polygon(nodes, {color: polygonColor(x)}).addTo(lg)
+								isopolygons[x] = L.polygon(nodes, {color: polygonColor(x), fillOpacity: 0.13}).addTo(lg)
 								.bindTooltip('Távolság: '+distanceFormatter(r.features[x].properties.value), {sticky: true}).bringToBack(); 
 							}
 							
@@ -2657,7 +2677,8 @@
 						
 						//attribution
 						document.getElementById('sidebar_bottom').style.display = "flex";
-						attribdiv.innerHTML = 'Izokróngenerálás:<br>'+r.metadata.attribution+'<br>Kérés ideje: '+unixTimestampSolver(r.metadata.timestamp/1000);
+						attribdiv.innerHTML = 'Izokróngenerálás:<br>'+r.metadata.attribution;
+						document.getElementById('ORS_timestamp').innerHTML ='Kérés ideje: '+unixTimestampSolver(r.metadata.timestamp/1000);
 						map.attributionControl.removeAttribution('openrouteservice.org | OpenStreetMap contributors'); //navi attrib torles, ha van
 						map.attributionControl.removeAttribution('service by https://openrouteservice.org | data by http://srtm.csi.cgiar.org'); //elev attrib torles, ha van
 						map.attributionControl.addAttribution(r.metadata.attribution);
@@ -2795,6 +2816,7 @@
 					setTimeout(function(){lebego_start_ablak.style.display="none"}, 420);
 					wpt0.value = fwpt0.value; // sidebar mezok es lebego mezok szinkron, elo kell kesziteni tobb mint 2 wpt-ra
 					wpt1.value = fwpt1.value;
+					document.getElementById('currenttool_popup').classList.remove('currenttool_popup_closedsb');
 					sidebarstate = true;
 				} else {
 					/* nyitott a sidebar, csukjuk; terkep div balra teljesen, lebego panel megjelenites */
@@ -2814,6 +2836,7 @@
 					lebego_start_ablak.style.display="block";
 					fwpt0.value = wpt0.value; // sidebar mezok es lebego mezok szinkron, elo kell kesziteni tobb mint 2 wpt-ra
 					fwpt1.value = wpt1.value;
+					document.getElementById('currenttool_popup').classList.add('currenttool_popup_closedsb');
 					sidebarstate = false;
 				}
 				setTimeout(function(){map.invalidateSize()}, 200);
@@ -3209,6 +3232,7 @@
 			}
 			
 			function listenToABMapClick(object, wptnum) {
+				map._container.style.cursor = 'crosshair'; // leaflet feletti kurzor ne mancs legyen, hanem crosshair
 				map.on('click', function(e) { 
 					navipontok[wptnum].keres='-';
 					navipontok[wptnum].nev_display=String(e.latlng.lat).substring(0, 8) + ', ' + String(e.latlng.lng).substring(0, 8);
@@ -3261,6 +3285,7 @@
 			}
 			
 			function listenToABMapClick_ISO(object, wptnum) {
+				map._container.style.cursor = 'crosshair'; // leaflet feletti kurzor ne mancs legyen, hanem crosshair
 				map.on('click', function(e) { 
 					isopontok[0].valasz.geometry.coordinates[0]=e.latlng.lng;
 					isopontok[0].valasz.geometry.coordinates[1]=e.latlng.lat;
@@ -3273,6 +3298,7 @@
 			}
 			
 			function stopListeningToABMapClick() {
+				map._container.style.cursor = ''; // leaflet feletti kurzor vissza alap allapotba
 				setTimeout(function(){map.off("click")}, 100);
 				document.getElementById('currenttool_popup').classList.add('opacity0');
 			}
