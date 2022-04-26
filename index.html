@@ -944,10 +944,12 @@
 					<div id="route_wptrow_0" style="display: flex; justify-content: center; flex-direction: row; align-items: center;">
 						<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>A</b></div>
 						<input type="form" id="float_waypoint_0" class="ABfield" onkeyup="if (event.keyCode==13) {this.blur(); directionsCheck();}" oninput="waypointFormsChanged()" onfocusin="listenToABMapClick(this, 0)" onfocusout="stopListeningToABMapClick()" placeholder="Kiindulási pont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
+						<img id="waypoint_geoloc" style="margin-right: 8px; cursor: pointer;" class="" role="button" onClick="geoLocate('navi', 0);" src="icons/my_location_black_24dp.svg" title="Helymeghatározás">
 					</div>
 					<div id="route_wptrow_1" style="display: flex; flex-direction: row; align-items: center;">
 						<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>B</b></div>
 						<input type="form" id="float_waypoint_1" class="ABfield" onkeyup="if (event.keyCode==13) {this.blur(); directionsCheck();}" oninput="waypointFormsChanged()" onfocusin="listenToABMapClick(this, parseInt((waypoint_count==2)?1:2))" onfocusout="stopListeningToABMapClick()" placeholder="Célpont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
+						<img id="waypoint_geoloc" style="margin-right: 8px; cursor: pointer;" class="" role="button" onClick="geoLocate('navi', 1);" src="icons/my_location_black_24dp.svg" title="Helymeghatározás">
 					</div>
 				</div>
 				<div id="reverse" style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 10px; margin: 0 2px 0 2px;">
@@ -988,15 +990,17 @@
 						<div id="route_wptrow_0" style="display: flex; justify-content: center; flex-direction: row; align-items: center;">
 							<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>A</b></div>
 							<input type="form" id="waypoint_0" class="ABfield" onkeyup="if (event.keyCode==13) {this.blur(); directionsCheck();}" oninput="waypointFormsChanged()" onfocusin="listenToABMapClick(this, 0)" onfocusout="stopListeningToABMapClick()" placeholder="Kiindulási pont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
+							<img id="waypoint_geoloc" style="margin-right: 8px; cursor: pointer;" class="" role="button" onClick="geoLocate('navi', 0);" src="icons/my_location_black_24dp.svg" title="Helymeghatározás">
 						</div>
 						<div id="route_wptrow_mid" style="display: none; flex-direction: row; align-items: center;">
-							<div style="width: 22px; font-size: 20px; margin-left: 5px;"></div>
+							<div style="width: 19px; font-size: 20px; margin-left: 5px;"></div>
 							<input type="form" id="waypoint_mid" class="ABfield" onkeyup="if (event.keyCode==13) {this.blur(); directionsCheck();}" oninput="waypointFormsChanged()" onfocusin="listenToABMapClick(this, 1)" onfocusout="stopListeningToABMapClick()" placeholder="Közbeeső pont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
 							<img id="waypoint_remove" style="margin-right: 8px; cursor: pointer;" class="" role="button" onClick="waypointCountRemove(); directionsCheck()" src="icons/delete_black_24dp.svg" title="Közbeeső útvonalpont törlése">
 						</div>
 						<div id="route_wptrow_1" style="display: flex; flex-direction: row; align-items: center;">
 							<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>B</b></div>
 							<input type="form" id="waypoint_1" class="ABfield" onkeyup="if (event.keyCode==13) {this.blur(); directionsCheck();}" oninput="waypointFormsChanged()" onfocusin="listenToABMapClick(this, parseInt((waypoint_count==2)?1:2))" onfocusout="stopListeningToABMapClick()" placeholder="Célpont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
+							<img id="waypoint_geoloc" style="margin-right: 8px; cursor: pointer;" class="" role="button" onClick="geoLocate('navi', parseInt((waypoint_count==2)?1:2));" src="icons/my_location_black_24dp.svg" title="Helymeghatározás">
 						</div>
 					</div>
 					<div id="reverse" style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 10px; margin: 0 2px 0 2px;">
@@ -1135,6 +1139,7 @@
 						<div id="isochrone_center_0_div" style="display: flex; justify-content: center; flex-direction: row; align-items: center;">
 							<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>1</b></div>
 							<input type="form" id="isochrone_center_0" class="ABfield" onkeyup="if (event.keyCode==13) {this.blur(); isochroneCheck();}" oninput="" onfocusin="listenToABMapClick_ISO(this, 0)" onfocusout="stopListeningToABMapClick()" placeholder="Középpont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
+							<img id="isochrone_point_geoloc" style="cursor: pointer;" class="" role="button" onClick="geoLocate('iso');" src="icons/my_location_black_24dp.svg" title="Helymeghatározás">
 						</div>
 					</div>
 					<div id="OK" style="display: flex; justify-content: center; flex-direction: column;">
@@ -1526,7 +1531,7 @@
 			function naviFrom (e) {
 				document.getElementById("navi_tab_button").click();
 				navipontok[0].keres='-';
-				navipontok[0].nev_display=String(e.latlng.lat).substring(0, 8) + '°, ' + String(e.latlng.lng).substring(0, 8) + '°';
+				navipontok[0].nev_display=String(e.latlng.lat).substring(0, 8) + ', ' + String(e.latlng.lng).substring(0, 8);
 				navipontok[0].valasz.properties.name=String(e.latlng.lat).substring(0, 8) + ', ' + String(e.latlng.lng).substring(0, 8);
 				navipontok[0].valasz.geometry.coordinates[0]=e.latlng.lng;
 				navipontok[0].valasz.geometry.coordinates[1]=e.latlng.lat;
@@ -1548,7 +1553,7 @@
 					};
 				}
 						
-				geocodingNeeded = false;
+				//geocodingNeeded = false;
 				directionsCheck();
 			}
 			
@@ -1578,7 +1583,7 @@
 						};
 					};
 							
-					geocodingNeeded = false;
+					//geocodingNeeded = false;
 					directionsCheck();
 				} else {
 					navipontok[1].keres='-';
@@ -1604,7 +1609,7 @@
 						};
 					};
 							
-					geocodingNeeded = false;
+					//geocodingNeeded = false;
 					directionsCheck();
 				}
 							
@@ -1666,6 +1671,7 @@
 			isopontok = JSON.parse(ip_base);
 			var apikey='5b3ce3597851110001cf62484013f41f314445caac2390a84183388c';
 			workdone = false;
+			var geoloc_marker;
 			var avoid_highways = document.getElementById('avoid_highways');
 			var avoid_tollways = document.getElementById('avoid_tollways');
 			var avoid_ferries = document.getElementById('avoid_ferries');
@@ -1977,6 +1983,15 @@
 				}
 				console.log('Pont 1:', '['+navipontok[0].valasz.geometry.coordinates[0]+','+navipontok[0].valasz.geometry.coordinates[1]+']');
 				console.log('Pont 2:', '['+navipontok[1].valasz.geometry.coordinates[0]+','+navipontok[1].valasz.geometry.coordinates[1]+']');
+				if (waypoint_count == 2) {
+					if (navipontok[0].valasz.geometry.coordinates[0] == navipontok[1].valasz.geometry.coordinates[0]) {
+						console.log('SAME COORDS');
+						showMsgBox('A kiinduló- és célpont megegyezik,<br>útvonaltervezés nem lehetséges.<br>Próbálja újra eltérő útvonalpontokkal.','error');
+						lg.clearLayers();
+						clearResults();
+						return;
+					}
+				}
 				
 				showLoadingIcon();
 				
@@ -3318,6 +3333,41 @@
 			
 			function unHighlightPolygon(i) {
 				isopolygons[i].setStyle({color: polygonColor(i), weight: 3});
+			}
+			
+			function geoLocate(mode, num) {
+				map.on('locationerror', function(e) { 
+					console.log('GEOLOCATION: Failed');
+					showMsgBox('Helymeghatározás nem engedélyezett.', 'error');
+					if (geoloc_marker != null) { geoloc_marker.remove(); };
+					map.stopLocate();
+					setTimeout(function(){map.off("locationfound")}, 100);
+				});
+				map.on('locationfound', function(e) { 
+					console.log('GEOLOCATION: Found');
+					switch (mode) {
+						case 'navi':
+							if (num == 0) {
+								naviFrom(e);
+							} else {
+								naviTo(e);
+							}
+							geoloc_marker = new L.marker([e.latlng.lat, e.latlng.lng], {icon: markerIcon(num, mode)}).addTo(lg);
+							map.setView([e.latlng.lat, e.latlng.lng]);
+							map.stopLocate();
+							setTimeout(function(){map.off("locationfound")}, 100);
+							break;
+						case 'iso':
+							isoCenter(e);
+							geoloc_marker = new L.marker([e.latlng.lat, e.latlng.lng]).addTo(lg);
+							map.setView([e.latlng.lat, e.latlng.lng]);
+							map.stopLocate();
+							setTimeout(function(){map.off("locationfound")}, 100);
+							break;
+					};
+				});
+				map.locate({enableHighAccuracy: true});
+				console.log('GEOLOCATION: Retrieving...');
 			}
 		</script>
 	</body>
