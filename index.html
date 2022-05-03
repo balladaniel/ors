@@ -273,6 +273,9 @@
 				z-index: 1;
 				transition: left 0.2s;
 			}
+			.leaflet-tile {
+				image-rendering: pixelated;
+			}
 			
 			#navi_params {
 				display: none;
@@ -890,6 +893,9 @@
 			
 			/* Mobil-optimalizacio: */
 			@media (max-width: 550px) {
+				.leaflet-control-scale {
+					bottom: 15px;
+				}
 				#lebego_start_ablak {
 					position: absolute;
 					top: 0px;
@@ -1408,9 +1414,27 @@
 				}
 			)	
 		
+			var map_OSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+					attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+					minZoom: 2,
+					maxZoom: 19/*,
+					detectRetina: true*/
+			});
+			var map_OTM = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+					attribution: '&copy; <a href="https://www.opentopomap.org/">OpenTopoMap</a> (CC-BY-SA)',
+					minZoom: 2,
+					maxZoom: 17/*,
+					detectRetina: true*/
+			});
+			var baseMaps = {
+				"OpenStreetMap": map_OSM,
+				"OpenTopoMap": map_OTM
+			};
+			
 			var map=L.map('mapdiv', {	zoomControl: false, 
 										maxBounds: L.latLngBounds(L.latLng(-90, -180), L.latLng(90, 180)),
 										maxBoundsViscosity: 1.0,
+										layers: [map_OSM],
 										//leaflet.contextmenu forrás (Adam Ratcliffe): https://github.com/aratcliffe/Leaflet.contextmenu
 										contextmenu: true,
 										contextmenuWidth: 165,
@@ -1448,8 +1472,8 @@
 											callback: isoCenter
 										}]
 									}).setView([47.19531,19.54467], 8);
-			L.control.zoom({position: 'bottomright'}).addTo(map); 	// zoom gombok a jobb also sarokba
-			L.control.scale({position: 'bottomleft'}).addTo(map); 	// merteklec bal also sarokba
+			var zoom = L.control.zoom({position: 'bottomright'}).addTo(map); 	// zoom gombok a jobb also sarokba
+			var scale = L.control.scale({position: 'bottomleft'}).addTo(map); 	// merteklec bal also sarokba
 			L.control.polylineMeasure({		position: 'bottomright',
 											unit: 'kilometres',
 											useSubunits: true,
@@ -1485,6 +1509,10 @@
 												radius: 5
 											}
 										}).addTo(map);	// leaflet.polylinemeasure forrás (ppete2): https://github.com/ppete2/Leaflet.PolylineMeasure
+			
+			//layergroup
+			var lg=L.layerGroup().addTo(map);
+			var layerControl = L.control.layers(baseMaps).addTo(map);
 			
 			//kurzor alatti koordinata a jobb also leaflet attrib ele
 			map.on('mousemove', function(e) {
@@ -1649,15 +1677,6 @@
 				*/
 			}
 			document.getElementById("navi_tab_button").click();
-
-			L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-				minZoom: 2,
-				maxZoom: 19,
-				detectRetina: true
-			 }).addTo(map);
-			//layergroup
-			var lg=L.layerGroup().addTo(map);
 			
 			var navipontok=[];
 			var isopontok=[];
@@ -2315,6 +2334,9 @@
 						attribdiv.innerHTML = 'Útvonaltervezés:<br>'+r.metadata.attribution;
 						document.getElementById('ORS_timestamp').innerHTML ='Kérés ideje: '+unixTimestampSolver(r.metadata.timestamp/1000);
 						map.attributionControl.addAttribution(r.metadata.attribution);
+						if (window.screen.width <= 550) {
+							scale.getContainer().style.marginBottom = '22px';
+						};
 						
 						//hideLoadingIcon();
 					}
@@ -2406,6 +2428,9 @@
 						document.getElementById('collapsible2').checked = true;						
 						attribdiv.innerHTML = 'Magassági adatok:<br>'+r.attribution;
 						map.attributionControl.addAttribution(r.attribution);
+						if (window.screen.width <= 550) {
+							scale.getContainer().style.marginBottom = '38px';
+						};
 						
 						hideLoadingIcon();
 					}
@@ -2697,6 +2722,9 @@
 						map.attributionControl.removeAttribution('openrouteservice.org | OpenStreetMap contributors'); //navi attrib torles, ha van
 						map.attributionControl.removeAttribution('service by https://openrouteservice.org | data by http://srtm.csi.cgiar.org'); //elev attrib torles, ha van
 						map.attributionControl.addAttribution(r.metadata.attribution);
+						if (window.screen.width <= 550) {
+							scale.getContainer().style.marginBottom = '22px';
+						};
 						
 						hideLoadingIcon();
 					}
@@ -2800,6 +2828,60 @@
 					document.getElementById("maxrange").max = 72000; //walking max time: 20h (72000s)	
 					document.getElementById('iso_rangenum').innerHTML=timeFormatter(document.getElementById('maxrange').value);
 				}
+			}
+			
+			//EXPERIMENTAL
+			function getPOIs() {
+				// Pois Service (/pois)
+				console.log('Pois Service (POST) (/pois)');
+				let request = new XMLHttpRequest();
+				request.open('POST', "https://api.openrouteservice.org/pois");
+				request.setRequestHeader('Accept', 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8');
+				request.setRequestHeader('Content-Type', 'application/json');
+				request.setRequestHeader('Authorization', apikey);
+				request.responseType = 'json';
+				
+				request.onreadystatechange = function () {
+				  if (this.readyState === 4) {
+					console.log('Status code:', this.status);
+					console.log('Headers:', this.getAllResponseHeaders());
+					console.log('Response Body:', this.response);
+					var headers = this.getAllResponseHeaders();
+					var r = this.response;
+					
+					var pois=r.features;
+											
+					var hol = headers.search("x-ratelimit-remaining:");
+					var hol2 = headers.search("x-ratelimit-reset:");
+					var remaining='';
+					var reset='';
+					for(var i=0; i<4; i++){
+						remaining = remaining+headers.charAt(hol+23+i);
+					}
+					for(var i=0; i<10; i++){
+						reset = reset+headers.charAt(hol2+19+i);
+					}
+					if (rateLimitCheck(remaining, 'poi', reset) == false) {
+						return;
+					}			
+					
+					if (statusCodeHandler(this.status) === true) {
+						console.log('success');
+						for(var i=0; i<pois.length; i++){ 
+							new L.marker([pois[i].geometry.coordinates[1], pois[i].geometry.coordinates[0]]).addTo(lg);
+						}
+					}
+				  }
+				};
+				
+				body = '{"request":"pois","geometry":{"geojson":{"type":"LineString","coordinates":'+JSON.stringify(current_polyline_osztott)+'},"buffer":200},"limit":100}';
+				
+				console.log('Request body:', body);
+				console.log('Using profile:', profile);
+				if (internetConnectionCheck()) {
+					request.send(body);
+				}
+				
 			}
 			
 			var sidebarstate = false; //alaphelyzet: csukva
