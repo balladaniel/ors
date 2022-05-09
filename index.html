@@ -10,7 +10,9 @@
 	Attribution: 
 	- Leaflet.js: Vladimir Agafonkin - https://leafletjs.com/ (BSD 2-Clause "Simplified" License: https://github.com/Leaflet/Leaflet/blob/main/LICENSE)
 	- Tile services: 
-		- OpenStreetMap: © OpenStreetMap contributors - https://www.openstreetmap.org/ (Open Data Commons Open Database License (ODbL): https://www.openstreetmap.org/copyright)
+		- OpenStreetMap: © OpenStreetMap contributors - https://www.openstreetmap.org/ (Open Data Commons Open Database License (ODbL)): https://www.openstreetmap.org/copyright)
+		- OpenTopoMap: © OpenTopoMap (CC-BY-SA) - https://www.openstreetmap.org/ (CC-BY-SA)
+		- Stamen Terrain: Map tiles by Stamen Design - http://maps.stamen.com/ (CC BY 3.0). Data by OpenStreetMap, under Open Data Commons Open Database License (ODbL).
 	- Openrouteservice: © openrouteservice.org by HeiGIT | Map data © OpenStreetMap contributors - https://openrouteservice.org/ (API results: CC-BY 4.0 (https://creativecommons.org/licenses/by/4.0/), https://openrouteservice.org/terms-of-service/)
 	- Leaflet.contextmenu: Adam Ratcliffe - https://github.com/aratcliffe/Leaflet.contextmenu (MIT License: http://www.opensource.org/licenses/mit-license.php)
 	- Leaflet.PolylineMeasure: Copyright (c) 2017, PPete (“ppete2 on GitHub), Copyright (c) 2012-2013, Jürgen Treml - https://github.com/ppete2/Leaflet.PolylineMeasure (BSD 2-Clause "Simplified" License: https://github.com/ppete2/Leaflet.PolylineMeasure/blob/master/LICENSE.txt)
@@ -273,8 +275,8 @@
 				z-index: 1;
 				transition: left 0.2s;
 			}
-			.leaflet-tile {
-				image-rendering: pixelated;
+			.leaflet-control-attribution, .leaflet-control-scale {
+				box-shadow: 0px 0px 5px rgb(0 0 0 / 65%);
 			}
 			
 			#navi_params {
@@ -1426,9 +1428,16 @@
 					maxZoom: 17/*,
 					detectRetina: true*/
 			});
+			var map_StamenTerrain = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg', {
+					attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.',
+					minZoom: 2,
+					maxZoom: 18/*,
+					detectRetina: true*/
+			});
 			var baseMaps = {
 				"OpenStreetMap": map_OSM,
-				"OpenTopoMap": map_OTM
+				"OpenTopoMap": map_OTM,
+				"Stamen Terrain": map_StamenTerrain
 			};
 			
 			var map=L.map('mapdiv', {	zoomControl: false, 
@@ -1473,7 +1482,8 @@
 										}]
 									}).setView([47.19531,19.54467], 8);
 			var zoom = L.control.zoom({position: 'bottomright'}).addTo(map); 	// zoom gombok a jobb also sarokba
-			var scale = L.control.scale({position: 'bottomleft'}).addTo(map); 	// merteklec bal also sarokba
+			var scale = L.control.scale({	position: 'bottomleft',				// merteklec bal also sarokba
+											imperial: false}).addTo(map); 		// merteklec csak km
 			L.control.polylineMeasure({		position: 'bottomright',
 											unit: 'kilometres',
 											useSubunits: true,
@@ -1513,6 +1523,9 @@
 			//layergroup
 			var lg=L.layerGroup().addTo(map);
 			var layerControl = L.control.layers(baseMaps).addTo(map);
+			if (window.screen.width <= 550) {
+				layerControl.getContainer().style.marginTop = '137px';
+			};
 			
 			//kurzor alatti koordinata a jobb also leaflet attrib ele
 			map.on('mousemove', function(e) {
@@ -2331,6 +2344,7 @@
 						
 						//attribution
 						document.getElementById('sidebar_bottom').style.display = "flex";
+						r.metadata.attribution = r.metadata.attribution.slice(0, parseInt(r.metadata.attribution.indexOf('org')+3)) + " by HeiGIT" + r.metadata.attribution.slice(parseInt(r.metadata.attribution.indexOf('org')+3))
 						attribdiv.innerHTML = 'Útvonaltervezés:<br>'+r.metadata.attribution;
 						document.getElementById('ORS_timestamp').innerHTML ='Kérés ideje: '+unixTimestampSolver(r.metadata.timestamp/1000);
 						map.attributionControl.addAttribution(r.metadata.attribution);
@@ -2717,6 +2731,7 @@
 						
 						//attribution
 						document.getElementById('sidebar_bottom').style.display = "flex";
+						r.metadata.attribution = r.metadata.attribution.slice(0, parseInt(r.metadata.attribution.indexOf('org')+3)) + " by HeiGIT" + r.metadata.attribution.slice(parseInt(r.metadata.attribution.indexOf('org')+3))
 						attribdiv.innerHTML = 'Izokróngenerálás:<br>'+r.metadata.attribution;
 						document.getElementById('ORS_timestamp').innerHTML ='Kérés ideje: '+unixTimestampSolver(r.metadata.timestamp/1000);
 						map.attributionControl.removeAttribution('openrouteservice.org | OpenStreetMap contributors'); //navi attrib torles, ha van
@@ -2901,6 +2916,7 @@
 					if (window.screen.width <= 550) {
 						mapdiv.style.top="425px";
 						bttndiv.style.top="420px";
+						layerControl.getContainer().style.marginTop = '10px';
 					} else {
 						mapdiv.style.top="0px";
 						mapdiv.style.left="430px";
@@ -2921,6 +2937,7 @@
 						mapdiv.style.top="0px";
 						mapdiv.style.left="0px";
 						bttndiv.style.top=null;
+						layerControl.getContainer().style.marginTop = '137px';
 					} else {
 						mapdiv.style.top="0px";
 						mapdiv.style.left="0px";
