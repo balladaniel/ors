@@ -460,9 +460,6 @@
 			.results_param {
 				font-weight: bold;
 			}
-			.results_value {
-				
-			}
 			
 			.ABfield {
 				transition: background-color 0.4s;
@@ -1428,16 +1425,31 @@
 					maxZoom: 17/*,
 					detectRetina: true*/
 			});
-			var map_StamenTerrain = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg', {
-					attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.',
-					minZoom: 2,
-					maxZoom: 18/*,
-					detectRetina: true*/
+			var carto_attrib = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>'
+			var map_cartodb_dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}' + (L.Browser.retina ? '@2x.png' : '.png'), {
+				attribution: carto_attrib,
+				subdomains: 'abcd',
+				maxZoom: 20,
+				minZoom: 0
+			});
+			var map_cartodb_voyager = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}' + (L.Browser.retina ? '@2x.png' : '.png'), {
+				attribution: carto_attrib,
+				subdomains: 'abcd',
+				maxZoom: 20,
+				minZoom: 0
+			});
+			var map_cartodb_positron = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}' + (L.Browser.retina ? '@2x.png' : '.png'), {
+				attribution: carto_attrib,
+				subdomains: 'abcd',
+				maxZoom: 20,
+				minZoom: 0
 			});
 			var baseMaps = {
 				"OpenStreetMap": map_OSM,
 				"OpenTopoMap": map_OTM,
-				"Stamen Terrain": map_StamenTerrain
+				"CARTO Dark": map_cartodb_dark,
+				"CARTO Voyager": map_cartodb_voyager,
+				"CARTO Positron": map_cartodb_positron
 			};
 			
 			var map=L.map('mapdiv', {	zoomControl: false, 
@@ -1744,6 +1756,7 @@
 			var directions_options = [];
 			var tav = 0;
 			var alternative_routes = 0;
+			//var alternative_routes = 2;
 			var geocodingNeeded = true;
 			
 			//valtozik a profile, mentsuk globalis valtozokent
