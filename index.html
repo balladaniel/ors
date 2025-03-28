@@ -1190,7 +1190,10 @@
 					</div>
 				</div>
 				<div id="route_profile_wrapperdiv" style="display:flex; flex-direction: row; justify-content: space-between; align-items:center">
-					<img id="loading_icon2" class="rotate_anim loading_hidden" src="icons/loop_black_24dp.svg"/>
+					<div style="display: flex; align-items: center;">
+						<button id="isoch_export" onclick="isochroneExportGeojson()" style="margin-left: 10px; margin-top: 5px" title="Exportálás GeoJSON-ként" disabled>Export</button>
+						<img id="loading_icon2" class="rotate_anim loading_hidden" src="icons/loop_black_24dp.svg"/>
+					</div>
 					<div class="route_profile_selector_2" style="display: flex; flex-direction: row;">
 						<div style="display: flex;">
 							<input checked="checked" id="car_iso" type="radio" name="profile_2" value="driving-car" />
@@ -2649,6 +2652,8 @@
 					showMsgBox('Geokódolás: Hiba történt, lehetséges, hogy nem megfelelő az API-key? ('+error+')', 'error');
 				});
 			}
+
+			var isochroneGeojson;
 			
 			function getIsochrones() {
 				if (isopontok[0].valasz == null || geocoding_queue > 0) {
@@ -2674,6 +2679,8 @@
 					console.log('Status code:', this.status);
 					console.log('Headers:', this.getAllResponseHeaders());
 					console.log('Response Body:', this.response);
+					isochroneGeojson = this.response;
+					document.getElementById('isoch_export').removeAttribute('disabled');
 					var headers = this.getAllResponseHeaders();
 					var r = this.response;
 					
@@ -2771,6 +2778,25 @@
 					request.send(body);
 				}
 				
+			}
+
+			//export current response geojson with isochrones
+			function isochroneExportGeojson(){
+				const blob = new Blob([JSON.stringify(isochroneGeojson)], { type: 'application/geo+json' });
+				const blobURL = URL.createObjectURL(blob);
+				// Create the `<a download>` element and append it invisibly.
+				const a = document.createElement('a');
+				a.href = blobURL;
+				a.download = 'isochrones.geojson';
+				a.style.display = 'none';
+				document.body.append(a);
+				// Programmatically click the element.
+				a.click();
+				// Revoke the blob URL and remove the element.
+				setTimeout(() => {
+					URL.revokeObjectURL(blobURL);
+					a.remove();
+				}, 1000);
 			}
 			
 			//izokron poligon lathatosag kezelo
