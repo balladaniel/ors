@@ -579,6 +579,16 @@
 				align-items: center;
 				padding: 0px 2px 0px 2px;
 			}
+
+			.elevChartExtraInfo {
+				height: 16px;
+			}
+
+			.elevChart_ExtraInfo {
+				display: flex;
+				align-items: center;
+				column-gap: 2px;
+			}
 			
 			/* nyithato sidebar lista elemek, interaktivan - 1. */
 			/* forrás: https://www.digitalocean.com/community/tutorials/css-collapsible */
@@ -1130,6 +1140,24 @@
 							<div class="content-inner2">
 								<canvas id="elevChart" width="100%" height="400px"></canvas>
 							</div>
+							<div class="content-inner2" style="display: flex; justify-content: center; font-size: 12px; column-gap: 6px;">
+								<div class="elevChart_ExtraInfo" title="Emelkedés">
+									<img id="elevChart_eGainSVG" class="elevChartExtraInfo" src="icons/arrow_upward_24dp.svg">
+									<span id="elevChart_eGainNum">—</span>
+								</div>
+								<div class="elevChart_ExtraInfo" title="Ereszkedés">
+									<img id="elevChart_eLossSVG" class="elevChartExtraInfo" src="icons/arrow_downward_24dp.svg">
+									<span id="elevChart_eLossNum">—</span>
+								</div>
+								<div class="elevChart_ExtraInfo" title="Legmagasabb pont">
+									<img class="elevChartExtraInfo" src="icons/vertical_align_top_24dp.svg">
+									<span id="elevChart_MaxNum">—</span>
+								</div>
+								<div class="elevChart_ExtraInfo" title="Legalacsonyabb pont">
+									<img class="elevChartExtraInfo" src="icons/vertical_align_bottom_24dp.svg">
+									<span id="elevChart_MinNum">—</span>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -1335,6 +1363,7 @@
 			var elevmarker;
 			var y = []; 
 			var x = [];
+			Chart.defaults.font.family = 'Open Sans';
 			var chartdiv = document.getElementById('elevChart');
 			var elevChart = new Chart(chartdiv, {
 					type: 'line',
@@ -2436,21 +2465,88 @@
 					}	
 					
 					if (statusCodeHandler_elev(this.status, r.code, r.message) === true) {	
-					
+						var elevGain = 0;
+						var elevLoss = 0;
+						var elevMax = -9999;
+						var elevMin = 9999;
+
 						resultpoints = r.geometry.coordinates;
 						
 						// chartjs adat- es labelbetoltes
 						currentdist = 0;
 						elevChart.data.datasets[0].data = [];
 						elevChart.data.labels = [];
-						for (var i=0; i<resultpoints.length-1; i++){
+						for (var i=0; i<resultpoints.length; i++){
+							// actual elevChart fillup:
 							//elevChart.data.labels.push(i);
 							elevChart.data.datasets[0].data.push(resultpoints[i][2]);
-							elevChart.data.labels.push(Math.round((currentdist + Number.EPSILON)*100)/100); 
-							currentdist = currentdist + osztaskoz; 					
+							if (i == resultpoints.length-1) {
+								//utolso pont labelje (pontos tavolsag az utvonal metadata alapjan)
+								elevChart.data.labels.push(Math.round((tav/1000 + Number.EPSILON)*100)/100);
+							} else {
+								//minden mas pont labelje (osztaskozonkent)
+								elevChart.data.labels.push(Math.round((currentdist + Number.EPSILON)*100)/100); 
+							}
+							currentdist = currentdist + osztaskoz; 		
+
+							// elevMax/elevMin numbers:
+							if (resultpoints[i][2] > elevMax) {
+								elevMax = resultpoints[i][2];
+							}
+							if (resultpoints[i][2] < elevMin) {
+								elevMin = resultpoints[i][2];
+							}
+							document.getElementById('elevChart_MaxNum').innerHTML = elevMax + ' m';	
+							document.getElementById('elevChart_MinNum').innerHTML = elevMin + ' m';				
 						}
-						elevChart.data.datasets[0].data.push(resultpoints[i][2]);								//utolso pont erteke
-						elevChart.data.labels.push(Math.round((tav/1000 + Number.EPSILON)*100)/100); 			//utolso pont labelje
+
+						// elevGain/elevLoss calculation with conditional resampling first (based on ratio of maxmindiff and data points along route):						
+						var elevRatioThreshold = 0.15;						
+						var elevMaxMinDiff = elevMax-elevMin;
+						var elevRatio = elevMaxMinDiff/resultpoints.length;
+						console.log('elevMaxMinDiff:', elevMaxMinDiff, 'datapoints:', resultpoints.length, 'elevRatio', elevRatio);
+						if (elevRatio < elevRatioThreshold) {
+							console.log('Elevratio under '+elevRatioThreshold+'! Resampling elevation data before calculating gain/loss.')
+							var keepEveryNthDataPoint = Math.round(resultpoints.length/elevMaxMinDiff);
+							console.log('Keeping every ', keepEveryNthDataPoint, 'th data point.');
+							
+							const every_nth = (arr, nth) => arr.filter((e, i) => i % nth === nth - 1);
+							var filteredArray = every_nth(resultpoints, keepEveryNthDataPoint);
+
+							filteredArray.forEach((element, i) => {
+								if (filteredArray[i-1] != null) {
+									if (filteredArray[i][2] != filteredArray[i-1][2]) {
+										diff = filteredArray[i][2]-filteredArray[i-1][2];
+										if (diff > 0) {
+											elevGain += diff;
+											//console.log('Gain: '+filteredArray[i-1][2]+' -> '+filteredArray[i][2]+'. Diff '+diff+'. Total gain now:', elevGain)
+										} else {
+											elevLoss += Math.abs(diff);
+											//console.log('Loss: '+filteredArray[i-1][2]+' -> '+filteredArray[i][2]+'. Diff '+diff+'. Total loss now:', elevLoss)
+										}
+									}
+								}
+							});
+						} else {
+							console.log('Elevratio above '+elevRatioThreshold+'! Using elev. data for gain/loss calculation as-is.')
+							for (var i=0; i<resultpoints.length; i++){
+								if (resultpoints[i-1] != null) {
+									if (resultpoints[i][2] != resultpoints[i-1][2]) {
+										diff = resultpoints[i][2]-resultpoints[i-1][2];
+										if (diff > 0) {
+											elevGain += diff;
+											//console.log('Gain: '+resultpoints[i-1][2]+' -> '+resultpoints[i][2]+'. Diff '+diff+'. Total gain now:', elevGain)
+										} else {
+											elevLoss += Math.abs(diff);
+											//console.log('Loss: '+resultpoints[i-1][2]+' -> '+resultpoints[i][2]+'. Diff '+diff+'. Total loss now:', elevLoss)
+										}
+									}
+								}
+							}
+						}
+						document.getElementById('elevChart_eGainNum').innerHTML = elevGain + ' m';	
+						document.getElementById('elevChart_eLossNum').innerHTML = elevLoss + ' m';	
+
 						//x.fill(0, 0, resultpoints.length); // mit, honnantol, meddig
 						elevChart.update();
 						console.log('chart updated');
@@ -3026,6 +3122,10 @@
 				elevChart.data.labels = [];
 				elevChart.update();
 				document.getElementById('collapsible2').checked = false;
+				document.getElementById('elevChart_eGainNum').innerHTML = '—';
+				document.getElementById('elevChart_eLossNum').innerHTML = '—';
+				document.getElementById('elevChart_MaxNum').innerHTML = '—';
+				document.getElementById('elevChart_MinNum').innerHTML = '—';
 			}
 			
 			function waypointFormsChanged() {
