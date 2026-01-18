@@ -52,6 +52,13 @@
 		<script src="chartjs/chart.min.js"></script>
 		<script src="turfjs/turf.min.js"></script>
 		<script src="leaflet/leaflet_polylinemeasure/Leaflet.PolylineMeasure.js"></script>
+
+		<!-- i18n translations -->
+		<script src="translations.js"></script>
+
+		<!-- small SVG flags -->
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/css/flag-icons.min.css" /> <!-- https://github.com/lipis/flag-icons -->
+
 		<style>
 			@font-face {
 				font-family: "OpenSans-Local";
@@ -72,6 +79,19 @@
 			select {
 				font-family: inherit;
 			}
+			/* https://github.com/lipis/flag-icons refinement */
+			.fi {
+				cursor: pointer
+			}
+			.fi:hover {
+				-webkit-transition: all 100ms ease-in;
+				   -moz-transition: all 100ms ease-in;
+						transition: all 100ms ease-in;
+				-webkit-filter: brightness(1.3);
+				   -moz-filter: brightness(1.3);
+						filter: brightness(1.3);
+			}
+
 			.visible_flex {
 				display: flex;
 			}
@@ -89,13 +109,11 @@
 			}
 			.addwaypoint {
 				left: -1px;
-			}		
-			.addwaypoint:hover {
-				-webkit-filter: brightness(2.5) grayscale(1) opacity(.6);
-				   -moz-filter: brightness(2.5) grayscale(1) opacity(.6);
-						filter: brightness(2.5) grayscale(1) opacity(.6);
 			}	
-			.reversewaypoints:hover {
+			.highlightHover:hover {
+				-webkit-transition: all 100ms ease-in;
+				   -moz-transition: all 100ms ease-in;
+						transition: all 100ms ease-in;
 				-webkit-filter: brightness(2.5) grayscale(1) opacity(.6);
 				   -moz-filter: brightness(2.5) grayscale(1) opacity(.6);
 						filter: brightness(2.5) grayscale(1) opacity(.6);
@@ -495,7 +513,7 @@
 				padding-left: 7px;
 				padding-bottom: 1px;
 			}
-			
+
 			/* regi
 			.route_profile_img {
 				height: 30px;
@@ -882,7 +900,7 @@
 			
 			#loading_icon, #loading_icon2 {
 				transition: opacity 0.5s;
-				margin-left: 15px;
+				margin-left: 8px;
 				margin-top: 5px;
 			}
 			.loading_hidden {
@@ -952,30 +970,30 @@
 			<div id="sidebar_top" style="display: flex; flex-direction: row; justify-content: center;">
 				<div id="" style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 30px; margin: 0 2px 0 2px;">
 					<img id="illustration_wpt_top_lebego" width="28px" src="icons/utvonal2_A_24dp_sajat.svg"/>
-					<img id="waypoint_add" class="addwaypoint active" role="button" onClick="sidebarStateChange(); waypointCountAdd()" src="icons/add_circle_outline_black_24dp.svg" tabindex="0" title="Közbeeső útvonalpont hozzáadása">
+					<img id="waypoint_add" class="addwaypoint highlightHover active" role="button" onClick="sidebarStateChange(); waypointCountAdd()" src="icons/add_circle_outline_black_24dp.svg" tabindex="0" title="Közbeeső útvonalpont hozzáadása">
 					<img id="illustration_wpt_bottom_lebego" width="28px" src="icons/utvonal2_B_24dp_sajat.svg"/>
 				</div>
 				<div id="routeAB" style="display: flex; justify-content: center; flex-direction: column; width: 100%; row-gap: 5px">
 					<div id="route_wptrow_0" style="display: flex; justify-content: center; flex-direction: row; align-items: center;">
 						<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>A</b></div>
-						<input type="form" id="float_waypoint_0" class="ABfield" onkeyup="if (event.keyCode==13) {this.blur(); directionsCheck();}" oninput="waypointFormsChanged()" onfocusin="listenToABMapClick(this, 0)" onfocusout="stopListeningToABMapClick()" placeholder="Kiindulási pont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
-						<img id="waypoint_geoloc" style="margin-right: 8px; cursor: pointer;" class="" role="button" onClick="geoLocate('navi', 0);" src="icons/my_location_black_24dp.svg" title="Helymeghatározás">
+						<input type="form" id="float_waypoint_0" class="ABfield" onkeyup="if (event.keyCode==13) {this.blur(); directionsCheck();}" oninput="waypointFormsChanged()" onfocusin="listenToABMapClick(this, 0)" onfocusout="stopListeningToABMapClick()" data-i18n="waypoint1Input" placeholder="Kiindulási pont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
+						<img id="waypoint_geoloc" style="margin-right: 8px; cursor: pointer;" class="highlightHover" role="button" onClick="geoLocate('navi', 0);" src="icons/my_location_black_24dp.svg" data-i18n="geolocate" title="Helymeghatározás">
 					</div>
 					<div id="route_wptrow_1" style="display: flex; flex-direction: row; align-items: center;">
 						<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>B</b></div>
-						<input type="form" id="float_waypoint_1" class="ABfield" onkeyup="if (event.keyCode==13) {this.blur(); directionsCheck();}" oninput="waypointFormsChanged()" onfocusin="listenToABMapClick(this, parseInt((waypoint_count==2)?1:2))" onfocusout="stopListeningToABMapClick()" placeholder="Célpont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
-						<img id="waypoint_geoloc" style="margin-right: 8px; cursor: pointer;" class="" role="button" onClick="geoLocate('navi', 1);" src="icons/my_location_black_24dp.svg" title="Helymeghatározás">
+						<input type="form" id="float_waypoint_1" class="ABfield" onkeyup="if (event.keyCode==13) {this.blur(); directionsCheck();}" oninput="waypointFormsChanged()" onfocusin="listenToABMapClick(this, parseInt((waypoint_count==2)?1:2))" onfocusout="stopListeningToABMapClick()" data-i18n="waypoint2Input" placeholder="Célpont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
+						<img id="waypoint_geoloc" style="margin-right: 8px; cursor: pointer;" class="highlightHover" role="button" onClick="geoLocate('navi', 1);" src="icons/my_location_black_24dp.svg" data-i18n="geolocate" title="Helymeghatározás">
 					</div>
 				</div>
 				<div id="reverse" style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 10px; margin: 0 2px 0 2px;">
-					<img id="reverse_waypoints" class="reversewaypoints active" role="button" onClick="reverseWaypoints(); directionsCheck()" src="icons/swap_vert_black_24dp.svg" tabindex="0" title="Irány megfordítása">
+					<img id="reverse_waypoints" class="highlightHover active" role="button" onClick="reverseWaypoints(); directionsCheck()" src="icons/swap_vert_black_24dp.svg" tabindex="0" data-i18n="reverseRouteDirection" title="Irány megfordítása">
 				</div>
 				<div id="OK" style="display: flex; justify-content: center; flex-direction: column;">
-					<button id="float_navi_submit" onclick="directionsCheck()" style="height: 100%; max-height: 50px; margin-left: 5px">Go</button>
+					<button id="float_navi_submit" onclick="directionsCheck()" style="height: 100%; max-height: 50px; margin-left: 5px" data-i18n="goButton">Go</button>
 				</div>
 			</div>
 			<div style="display: flex; flex-direction: row; justify-content: space-evenly; margin-bottom: 8px; text-align: center;">
-				<button id="egyebparams_gomb" style="color: #4387e8; font-size: 9pt; " class="link" onclick="sidebarStateChange(); document.getElementById('navi_tab_button').click();">Egyéb keresési paraméterek ></button><button id="izokronkeszites_gomb" style="color: #4387e8; font-size: 9pt; " class="link" onclick="sidebarStateChange(); document.getElementById('isoch_tab_button').click();">Izokrónkészítés ></button>
+				<button id="egyebparams_gomb" style="color: #4387e8; font-size: 9pt; " class="link" onclick="sidebarStateChange(); document.getElementById('navi_tab_button').click();" data-i18n="otherParams">Egyéb keresési paraméterek ></button><button id="izokronkeszites_gomb" style="color: #4387e8; font-size: 9pt; " class="link" onclick="sidebarStateChange(); document.getElementById('isoch_tab_button').click();" data-i18n="quicklinkForIsochroneMode">Izokrónkészítés ></button>
 			</div>
 		</div>
 		<div id="sidebar" style="display: none; flex-direction: column">
@@ -983,12 +1001,12 @@
 				<div style="display: flex; flex-direction: row; justify-content: center;">
 					<button class="tablinks" onclick="changeTab(event, 'navi')" id="navi_tab_button">
 						<div style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
-							<img id="navi_icon" class="active" src="icons/directions_black_24dp.svg" style="margin-right: 5px;" title="Útvonaltervezés"/><div class="tabname">Útvonaltervezés</div>
+							<img id="navi_icon" class="active" src="icons/directions_black_24dp.svg" style="margin-right: 5px;" title="Útvonaltervezés" /><div class="tabname" data-i18n="menuTabRoutingBtn">Útvonaltervezés</div>
 						</div>
 					</button>
 					<button class="tablinks" onclick="changeTab(event, 'isochrone')" id="isoch_tab_button">
 						<div style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
-							<img id="iso_icon" class="active" src="icons/timer_black_24dp.svg" style="margin-right: 5px;" title="Izokrónkészítés"/><div class="tabname">Izokrónkészítés</div>
+							<img id="iso_icon" class="active" src="icons/timer_black_24dp.svg" style="margin-right: 5px;" title="Izokrónkészítés"/><div class="tabname" data-i18n="menuTabIsochroneBtn">Izokrónkészítés</div>
 						</div>
 					</button>
 				</div>
@@ -998,53 +1016,53 @@
 				<div id="sidebar_top" style="display: flex; flex-direction: row; justify-content: center;">
 					<div id="waypoint_add_div" style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 30px; margin: 0 2px 0 2px;">
 						<img id="illustration_wpt_top" width="24px" src="icons/utvonal2_A_24dp_sajat.svg"/>
-						<img id="waypoint_add_sidebar" class="addwaypoint active" role="button" onClick="waypointCountAdd()" src="icons/add_circle_outline_black_24dp.svg" tabindex="0" title="Közbeeső útvonalpont hozzáadása"/>
+						<img id="waypoint_add_sidebar" class="addwaypoint highlightHover active" role="button" onClick="waypointCountAdd()" src="icons/add_circle_outline_black_24dp.svg" tabindex="0" title="Közbeeső útvonalpont hozzáadása"/>
 						<img id="illustration_wpt_bottom" width="24px" src="icons/utvonal2_B_24dp_sajat.svg"/>
 					</div>
 					<div id="routeAB" style="display: flex; justify-content: center; flex-direction: column; width: 100%; row-gap: 5px">
 						<div id="route_wptrow_0" style="display: flex; justify-content: center; flex-direction: row; align-items: center;">
 							<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>A</b></div>
-							<input type="form" id="waypoint_0" class="ABfield" onkeyup="if (event.keyCode==13) {this.blur(); directionsCheck();}" oninput="waypointFormsChanged()" onfocusin="listenToABMapClick(this, 0)" onfocusout="stopListeningToABMapClick()" placeholder="Kiindulási pont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
-							<img id="waypoint_geoloc" style="margin-right: 8px; cursor: pointer;" class="" role="button" onClick="geoLocate('navi', 0);" src="icons/my_location_black_24dp.svg" title="Helymeghatározás">
+							<input type="form" id="waypoint_0" class="ABfield" onkeyup="if (event.keyCode==13) {this.blur(); directionsCheck();}" oninput="waypointFormsChanged()" onfocusin="listenToABMapClick(this, 0)" onfocusout="stopListeningToABMapClick()" data-i18n="waypoint1Input" placeholder="Kiindulási pont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
+							<img id="waypoint_geoloc" style="margin-right: 8px; cursor: pointer;" class="highlightHover" role="button" onClick="geoLocate('navi', 0);" src="icons/my_location_black_24dp.svg" data-i18n="geolocate" title="Helymeghatározás">
 						</div>
 						<div id="route_wptrow_mid" style="display: none; flex-direction: row; align-items: center;">
 							<div style="width: 19px; font-size: 20px; margin-left: 5px;"></div>
-							<input type="form" id="waypoint_mid" class="ABfield" onkeyup="if (event.keyCode==13) {this.blur(); directionsCheck();}" oninput="waypointFormsChanged()" onfocusin="listenToABMapClick(this, 1)" onfocusout="stopListeningToABMapClick()" placeholder="Közbeeső pont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
-							<img id="waypoint_remove" style="margin-right: 8px; cursor: pointer;" class="" role="button" onClick="waypointCountRemove(); directionsCheck()" src="icons/delete_black_24dp.svg" title="Közbeeső útvonalpont törlése">
+							<input type="form" id="waypoint_mid" class="ABfield" onkeyup="if (event.keyCode==13) {this.blur(); directionsCheck();}" oninput="waypointFormsChanged()" onfocusin="listenToABMapClick(this, 1)" onfocusout="stopListeningToABMapClick()" data-i18n="waypointMidInput" placeholder="Közbeeső pont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
+							<img id="waypoint_remove" style="margin-right: 8px; cursor: pointer;" class="highlightHover" role="button" onClick="waypointCountRemove(); directionsCheck()" src="icons/delete_black_24dp.svg"  data-i18n="deleteMidPoint" title="Közbeeső útvonalpont törlése">
 						</div>
 						<div id="route_wptrow_1" style="display: flex; flex-direction: row; align-items: center;">
 							<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>B</b></div>
-							<input type="form" id="waypoint_1" class="ABfield" onkeyup="if (event.keyCode==13) {this.blur(); directionsCheck();}" oninput="waypointFormsChanged()" onfocusin="listenToABMapClick(this, parseInt((waypoint_count==2)?1:2))" onfocusout="stopListeningToABMapClick()" placeholder="Célpont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
-							<img id="waypoint_geoloc" style="margin-right: 8px; cursor: pointer;" class="" role="button" onClick="geoLocate('navi', parseInt((waypoint_count==2)?1:2));" src="icons/my_location_black_24dp.svg" title="Helymeghatározás">
+							<input type="form" id="waypoint_1" class="ABfield" onkeyup="if (event.keyCode==13) {this.blur(); directionsCheck();}" oninput="waypointFormsChanged()" onfocusin="listenToABMapClick(this, parseInt((waypoint_count==2)?1:2))" onfocusout="stopListeningToABMapClick()" data-i18n="waypoint2Input" placeholder="Célpont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
+							<img id="waypoint_geoloc" style="margin-right: 8px; cursor: pointer;" class="highlightHover" role="button" onClick="geoLocate('navi', parseInt((waypoint_count==2)?1:2));" src="icons/my_location_black_24dp.svg" data-i18n="geolocate" title="Helymeghatározás">
 						</div>
 					</div>
 					<div id="reverse" style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 10px; margin: 0 2px 0 2px;">
-						<img id="reverse_waypoints" class="reversewaypoints active" role="button" onClick="reverseWaypoints(); directionsCheck()" src="icons/swap_vert_black_24dp.svg" tabindex="0" title="Irány megfordítása">
+						<img id="reverse_waypoints" class="highlightHover active" role="button" onClick="reverseWaypoints(); directionsCheck()" src="icons/swap_vert_black_24dp.svg" tabindex="0" data-i18n="reverseRouteDirection" title="Irány megfordítása">
 					</div>
 					<div id="OK" style="display: flex; justify-content: center; flex-direction: column;">
-						<button id="navi_submit" onclick="directionsCheck()" style="height: 100%; max-height: 50px; margin-left: 5px;">Go</button>
+						<button id="navi_submit" onclick="directionsCheck()" style="height: 100%; max-height: 50px; margin-left: 5px;" data-i18n="goButton">Go</button>
 					</div>
 				</div>
 				
 				<div id="navi_params" style="display: grid;">
-					<div id="header1Param" class="headergridbox" >
+					<div id="header1Param" class="headergridbox" data-i18n="avoidTitleLabel">
 						Elkerülendő:
 					</div>
 					<div id="param1" class="paramgridbox" >
 						<input id="avoid_highways" name="avoid_highways" type="checkbox" onclick="directionsCheck()" style="display: flex;">
-						<label for="avoid_highways">Autópályák</label>
+						<label for="avoid_highways" data-i18n="avoidHighways">Autópályák</label>
 					</div>
 					<div id="param2" class="paramgridbox" >
-						<label for="preference">Útvonal: </label>
+						<label for="preference" data-i18n="routePreferenceLabel">Útvonal:</label>
 						<select name="preference" id="preference" class="preference" onchange="directionsCheck()">
-							<option value="recommended">Ajánlott</option>
-							<option value="shortest">Legrövidebb</option>
-							<option value="fastest">Leggyorsabb</option>
+							<option value="recommended" data-i18n="routePreferenceRecommended">Ajánlott</option>
+							<option value="shortest" data-i18n="routePreferenceShortest">Legrövidebb</option>
+							<option value="fastest" data-i18n="routePreferenceFastest">Leggyorsabb</option>
 						</select>
 					</div>
 					<div id="param3" class="paramgridbox" >
 						<input id="avoid_tollways" name="avoid_tollways" type="checkbox" onclick="directionsCheck()" style="display: flex;">
-						<label for="avoid_tollways">Útdíjak</label>
+						<label for="avoid_tollways" data-i18n="avoidTollways">Útdíjak</label>
 					</div>
 					<!--<div id="param4" class="paramgridbox" >
 						<label for="alternative_routes">Alternatív:</label>
@@ -1052,27 +1070,33 @@
 					</div>-->
 					<div id="param5" class="paramgridbox" >
 						<input id="avoid_ferries" name="avoid_ferries" type="checkbox" onclick="directionsCheck()" style="display: flex;">
-						<label for="avoid_ferries">Kompok</label>
+						<label for="avoid_ferries" data-i18n="avoidFerries">Kompok</label>
 					</div>
 					<div id="param7" class="paramgridbox" >
 						<input id="avoid_borders" name="avoid_borders" type="checkbox" onclick="directionsCheck()" style="display: flex;">
-						<label for="avoid_borders">Országhatárok</label>
+						<label for="avoid_borders" data-i18n="avoidCountryBorders">Országhatárok</label>
 					</div>
 				</div>
 				<div id="route_profile_wrapperdiv" style="display:flex; flex-direction: row; justify-content: space-between; align-items:center ">
-					<img id="loading_icon" class="rotate_anim loading_hidden" src="icons/loop_black_24dp.svg"/>
+					<div style="display: flex; align-items: center;">
+						<div style="margin-left: 10px; margin-top: 5px;">
+							<span class="fi fi-gb" onclick="setLanguage('en')"></span>
+							<span class="fi fi-hu" onclick="setLanguage('hu')"></span>
+						</div>
+						<img id="loading_icon" class="rotate_anim loading_hidden" src="icons/loop_black_24dp.svg"/>
+					</div>
 					<div class="route_profile_selector" style="display: flex; flex-direction: row;">
 						<div style="display: flex;">
 							<input id="car" type="radio" name="profile" value="driving-car" checked/>
-							<label class="route_profile car" for="car" id="carlabel" onClick="setProfile('driving-car'); directionsCheck()" tabindex="0"></label>
+							<label class="route_profile car" for="car" id="carlabel" onClick="setProfile('driving-car'); directionsCheck()" tabindex="0" data-i18n="profileCar" title="Autóval"></label>
 						</div>
 						<div style="display: flex;">
 							<input id="bike" type="radio" name="profile" value="cycling-regular" />
-							<label class="route_profile bike" for="bike" onClick="setProfile('cycling-regular'); directionsCheck()" tabindex="0"></label>
+							<label class="route_profile bike" for="bike" onClick="setProfile('cycling-regular'); directionsCheck()" tabindex="0" data-i18n="profileBike" title="Biciklivel"></label>
 						</div>
 						<div style="display: flex;">
 							<input id="walk" type="radio" name="profile" value="foot-walking" />
-							<label class="route_profile walk" for="walk" onClick="setProfile('foot-walking'); directionsCheck()" tabindex="0"></label>
+							<label class="route_profile walk" for="walk" onClick="setProfile('foot-walking'); directionsCheck()" tabindex="0" data-i18n="profileWalk" title="Gyalog"></label>
 						</div>
 					</div>
 				</div>
@@ -1084,11 +1108,11 @@
 						<div id="results_title_A" class="results_title"></div> — <div id="results_title_B" class="results_title"></div>
 					</div>
 					<div id="sidebar_results_row_1" style="display: flex; flex-direction: row; justify-content: space-between; width: 100%;">
-						<div class="results_param">Idő:</div>
+						<div class="results_param" data-i18n="routeInfoTimeLabel">Idő:</div>
 						<div id="results_time" class="results_value">—</div>
 					</div>
 					<div id="sidebar_results_row_2" style="display: flex; flex-direction: row; justify-content: space-between; width: 100%;">
-						<div class="results_param">Hossz:</div>
+						<div class="results_param" data-i18n="routeInfoDistanceLabel">Hossz:</div>
 						<div id="results_distance" class="results_value">—</div>
 					</div>
 					
@@ -1104,7 +1128,7 @@
 				<div id="sidebar_directions" style="display: flex">
 					<div class="wrap-collapsible">
 						<input id="collapsible" class="toggle_collapsible_checkbox" type="checkbox">
-						<label for="collapsible" class="label-toggle" tabindex="0">Itiner</label>
+						<label for="collapsible" class="label-toggle" tabindex="0" data-i18n="itinerarySectionHeader">Itiner</label>
 						<div class="collapsible-content">
 							<div class="content-inner">
 								<table style="border-collapse: collapse; width: 100%;">
@@ -1115,15 +1139,15 @@
 									<thead class="itiner_tablazat_fejlec">
 										<tr class="itiner_tablazat_fejlecsor">
 											<th class="itiner_tablazat_cella">#</th>
-											<th class="itiner_tablazat_cella">Instrukció</th>
-											<th class="itiner_tablazat_cella">Hossz</th>
-											<th class="itiner_tablazat_cella">Idő</th>
+											<th class="itiner_tablazat_cella" data-i18n="itineraryTableHeaderInstructionLabel">Instrukció</th>
+											<th class="itiner_tablazat_cella" data-i18n="itineraryTableHeaderDistanceLabel">Hossz</th>
+											<th class="itiner_tablazat_cella" data-i18n="itineraryTableHeaderTimeLabel">Idő</th>
 										</tr>
 									</thead>
 									<tbody id="table_directions_body">
 										<!-- JS kezeli (torli/tolti be) a sorokat -->
 										<tr class="itiner_tablazat_sor">
-											<td class="itiner_tablazat_cella" style="text-align: center" colspan="4">Nincs útvonal</td>
+											<td class="itiner_tablazat_cella" style="text-align: center" colspan="4" data-i18n="itineraryTableEmpty">Nincs útvonal</td>
 										</tr>
 									</tbody>
 								</table>
@@ -1135,7 +1159,7 @@
 				<div id="sidebar_elevprofile" style="display: flex">
 					<div class="wrap-collapsible2">
 						<input id="collapsible2" class="toggle_collapsible_checkbox2" type="checkbox">
-						<label for="collapsible2" class="label-toggle2" tabindex="0">Magassági profil</label>
+						<label for="collapsible2" class="label-toggle2" tabindex="0" data-i18n="elevationProfileSectionLabel">Magassági profil</label>
 						<div class="collapsible-content2">
 							<div class="content-inner2">
 								<canvas id="elevChart" width="100%" height="400px"></canvas>
@@ -1166,13 +1190,13 @@
 			<div id="isochrone" class="tabcontent">
 				<div id="sidebar_top" style="display: flex; flex-direction: row; justify-content: center;">
 					<!--<div id="isochrone_add_div" style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 30px; margin: 0 2px 0 2px;">
-						<img id="isochrone_add_sidebar" class="addwaypoint active" role="button" onClick="isochroneCountAdd()" src="icons/add_circle_outline_black_24dp.svg" title="Új izokrónközéppont hozzáadása"/>
+						<img id="isochrone_add_sidebar" class="addwaypoint highlightHover active" role="button" onClick="isochroneCountAdd()" src="icons/add_circle_outline_black_24dp.svg" title="Új izokrónközéppont hozzáadása"/>
 					</div>-->
 					<div id="isochrone_centers" style="display: flex; justify-content: center; flex-direction: column; width: 100%; row-gap: 5px">
 						<div id="isochrone_center_0_div" style="display: flex; justify-content: center; flex-direction: row; align-items: center;">
 							<div style="width: 19px; font-size: 20px; margin-left: 5px;"><b>1</b></div>
-							<input type="form" id="isochrone_center_0" class="ABfield" onkeyup="if (event.keyCode==13) {this.blur(); isochroneCheck();}" oninput="" onfocusin="listenToABMapClick_ISO(this, 0)" onfocusout="stopListeningToABMapClick()" placeholder="Középpont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
-							<img id="isochrone_point_geoloc" style="cursor: pointer;" class="" role="button" onClick="geoLocate('iso');" src="icons/my_location_black_24dp.svg" title="Helymeghatározás">
+							<input type="form" id="isochrone_center_0" class="ABfield" onkeyup="if (event.keyCode==13) {this.blur(); isochroneCheck();}" oninput="" onfocusin="listenToABMapClick_ISO(this, 0)" onfocusout="stopListeningToABMapClick()" data-i18n="isochronePointInput" placeholder="Középpont" title="Adjon meg egy helyet, egy koordinátapárt szélesség, hosszúság sorrendben (pl. 47.4511, 19.4577) vagy kattintson ide, majd a térképre"/>
+							<img id="isochrone_point_geoloc" style="cursor: pointer;" class="highlightHover" role="button" onClick="geoLocate('iso');" src="icons/my_location_black_24dp.svg" data-i18n="geolocate" title="Helymeghatározás">
 						</div>
 					</div>
 					<div id="OK" style="display: flex; justify-content: center; flex-direction: column;">
@@ -1180,29 +1204,29 @@
 					</div>
 				</div>
 				<div id="isoch_params" style="display: grid;">
-					<div id="iheader1Param" class="headerwidegridbox" >
+					<div id="iheader1Param" class="headerwidegridbox" data-i18n="isochroneOptionsLabel">
 						Beállítások:
 					</div>
 					<div id="iparam1" class="paramgridbox" >
-						<label for="iso_type" id="iso_type_label">Módszer (idő/távolság):</label>
+						<label for="iso_type" id="iso_type_label" data-i18n="isochroneOptionMethodLabel">Módszer (idő/távolság):</label>
 					</div>
 					<div id="iparam2" class="paramgridbox" >
-						Izokrón
+						<span data-i18n="isochroneOptionMethodTime">Izokrón</span>
 						<label for="iso_type" class="switch">
 							<input name="iso_type" id="iso_type" type="checkbox" onchange="preference_isotype_value=( (this.checked) ? 'distance' : 'time'); refreshIsochronesOptions(); isochroneCheck()">
 							<span class="slider round"></span>
 						</label>
-						Izodisztans
+						<span data-i18n="isochroneOptionMethodDistance">Izodisztans</span>
 					</div>
 					<div id="iparam3" class="paramgridbox" >
-						<label for="intervals" id="intervals_label">Maximális idő:</label>
+						<label for="intervals" id="intervals_label" data-i18n="isochroneOptionMaxTimeLabel">Maximális idő:</label>
 					</div>
 					<div id="iparam4" class="paramgridbox" >
 						<span id="iso_rangenum">120</span><!--<div id="iso_rangeunit" style="margin-left: 3px;"></div>-->
 						<input type="range" id="maxrange" name="intervals" min="1" max="120" value="120" oninput="document.getElementById('iso_rangenum').innerHTML=this.value;" onchange="isochroneCheck()" class="preference" style="max-width: 100px;">
 					</div>
 					<div id="iparam5" class="paramgridbox" >
-						<label for="intervals">Izokrónok száma (db):</label>
+						<label for="intervals" data-i18n="isochroneOptionIsochCountLabel">Izokrónok száma (db):</label>
 					</div>
 					<div id="iparam6" class="paramgridbox" >
 						<span id="iso_num">4</span>
@@ -1219,21 +1243,26 @@
 				</div>
 				<div id="route_profile_wrapperdiv" style="display:flex; flex-direction: row; justify-content: space-between; align-items:center">
 					<div style="display: flex; align-items: center;">
-						<button id="isoch_export" onclick="isochroneExportGeojson()" style="margin-left: 10px; margin-top: 5px" title="Exportálás GeoJSON-ként" disabled>Export</button>
+						<div style="margin-left: 10px; margin-top: 5px;">
+							<span class="fi fi-gb" onclick="setLanguage('en')"></span>
+							<span class="fi fi-hu" onclick="setLanguage('hu')"></span>
+						</div>
+						<button id="isoch_export" onclick="isochroneExportGeojson()" style="margin-left: 10px; margin-top: 5px" title="Exportálás GeoJSON-ként" disabled data-i18n="exportButton">Export</button>
+						
 						<img id="loading_icon2" class="rotate_anim loading_hidden" src="icons/loop_black_24dp.svg"/>
 					</div>
 					<div class="route_profile_selector_2" style="display: flex; flex-direction: row;">
 						<div style="display: flex;">
 							<input checked="checked" id="car_iso" type="radio" name="profile_2" value="driving-car" />
-							<label class="route_profile car" for="car_iso" onClick="setProfile('driving-car'); isochroneCheck()" tabindex="0"></label>
+							<label class="route_profile car" for="car_iso" onClick="setProfile('driving-car'); isochroneCheck()" tabindex="0" data-i18n="profileCar" title="Autóval"></label>
 						</div>
 						<div style="display: flex;">
 							<input id="bike_iso" type="radio" name="profile_2" value="cycling-regular" />
-							<label class="route_profile bike" for="bike_iso" onClick="setProfile('cycling-regular'); isochroneCheck()" tabindex="0"></label>
+							<label class="route_profile bike" for="bike_iso" onClick="setProfile('cycling-regular'); isochroneCheck()" tabindex="0" data-i18n="profileBike" title="Biciklivel"></label>
 						</div>
 						<div style="display: flex;">
 							<input id="walk_iso" type="radio" name="profile_2" value="foot-walking" />
-							<label class="route_profile walk" for="walk_iso" onClick="setProfile('foot-walking'); isochroneCheck()" tabindex="0"></label>
+							<label class="route_profile walk" for="walk_iso" onClick="setProfile('foot-walking'); isochroneCheck()" tabindex="0" data-i18n="profileWalk" title="Gyalog"></label>
 						</div>
 					</div>
 				</div>
@@ -1243,7 +1272,7 @@
 				<div id="isoch_resultstable_div" style="display: flex">
 					<div class="wrap-collapsible3">
 						<input id="collapsible3" class="toggle_collapsible_checkbox3" type="checkbox">
-						<label for="collapsible3" class="label-toggle3" tabindex="0">Eredmények</label>
+						<label for="collapsible3" class="label-toggle3" tabindex="0" data-i18n="isochroneResultSectionHeader">Eredmények</label>
 						<div class="collapsible-content3">
 							<div class="content-inner3">
 								<table style="border-collapse: collapse; width: 100%;">
@@ -1254,13 +1283,13 @@
 									<thead class="itiner_tablazat_fejlec">
 										<tr class="itiner_tablazat_fejlecsor">
 											<th class="itiner_tablazat_cella">#</th>
-											<th class="itiner_tablazat_cella" colspan="2">Távolság</th>
+											<th class="itiner_tablazat_cella" colspan="2" data-i18n="isochroneResultSectionTableHeaderDistance">Távolság</th>
 										</tr>
 									</thead>
 									<tbody id="table_isochrones_body">
 										<!-- JS kezeli (torli/tolti be) a sorokat -->
 										<tr class="itiner_tablazat_sor">
-											<td class="itiner_tablazat_cella" style="text-align: center" colspan="3">Nincs eredmény</td>
+											<td class="itiner_tablazat_cella" style="text-align: center" colspan="3" data-i18n="isochroneResultSectionTableNoResults">Nincs eredmény</td>
 										</tr>
 									</tbody>
 								</table>
@@ -1360,6 +1389,8 @@
 				shadowAnchor: [12, 36]
 			});
 			
+			document.documentElement.lang = "en";
+
 			var elevmarker;
 			var y = []; 
 			var x = [];
@@ -1370,7 +1401,8 @@
 					data: {
 						labels: x,
 						datasets: [{
-							label: "Magasság (m)",
+							label: (document.documentElement.lang == "en" ? "Elevation (m)" : "Magasság (m)"),
+							//label: i18nString(document.documentElement.lang, "elevationProfileChartDatasetLabel"),
 							data: y,
 							backgroundColor: "rgba(67, 135, 232, 0.2)",
 							borderColor: "rgba(67, 135, 232, 1)",
@@ -1526,22 +1558,17 @@
 										}]
 									}).setView([47.19531,19.54467], 8);
 			var zoom = L.control.zoom({position: 'bottomright'}).addTo(map); 	// zoom gombok a jobb also sarokba
-			var scale = L.control.scale({	position: 'bottomleft',				// merteklec bal also sarokba
-											imperial: false}).addTo(map); 		// merteklec csak km
-			L.control.polylineMeasure({		position: 'bottomright',
+			var scale = L.control.scale({	
+				position: 'bottomleft',				// merteklec bal also sarokba
+				imperial: false
+			}).addTo(map); 		// merteklec csak km
+			
+			// options for polylineMeasure that are common (settings only, no lang-specific strings)
+			var polylineMeasure_commonOptions = {		
+											position: 'bottomright',
 											unit: 'kilometres',
 											useSubunits: true,
-											measureControlTitleOn: 'Távolságmérés',
-											measureControlTitleOff: 'Távolságmérés befejezése',
-											clearControlTitle: 'Mérések törlése',
 											showBearings: true,
-											bearingTextIn: 'Érkező',
-											bearingTextOut: 'Kimenő',
-											tooltipTextFinish: '<b>Vonal befejezése</b>: Klikk<br>',
-											tooltipTextDelete: '<b>Pont törlése:</b> SHIFT+klikk',
-											tooltipTextMove: '<b>Pont mozgatása:</b> "fogd-és-húzd"<br>',
-											tooltipTextResume: '<br><b>Vonal folytatása:</b> CTRL-klikk',
-											tooltipTextAdd: '<b>Pont hozzáadása:</b> CTRL-klikk',
 											showClearControl: true,
 											startCircle: {
 												fillColor: '#0f0',
@@ -1562,7 +1589,20 @@
 												fillColor: '#f00',
 												radius: 5
 											}
-										}).addTo(map);	// leaflet.polylinemeasure forrás (ppete2): https://github.com/ppete2/Leaflet.PolylineMeasure
+			}
+			var polylineMeasure_strings_hu = {
+											measureControlTitleOn: 'Távolságmérés',
+											measureControlTitleOff: 'Távolságmérés befejezése',
+											clearControlTitle: 'Mérések törlése',
+											bearingTextIn: 'Érkező',
+											bearingTextOut: 'Kimenő',
+											tooltipTextFinish: '<b>Vonal befejezése</b>: Klikk<br>',
+											tooltipTextDelete: '<b>Pont törlése:</b> SHIFT+klikk',
+											tooltipTextMove: '<b>Pont mozgatása:</b> "fogd-és-húzd"<br>',
+											tooltipTextResume: '<br><b>Vonal folytatása:</b> CTRL-klikk',
+											tooltipTextAdd: '<b>Pont hozzáadása:</b> CTRL-klikk',
+										}
+			var polylineMeasure = L.control.polylineMeasure(polylineMeasure_commonOptions).addTo(map);	// leaflet.polylinemeasure forrás (ppete2): https://github.com/ppete2/Leaflet.PolylineMeasure
 			
 			//layergroup
 			var lg=L.layerGroup().addTo(map);
@@ -2390,8 +2430,8 @@
 						//attribution
 						document.getElementById('sidebar_bottom').style.display = "flex";
 						r.metadata.attribution = r.metadata.attribution.slice(0, parseInt(r.metadata.attribution.indexOf('org')+3)) + " by HeiGIT" + r.metadata.attribution.slice(parseInt(r.metadata.attribution.indexOf('org')+3))
-						attribdiv.innerHTML = 'Útvonaltervezés:<br>'+r.metadata.attribution;
-						document.getElementById('ORS_timestamp').innerHTML ='Kérés ideje: '+unixTimestampSolver(r.metadata.timestamp/1000);
+						attribdiv.innerHTML = `<span data-i18n="attributionProcessRouteplanningLabel">${i18nString(document.documentElement.lang, 'attributionProcessRouteplanningLabel')}</span>:<br>`+r.metadata.attribution;
+						document.getElementById('ORS_timestamp').innerHTML =`<span data-i18n="attributionORSTimestamp">${i18nString(document.documentElement.lang, 'attributionORSTimestamp')}</span>: ${unixTimestampSolver(r.metadata.timestamp/1000)}`;
 						map.attributionControl.addAttribution(r.metadata.attribution);
 						if (window.screen.width <= 550) {
 							scale.getContainer().style.marginBottom = '22px';
@@ -2411,9 +2451,9 @@
 					body = '{"coordinates":[['+navipontok[0].valasz.geometry.coordinates[0]+','+navipontok[0].valasz.geometry.coordinates[1]+'],['+navipontok[1].valasz.geometry.coordinates[0]+','+navipontok[1].valasz.geometry.coordinates[1]+']],"options":{},"radiuses":-1,"language":"hu"}';
 				}*/
 				if (waypoint_count == 2) {
-					body = '{"coordinates":[['+navipontok[0].valasz.geometry.coordinates[0]+','+navipontok[0].valasz.geometry.coordinates[1]+'],['+navipontok[1].valasz.geometry.coordinates[0]+','+navipontok[1].valasz.geometry.coordinates[1]+']],"attributes":["avgspeed"],"language":"hu","options":'+JSON.stringify(directions_options)+',"preference":"'+preference.value+'","radiuses":-1,"roundabout_exits":"true"}'; //koordinatak utan kell majd:  ,"alternative_routes":{"target_count":'+parseInt(parseInt(alternative_routes)+1)+'}
+					body = '{"coordinates":[['+navipontok[0].valasz.geometry.coordinates[0]+','+navipontok[0].valasz.geometry.coordinates[1]+'],['+navipontok[1].valasz.geometry.coordinates[0]+','+navipontok[1].valasz.geometry.coordinates[1]+']],"attributes":["avgspeed"],"language":"'+document.documentElement.lang+'","options":'+JSON.stringify(directions_options)+',"preference":"'+preference.value+'","radiuses":-1,"roundabout_exits":"true"}'; //koordinatak utan kell majd:  ,"alternative_routes":{"target_count":'+parseInt(parseInt(alternative_routes)+1)+'}
 				} else {
-					body = '{"coordinates":[['+navipontok[0].valasz.geometry.coordinates[0]+','+navipontok[0].valasz.geometry.coordinates[1]+'],['+navipontok[1].valasz.geometry.coordinates[0]+','+navipontok[1].valasz.geometry.coordinates[1]+'],['+navipontok[2].valasz.geometry.coordinates[0]+','+navipontok[2].valasz.geometry.coordinates[1]+']],"attributes":["avgspeed"],"language":"hu","options":'+JSON.stringify(directions_options)+',"preference":"'+preference.value+'","radiuses":-1,"roundabout_exits":"true"}'; //koordinatak utan kell majd:  ,"alternative_routes":{"target_count":'+parseInt(parseInt(alternative_routes)+1)+'}
+					body = '{"coordinates":[['+navipontok[0].valasz.geometry.coordinates[0]+','+navipontok[0].valasz.geometry.coordinates[1]+'],['+navipontok[1].valasz.geometry.coordinates[0]+','+navipontok[1].valasz.geometry.coordinates[1]+'],['+navipontok[2].valasz.geometry.coordinates[0]+','+navipontok[2].valasz.geometry.coordinates[1]+']],"attributes":["avgspeed"],"language":"'+document.documentElement.lang+'","options":'+JSON.stringify(directions_options)+',"preference":"'+preference.value+'","radiuses":-1,"roundabout_exits":"true"}'; //koordinatak utan kell majd:  ,"alternative_routes":{"target_count":'+parseInt(parseInt(alternative_routes)+1)+'}
 				}
 				console.log('Request body:', body);
 				console.log('Using profile:', profile);
@@ -2552,7 +2592,7 @@
 						console.log('chart updated');
 						
 						document.getElementById('collapsible2').checked = true;						
-						attribdiv.innerHTML = 'Magassági adatok:<br>'+r.attribution;
+						attribdiv.innerHTML = `<span data-i18n="attributionProcessElevationdataLabel">${i18nString(document.documentElement.lang, 'attributionProcessElevationdataLabel')}</span>:<br>`+r.attribution;
 						map.attributionControl.addAttribution(r.attribution);
 						if (window.screen.width <= 550) {
 							scale.getContainer().style.marginBottom = '38px';
@@ -2812,12 +2852,14 @@
 							}
 							if (!preference_isotype.checked) {
 								// time
+								var label = i18nString(document.documentElement.lang, "isochronePolygonTooltipTimeLabel")
 								isopolygons[x] = L.polygon(nodes, {color: polygonColor(x), fillOpacity: 0.13}).addTo(lg)
-								.bindTooltip('Idő: '+timeFormatter(r.features[x].properties.value), {sticky: true}).bringToBack(); 
+								.bindTooltip(`${label}: ${timeFormatter(r.features[x].properties.value)}`, {sticky: true}).bringToBack(); 
 							} else if (preference_isotype.checked) {
 								// distance
+								var label = i18nString(document.documentElement.lang, "isochronePolygonTooltipDistanceLabel")
 								isopolygons[x] = L.polygon(nodes, {color: polygonColor(x), fillOpacity: 0.13}).addTo(lg)
-								.bindTooltip('Távolság: '+distanceFormatter(r.features[x].properties.value), {sticky: true}).bringToBack(); 
+								.bindTooltip(`${label}: ${distanceFormatter(r.features[x].properties.value)}`, {sticky: true}).bringToBack(); 
 							}
 							
 							lepes = x+1;
@@ -2848,8 +2890,8 @@
 						//attribution
 						document.getElementById('sidebar_bottom').style.display = "flex";
 						r.metadata.attribution = r.metadata.attribution.slice(0, parseInt(r.metadata.attribution.indexOf('org')+3)) + " by HeiGIT" + r.metadata.attribution.slice(parseInt(r.metadata.attribution.indexOf('org')+3))
-						attribdiv.innerHTML = 'Izokróngenerálás:<br>'+r.metadata.attribution;
-						document.getElementById('ORS_timestamp').innerHTML ='Kérés ideje: '+unixTimestampSolver(r.metadata.timestamp/1000);
+						attribdiv.innerHTML = `<span data-i18n="attributionProcessIsochronegenLabel">${i18nString(document.documentElement.lang, 'attributionProcessIsochronegenLabel')}</span>:<br>`+r.metadata.attribution;
+						document.getElementById('ORS_timestamp').innerHTML = `<span data-i18n="attributionORSTimestamp">${i18nString(document.documentElement.lang, 'attributionORSTimestamp')}</span>: ${unixTimestampSolver(r.metadata.timestamp/1000)}`;
 						map.attributionControl.removeAttribution('openrouteservice.org | OpenStreetMap contributors'); //navi attrib torles, ha van
 						map.attributionControl.removeAttribution('service by https://openrouteservice.org | data by http://srtm.csi.cgiar.org'); //elev attrib torles, ha van
 						map.attributionControl.addAttribution(r.metadata.attribution);
@@ -2937,12 +2979,12 @@
 					isoranges[i] = (maxrange/count)*(i+1);
 				}
 				if (preference_isotype_value == "time") {
-					document.getElementById('intervals_label').textContent = "Maximális idő:";
+					document.getElementById('intervals_label').textContent = i18nString(document.documentElement.lang, "isochroneOptionMaxTimeLabel");
 					//document.getElementById('iso_rangeunit').innerHTML = "s";
 					document.getElementById("maxrange").setAttribute("oninput","document.getElementById('iso_rangenum').innerHTML=timeFormatter(this.value);");
 					refreshIsochroneRangeLimits();
 				} else if (preference_isotype_value == "distance") {
-					document.getElementById('intervals_label').textContent = "Maximális táv:";
+					document.getElementById('intervals_label').textContent = i18nString(document.documentElement.lang, "isochroneOptionMaxDistanceLabel");
 					//document.getElementById('iso_rangeunit').innerHTML = "m";
 					document.getElementById("maxrange").setAttribute("oninput","document.getElementById('iso_rangenum').innerHTML=distanceFormatter(this.value);");
 					document.getElementById("maxrange").step = 100;
@@ -3209,29 +3251,29 @@
 				
 				if (t<=60) {
 					if (t==60) {
-						return m+' perc';
+						return m+' min';
 					} else {
-						return s+' mp';
+						return s+' s';
 					}
 				} else if (60<t && t<=3600) {
 					if (t==3600) {
-						return h+' óra';
+						return h+' h';
 					} else {
-						if (s==0) {return m+' perc';}
-						else if (m==0) {return h+' óra '+s+' mp';}
-						else if (h==0) {return m+' perc '+s+' mp';}
-						else {return h+' óra '+m+' perc '+s+' mp';}
+						if (s==0) {return m+' min';}
+						else if (m==0) {return h+' h '+s+' s';}
+						else if (h==0) {return m+' min '+s+' s';}
+						else {return h+' h '+m+' min '+s+' s';}
 					}
 				} else if (3600<t) {
 					if (s==0) {
 						if (m==0) {
-							return h+' óra ';
+							return h+' h ';
 						} else {
-							return h+' óra '+m+' perc';
+							return h+' h '+m+' min';
 						}
 					}
-					else if (m==0) {return h+' óra '+s+' mp';}
-					else {return h+' óra '+m+' perc '+s+' mp';}
+					else if (m==0) {return h+' h '+s+' s';}
+					else {return h+' h '+m+' min '+s+' s';}
 				}
 			}
 			
@@ -3607,6 +3649,76 @@
 				map.locate({enableHighAccuracy: true});
 				console.log('GEOLOCATION: Retrieving...');
 			}
+
+			// get one translation string
+			function i18nString(lang, key) {
+				return translations[lang][key]
+			}
+
+			// apply translation strings to the DOM objects, which have the "data-i18n" attribute set
+			function translatePage(lang) {
+				// HTML elements:
+				document.querySelectorAll('[data-i18n]').forEach(element => {
+					const key = element.getAttribute('data-i18n');	// retrieve translation key for element
+					// handle specific element types differently
+					if (element.nodeName && element.nodeName.toLowerCase() === 'input') { 
+						element.placeholder = translations[lang][key][0] || element.placeholder;
+						element.title = translations[lang][key][1] || element.title;
+					} else if (element.nodeName && element.nodeName.toLowerCase() === 'img') {
+						element.title = translations[lang][key] || element.title;
+					} else if (element.nodeName && element.nodeName.toLowerCase() === 'label') {
+						element.title = translations[lang][key] || element.title;
+						// next check is needed so that route profile type buttons dont have textContent shown (they are label elements)
+						if (!element.classList.contains("route_profile")) {
+							element.textContent = translations[lang][key] || element.textContent;
+						}
+						// next check is needed cause the isochrone type (time/distance) value changes the option label too
+						if (element.id == "intervals_label") {
+							if (preference_isotype_value == "time") {
+								element.textContent = i18nString(lang, "isochroneOptionMaxTimeLabel");
+							} else {
+								element.textContent = i18nString(lang, "isochroneOptionMaxDistanceLabel");
+							}
+							
+						}
+					} else {
+						element.textContent = translations[lang][key] || element.textContent;
+					}
+				});
+
+				// Chart.js parts:
+				elevChart.data.datasets[0].label = i18nString(lang, "elevationProfileChartDatasetLabel");
+				elevChart.update();
+
+				// L.controls
+				if (lang == 'hu') {
+					// re-add L.polylineMeasure with hu labels
+					polylineMeasure.remove()
+					polylineMeasure = L.control.polylineMeasure(Object.assign(polylineMeasure_strings_hu, polylineMeasure_commonOptions)).addTo(map);
+				} else {
+					polylineMeasure.remove()
+					polylineMeasure = L.control.polylineMeasure(polylineMeasure_commonOptions).addTo(map);
+				}
+
+			}
+
+			// main function for triggering language switch
+			function setLanguage(locale) {
+				// if there is a found route displayed in the app, warn user that the itinerary might not update after changing language
+				if (currentpolyline_steps.length > 0) {
+					if (locale == "hu") {
+						showMsgBox('Nyelv: magyar. Egyes elemek nyelve nem frissül (pl. itinerinstrukciók), így javasolt az útvonal újbóli lekérése.', 'warning');
+					} else {
+						showMsgBox('Language: English. The language of some page elements do not update (e.g. itinerary) - retrieving the route again is recommended.', 'warning');
+					}
+				}
+				translatePage(locale);
+				document.documentElement.lang = locale;
+				console.log(`Language set to: ${locale}`)
+			}
+
+			// set English as default language
+			setLanguage("en");
 		</script>
 	</body>
 </html>
